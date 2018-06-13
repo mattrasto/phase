@@ -95,7 +95,7 @@ window.eusocial = (function () {
         			.scaleExtent([.1, 10])
         			.on("zoom", this._container_zoom.bind(this))
                 )
-        		.on("dblclick.zoom", null); // Don't zoom on double left click
+        		.on("dblclick.zoom", null);  // Don't zoom on double left click
 
             this._container.appendChild(this._svg.node());
 
@@ -120,28 +120,7 @@ window.eusocial = (function () {
     				.attr("stroke-width", 1.5)
     				// .attr("stroke-dasharray", link_style);
 
-    		// Appends nodes to container
-    		// this._node = this._g.append("g")
-            //     .attr("class", "node")
-            //     .selectAll("circle")
-    		// 	// Filters out hidden nodes and nodes without a description
-    		// 	.data(this._data.nodes)
-            //     .enter().append("circle")
-            //       .attr("r", 4)
-            //       .attr("cx", function(d) { return d.x; })
-            //       .attr("cy", function(d) { return d.y; })
-    		// 	.on("mouseover", this._node_mouseover.bind(this))
-    		// 	.on("mouseout", this._node_mouseout)
-    		// 	.on("mousedown", this._node_mousedown)
-    		// 	.on("click", this.node_click)
-    		// 	.on("dblclick", this._node_dblclick)
-    		// 	.on("contextmenu", this._node_contextmenu)
-    		// 	.call(d3.drag()
-    		// 		.on("start", this._node_drag_start.bind(this))
-    		// 		.on("drag", this._node_drag.bind(this))
-    		// 		.on("end", this._node_drag_end.bind(this)));
-
-            // Appends nodes to container
+            // Appends node containers to container
     		this._node_container = this._g.append("g")
     			.attr("class", "nodes")
     			.selectAll("g")
@@ -161,13 +140,21 @@ window.eusocial = (function () {
         				.on("end", this._node_drag_end.bind(this))
                     );
 
-    		// Add node circles
+    		// Add circles to node containers
     		this._node_container
     			.append("circle")
     				.attr("r", this._node_size)
     				.attr("fill", this._node_color)
     				.attr("stroke", this._node_border_color)
     				.attr("stroke-width", this._node_border_width);
+
+            // Add node labels
+    		this._node_container
+    			.append("text")
+    				.attr("dx", 12)
+    				.attr("dy", ".35em")
+    				.style("color", "#333")
+    				.text(function(d) { return d.id });
 
             // Initializes simulation
     		this._simulation
