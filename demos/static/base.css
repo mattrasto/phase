@@ -13,12 +13,6 @@
 	src: url(Fabrica.otf);
 }
 
-/* Not in usage */
-/*@font-face {
-	font-family: Simplifica;
-	src: url(Simplifica.ttf);
-}*/
-
 html {
 	margin: 0;
 	padding: 0;
@@ -58,24 +52,6 @@ pre {
 
 ::-webkit-scrollbar-thumb:active {
 	background-color: #699EFF;
-}
-
-#header {
-	margin-top: 0;
-	height: 50px;
-	line-height: 50px;
-	width: 100%;
-	box-shadow: 0px 0px 5px #000;
-	background-color: rgba(0, 0, 0, .7);
-	text-align: center;
-}
-
-#header > a {
-	display: inline-block;
-	color: #AAA;
-	width: 100px;
-	font-family: "Infinity", Arial, sans-serif;
-	font-weight: bold;
 }
 
 p {
@@ -118,29 +94,4 @@ li {
 
 input:-webkit-autofill {
 	-webkit-box-shadow: 0 0 0 1000px #F7F6F2 inset;
-}
-
-#container {
-	width: 80%;
-	height: auto;
-	padding-bottom: 50px;
-	margin-left: 10%;
-	margin-right: 10%;
-}
-
-@media (max-width: 1200px) {
-
-	#header {
-		font-size: 20px;
-	}
-
-	#container {
-		width: 90%;
-		margin-left: 5%;
-		margin-right: 5%;
-	}
-
-	.listingdivvalue {
-		font-size: 1.4vw !important;
-	}
 }
