@@ -1,18 +1,3 @@
-@font-face {
-	font-family: Infinity;
-	src: url(Infinity.ttf);
-}
-
-@font-face {
-	font-family: Fabrica;
-	src: url(Fabrica.otf);
-}
-
-@font-face {
-	font-family: Raleway;
-	src: url(Fabrica.otf);
-}
-
 html {
 	margin: 0;
 	padding: 0;
