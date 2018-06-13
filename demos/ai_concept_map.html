@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title>AI Concept Map</title>
+
+	<link rel="shortcut icon" type="image/png" href="static/favicon.jpg">
+	<link rel="stylesheet" type="text/css" href="static/ai_concept_map.css">
+	<link rel="stylesheet" type="text/css" href="static/base.css">
+	<link rel="stylesheet" type="text/css" href="static/jquery-ui.css">
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/evil-icons/1.9.0/evil-icons.min.css">
+	
+	<script src="static/jquery-1.12.0.min.js"></script>
+	<script src="static/jquery-ui.min.js"></script>
+	<script src="static/jquery.color.js"></script>
+	<script src="static/snap.svg-min.js"></script>
+	<script src="static/d3.v4.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/evil-icons/1.9.0/evil-icons.min.js"></script>
+	<script src="static/ai_concept_map.js"></script>
+</head>
+
+<body>
+
+
+
+<div id="viz-container">
+	<div id="toggle-settings" onClick="toggle_settings()">
+		<div data-icon="ei-gear" data-size="m"></div>
+	</div>
+	<div id="settings-menu">
+		<ul>
+			<li><span id="center-root">Center Root</span><div class="fake-checkbox" id="center-root-input" onclick="api_center_root()"></div></li>
+			<!-- <li><span id="color-mode" onClick="update_color_mode()">Color Mode</span><input type="checkbox"></li> -->
+			<li><span class="disabled" id="link-strength" onClick="update_link_strength()">Link Strength</span><input type="number" disabled></li>
+			<li><span class="disabled" id="link-distance" onClick="update_link_distance()">Link Distance</span><input type="number" disabled></li>
+			<li><span class="disabled" id="friction" onClick="update_friction()">Friction</span><input type="number" disabled></li>
+			<li><span class="disabled" id="charge" onClick="update_charge()">Charge</span><input type="number" disabled></li>
+		</ul>
+	</div>
+</div>
+<div id="sidebar">
+	<h1 id="concept-name">AI Concept Map</h1>
+	<div class="concept-section">
+		<p id="concept-description">This map is an attempt to form a comprehensive overview of the current machine learning space. There are many related
+			concepts in machine learning, and this visualization aims to inform beginners and experts alike on these connections.
+			It starts from the "most general" fields of machine learning and dives as far down as specific algorithms to accomplish
+			a particular goal.
+		</p>
+	</div>
+	<div class="concept-section hidden" id="concept-when">
+		<h2>When to Use</h2>
+		<p id="concept-when-description"></p>
+		<ul id="concept-when-list"></ul>
+	</div>
+	<div class="concept-section" id="concept-how">
+		<h2>How to Use</h2>
+		<p id="concept-how-description"></p>
+		<ol id="concept-how-list">
+			<li>Click a node to read about that concept and see what it's related to</li>
+			<li>Double-click a node to expand or collapse its relations</li>
+			<li>Click and drag a node around to pin it</li>
+			<li>Middle click to unpin a node</li>
+		</ol>
+	</div>
+	<div class="concept-section hidden" id="concept-tools">
+		<h2>Tools / Libraries</h2>
+		<p id="concept-tools-description"></p>
+		<dl id="concept-tools-list"></dl>
+	</div>
+	<div class="concept-section hidden" id="concept-links">
+		<h2>Dig Deeper</h2>
+		<p id="concept-links-description"></p>
+		<dl id="concept-links-list"></dl>
+	</div>
+</div>
+
+	<div id="container">
+
+
+	</div>
+
+
+</body>
+</html>
