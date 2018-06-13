@@ -39,21 +39,19 @@ window.eusocial = (function () {
             }
             // Performing update
             else {
-                console.log("Updating data");
+                console.warn("NOT IMPLEMENTED: Updating data");
             }
             console.log("Bound data to viz")
         }
 
         // Render viz element in container
         render(query) {
-            let c;
             if (typeof selector === "string") {
-                c = document.querySelectorAll(query);
+                this._container = document.querySelectorAll(query);
             }
             else {
-                c = query;
+                this._container = query;
             }
-            this._container = c;
 
             this._container_width = this._container.getBoundingClientRect().width;
         	this._container_height = this._container.getBoundingClientRect().height;
@@ -68,11 +66,11 @@ window.eusocial = (function () {
         		// .on("contextmenu", container_contextmenu)
         		.call(d3.zoom()
         			.scaleExtent([.1, 10])
-        			// .on("zoom", container_zoom))
+        			.on("zoom", this.container_zoom.bind(this))
                 )
         		.on("dblclick.zoom", null); // Don't zoom on double left click
 
-            c.appendChild(this._svg.node());
+            this._container.appendChild(this._svg.node());
 
             // Creates actual force graph container (this is what actually gets resized as needed)
             this._g = this._svg.append("g");
@@ -123,9 +121,10 @@ window.eusocial = (function () {
     			.force("link")
     				.links(this._data.links);
 
-            console.log("Rendering on " + c.id)
+            console.log("Rendering on " + this._container.id)
         }
 
+        // Recalculates node and link positions every simulation tick
         ticked(node, link) {
             link
                 .attr("x1", function(d) { return d.source.x; })
@@ -137,6 +136,39 @@ window.eusocial = (function () {
                 .attr("cx", function(d) { return d.x; })
                 .attr("cy", function(d) { return d.y; });
         }
+
+        // Container drag start handler
+    	container_drag_start(d) {
+    		// TODO: Why doesn't this prevent the simulation from being restarted when user tries to drag a centered root?
+    		// NOTE: Maybe it's part of .call(d3.drag()...)?
+    		if (CENTER_ROOT && d.id == ROOT_ID) return;
+    		if (!d3.event.active) simulation.alphaTarget(0.3).restart();
+    		d.fx = d.x;
+    		d.fy = d.y;
+    		// Fixes node in place
+    		d3.select(this).classed("fixed", d.fixed = true);
+    	}
+
+    	// Container drag handler
+    	container_drag(d) {
+    		d.fx = d3.event.x;
+    		d.fy = d3.event.y;
+    	}
+
+    	// Container dragend handler
+    	container_drag_end(d) {
+    		if (!d3.event.active) simulation.alphaTarget(0);
+    	}
+
+    	// Container right click handler (outside nodes)
+    	container_contextmenu(d) {
+    		d3.event.preventDefault(); // Prevent context menu from appearing
+    	}
+
+    	// Container zoom handler
+    	container_zoom() {
+    		this._g.node().setAttribute("transform", d3.event.transform);
+    	}
     }
 
     var eusocial = {
