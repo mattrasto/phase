@@ -109,10 +109,10 @@ window.eusocial = (function () {
     			// .on("click", node_click)
     			// .on("dblclick", node_dblclick)
     			// .on("contextmenu", node_contextmenu)
-    			// .call(d3.drag()
-    			// 	.on("start", container_drag_start)
-    			// 	.on("drag", container_drag)
-    			// 	.on("end", container_drag_end));
+    			.call(d3.drag()
+    				.on("start", this.container_drag_start.bind(this))
+    				.on("drag", this.container_drag.bind(this))
+    				.on("end", this.container_drag_end.bind(this)));
 
             // Initializes simulation
     		this._simulation
@@ -139,14 +139,14 @@ window.eusocial = (function () {
 
         // Container drag start handler
     	container_drag_start(d) {
-    		// TODO: Why doesn't this prevent the simulation from being restarted when user tries to drag a centered root?
-    		// NOTE: Maybe it's part of .call(d3.drag()...)?
-    		if (CENTER_ROOT && d.id == ROOT_ID) return;
-    		if (!d3.event.active) simulation.alphaTarget(0.3).restart();
+    		if (!d3.event.active) this._simulation.alphaTarget(0.3).restart();
     		d.fx = d.x;
     		d.fy = d.y;
     		// Fixes node in place
-    		d3.select(this).classed("fixed", d.fixed = true);
+            // console.log(d);
+            // console.log(d3.select(d));
+            // NOTE: This probably works, but d3.select(d) needs to represent a <g> element, not data (container?)
+    		// d3.select(d).classed("fixed", d.fixed = true);
     	}
 
     	// Container drag handler
@@ -157,7 +157,7 @@ window.eusocial = (function () {
 
     	// Container dragend handler
     	container_drag_end(d) {
-    		if (!d3.event.active) simulation.alphaTarget(0);
+    		if (!d3.event.active) this._simulation.alphaTarget(0);
     	}
 
     	// Container right click handler (outside nodes)
