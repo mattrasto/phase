@@ -103,12 +103,12 @@ window.eusocial = (function () {
                   .attr("r", 4)
                   .attr("cx", function(d) { return d.x; })
                   .attr("cy", function(d) { return d.y; })
-    			// .on("mouseover", node_mouseover)
-    			// .on("mouseout", node_mouseout)
-    			// .on("mousedown", node_mousedown)
-    			// .on("click", node_click)
-    			// .on("dblclick", node_dblclick)
-    			// .on("contextmenu", node_contextmenu)
+    			.on("mouseover", this.node_mouseover.bind(this))
+    			.on("mouseout", this.node_mouseout)
+    			.on("mousedown", this.node_mousedown)
+    			.on("click", this.node_click)
+    			.on("dblclick", this.node_dblclick)
+    			.on("contextmenu", this.node_contextmenu)
     			.call(d3.drag()
     				.on("start", this.container_drag_start.bind(this))
     				.on("drag", this.container_drag.bind(this))
@@ -136,6 +136,46 @@ window.eusocial = (function () {
                 .attr("cx", function(d) { return d.x; })
                 .attr("cy", function(d) { return d.y; });
         }
+
+        // Node mouseover handler
+    	node_mouseover(d) {
+    		console.log("Mouseover");
+            // console.log(this);
+            // console.log(d);
+    	}
+
+    	// Node mouseout handler
+    	node_mouseout(d) {
+    		console.log("Mouseout");
+    	}
+
+    	// Node mousedown handler
+    	node_mousedown(d) {
+    		console.log("Mousedown");
+            // console.log(this);
+            // console.log(d);
+    	}
+
+    	// Node left click handler
+    	node_click(d) {
+    		if (d3.event.defaultPrevented) return;
+    		d3.event.preventDefault();
+    	}
+
+    	// Node double left click handler
+    	node_dblclick(d) {
+    		console.log("Double click");
+    	}
+
+        // Node right click handler
+    	node_contextmenu(d) {
+    		// Unpin node
+    		d3.select(this).classed("fixed", d.fixed = false);
+    		// HACK: Why doesn't just adding d.fixed = false work?
+    		d.fx = null;
+    		d.fy = null;
+    		simulation.alpha(.3).restart();
+    	}
 
         // Container drag start handler
     	container_drag_start(d) {
