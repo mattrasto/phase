@@ -121,30 +121,58 @@ window.eusocial = (function () {
     				// .attr("stroke-dasharray", link_style);
 
     		// Appends nodes to container
-    		this._node = this._g.append("g")
-                .attr("class", "node")
-                .selectAll("circle")
+    		// this._node = this._g.append("g")
+            //     .attr("class", "node")
+            //     .selectAll("circle")
+    		// 	// Filters out hidden nodes and nodes without a description
+    		// 	.data(this._data.nodes)
+            //     .enter().append("circle")
+            //       .attr("r", 4)
+            //       .attr("cx", function(d) { return d.x; })
+            //       .attr("cy", function(d) { return d.y; })
+    		// 	.on("mouseover", this._node_mouseover.bind(this))
+    		// 	.on("mouseout", this._node_mouseout)
+    		// 	.on("mousedown", this._node_mousedown)
+    		// 	.on("click", this.node_click)
+    		// 	.on("dblclick", this._node_dblclick)
+    		// 	.on("contextmenu", this._node_contextmenu)
+    		// 	.call(d3.drag()
+    		// 		.on("start", this._node_drag_start.bind(this))
+    		// 		.on("drag", this._node_drag.bind(this))
+    		// 		.on("end", this._node_drag_end.bind(this)));
+
+            // Appends nodes to container
+    		this._node_container = this._g.append("g")
+    			.attr("class", "nodes")
+    			.selectAll("g")
     			// Filters out hidden nodes and nodes without a description
     			.data(this._data.nodes)
-                .enter().append("circle")
-                  .attr("r", 4)
-                  .attr("cx", function(d) { return d.x; })
-                  .attr("cy", function(d) { return d.y; })
-    			.on("mouseover", this._node_mouseover.bind(this))
-    			.on("mouseout", this._node_mouseout)
-    			.on("mousedown", this._node_mousedown)
-    			.on("click", this.node_click)
-    			.on("dblclick", this._node_dblclick)
-    			.on("contextmenu", this._node_contextmenu)
-    			.call(d3.drag()
-    				.on("start", this._node_drag_start.bind(this))
-    				.on("drag", this._node_drag.bind(this))
-    				.on("end", this._node_drag_end.bind(this)));
+    			  .enter().append("g")
+    			    .attr("class", "node")
+                	.on("mouseover", this._node_mouseover.bind(this))
+        			.on("mouseout", this._node_mouseout)
+        			.on("mousedown", this._node_mousedown)
+        			.on("click", this.node_click)
+        			.on("dblclick", this._node_dblclick)
+        			.on("contextmenu", this._node_contextmenu)
+        			.call(d3.drag()
+        				.on("start", this._node_drag_start.bind(this))
+        				.on("drag", this._node_drag.bind(this))
+        				.on("end", this._node_drag_end.bind(this))
+                    );
+
+    		// Add node circles
+    		this._node_container
+    			.append("circle")
+    				.attr("r", this._node_size)
+    				.attr("fill", this._node_color)
+    				.attr("stroke", this._node_border_color)
+    				.attr("stroke-width", this._node_border_width);
 
             // Initializes simulation
     		this._simulation
     			.nodes(this._data.nodes)
-    			.on("tick", () => this._ticked(this._node, this._link))
+    			.on("tick", () => this._ticked(this._node_container, this._link))
     			.force("link")
     				.links(this._data.links);
 
@@ -152,16 +180,20 @@ window.eusocial = (function () {
         }
 
         // Recalculates node and link positions every simulation tick
-        _ticked(node, link) {
+        _ticked(node_container, link) {
+
+            node_container
+                .attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
+
             link
                 .attr("x1", function(d) { return d.source.x; })
                 .attr("y1", function(d) { return d.source.y; })
                 .attr("x2", function(d) { return d.target.x; })
                 .attr("y2", function(d) { return d.target.y; });
 
-            node
-                .attr("cx", function(d) { return d.x; })
-                .attr("cy", function(d) { return d.y; });
+            // node
+            //     .attr("cx", function(d) { return d.x; })
+            //     .attr("cy", function(d) { return d.y; });
         }
 
 
@@ -172,14 +204,15 @@ window.eusocial = (function () {
 
     	// Sizes nodes
     	_node_size(d) {
-    		return (1 / (d.distance + 1)) * SIZE_DISTANCE_MULTIPLIER + (original_link_map[d.id].length - 1) * SIZE_CONNECTIONS_MULTIPLIER + SIZE_BASE;
+            return 10;
+    		// return (1 / (d.distance + 1)) * this._SIZE_DISTANCE_MULTIPLIER + (original_link_map[d.id].length - 1) * SIZE_CONNECTIONS_MULTIPLIER + SIZE_BASE;
     	}
 
     	// Color nodes depending on COLOR_MODE
     	_node_color(d) {
-    		if (COLOR_MODE == "DISTANCE") {
+    		if (this._COLOR_MODE == "DISTANCE") {
     			if (d.distance == undefined) return "#333";
-    			return COLOR_KEY_DISTANCE[d.distance % COLOR_KEY_DISTANCE.length];
+    			return this._COLOR_KEY_DISTANCE[d.distance % this._COLOR_KEY_DISTANCE.length];
     		}
     		// Default scheme: all dark grey
     		return "#333";
@@ -188,20 +221,20 @@ window.eusocial = (function () {
     	// Colors node borders depending on if they are leaf nodes or not
         _node_border_color(d) {
     		// Only one link means it is the target
-    		if (original_link_map[d.id].filter(function(link) { return link.type == "derivative"; }).length == 1 && d.id != ROOT_ID) return "#333";
+    		// if (original_link_map[d.id].filter(function(link) { return link.type == "derivative"; }).length == 1 && d.id != ROOT_ID) return "#333";
     		return "#F7F6F2";
     	}
 
     	// Draws node borders depending on if they are leaf nodes or not
     	_node_border_width(d) {
     		// Only one link means it is the target
-    		if (original_link_map[d.id].length == 1 && d.id != ROOT_ID) return "1.6px";
+    		// if (original_link_map[d.id].length == 1 && d.id != this._ROOT_ID) return "1.6px";
     		return ".8px";
     	}
 
     	// Draws links as dash arrays based on their type
     	_link_style(d) {
-    		return LINK_STYLE[d.type];
+    		return this._LINK_STYLE[d.type];
     	}
 
 
@@ -247,6 +280,7 @@ window.eusocial = (function () {
     		// HACK: Why doesn't just adding d.fixed = false work?
     		d.fx = null;
     		d.fy = null;
+            // TODO: Bind "this"
     		this._simulation.alpha(.3).restart();
     	}
 
