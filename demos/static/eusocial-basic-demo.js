@@ -4,7 +4,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
     // Attach some data
     viz.data(_graph_data)
     // Render the network visualization
-    viz.render(document.getElementById('#viz-container'));
+    viz.render(document.getElementById('viz-container'));
 
     console.log("Visualization Loaded");
 });
