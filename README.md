@@ -1,6 +1,6 @@
 # Eusocial
 
-Eusocial is a graph visualization network built on top of D3 to allow quicker and more adaptive graph application development.
+Eusocial is a graph visualization network built on top of D3 to allow quicker and more interactive network prototyping.
 
 ## Usage
 

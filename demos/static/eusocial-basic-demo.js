@@ -1,7 +1,7 @@
 document.addEventListener("DOMContentLoaded", function(event) {
     // Initialize network object
     viz = eusocial.Network()
-    // Attach some data
+    // Attach some initial data
     viz.data(_graph_data)
     // Render the network visualization
     viz.render(document.getElementById('viz-container'));
