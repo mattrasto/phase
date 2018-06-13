@@ -17,7 +17,8 @@ window.eusocial = (function () {
             this._container_height = 0;
 
 
-            // SETTINGS
+
+            // SETTINGS (user-accessible)
 
             // Strength of links (how easily they can be compressed) between nodes [0, INF]
         	this._LINK_STRENGTH = 1;
@@ -66,7 +67,7 @@ window.eusocial = (function () {
         		// .on("contextmenu", container_contextmenu)
         		.call(d3.zoom()
         			.scaleExtent([.1, 10])
-        			.on("zoom", this.container_zoom.bind(this))
+        			.on("zoom", this._container_zoom.bind(this))
                 )
         		.on("dblclick.zoom", null); // Don't zoom on double left click
 
@@ -103,21 +104,21 @@ window.eusocial = (function () {
                   .attr("r", 4)
                   .attr("cx", function(d) { return d.x; })
                   .attr("cy", function(d) { return d.y; })
-    			.on("mouseover", this.node_mouseover.bind(this))
-    			.on("mouseout", this.node_mouseout)
-    			.on("mousedown", this.node_mousedown)
+    			.on("mouseover", this._node_mouseover.bind(this))
+    			.on("mouseout", this._node_mouseout)
+    			.on("mousedown", this._node_mousedown)
     			.on("click", this.node_click)
-    			.on("dblclick", this.node_dblclick)
-    			.on("contextmenu", this.node_contextmenu)
+    			.on("dblclick", this._node_dblclick)
+    			.on("contextmenu", this._node_contextmenu)
     			.call(d3.drag()
-    				.on("start", this.container_drag_start.bind(this))
-    				.on("drag", this.container_drag.bind(this))
-    				.on("end", this.container_drag_end.bind(this)));
+    				.on("start", this._node_drag_start.bind(this))
+    				.on("drag", this._node_drag.bind(this))
+    				.on("end", this._node_drag_end.bind(this)));
 
             // Initializes simulation
     		this._simulation
     			.nodes(this._data.nodes)
-    			.on("tick", () => this.ticked(this._node, this._link))
+    			.on("tick", () => this._ticked(this._node, this._link))
     			.force("link")
     				.links(this._data.links);
 
@@ -125,7 +126,7 @@ window.eusocial = (function () {
         }
 
         // Recalculates node and link positions every simulation tick
-        ticked(node, link) {
+        _ticked(node, link) {
             link
                 .attr("x1", function(d) { return d.source.x; })
                 .attr("y1", function(d) { return d.source.y; })
@@ -137,48 +138,54 @@ window.eusocial = (function () {
                 .attr("cy", function(d) { return d.y; });
         }
 
+
+
+        // EVENT HANDLERS
+
+
+
         // Node mouseover handler
-    	node_mouseover(d) {
+    	_node_mouseover(d) {
     		console.log("Mouseover");
             // console.log(this);
             // console.log(d);
     	}
 
     	// Node mouseout handler
-    	node_mouseout(d) {
+    	_node_mouseout(d) {
     		console.log("Mouseout");
     	}
 
     	// Node mousedown handler
-    	node_mousedown(d) {
+    	_node_mousedown(d) {
     		console.log("Mousedown");
             // console.log(this);
             // console.log(d);
     	}
 
     	// Node left click handler
-    	node_click(d) {
+    	_node_click(d) {
     		if (d3.event.defaultPrevented) return;
     		d3.event.preventDefault();
     	}
 
     	// Node double left click handler
-    	node_dblclick(d) {
+    	_node_dblclick(d) {
     		console.log("Double click");
     	}
 
         // Node right click handler
-    	node_contextmenu(d) {
+    	_node_contextmenu(d) {
     		// Unpin node
     		d3.select(this).classed("fixed", d.fixed = false);
     		// HACK: Why doesn't just adding d.fixed = false work?
     		d.fx = null;
     		d.fy = null;
-    		simulation.alpha(.3).restart();
+    		this._simulation.alpha(.3).restart();
     	}
 
         // Container drag start handler
-    	container_drag_start(d) {
+    	_node_drag_start(d) {
     		if (!d3.event.active) this._simulation.alphaTarget(0.3).restart();
     		d.fx = d.x;
     		d.fy = d.y;
@@ -190,23 +197,23 @@ window.eusocial = (function () {
     	}
 
     	// Container drag handler
-    	container_drag(d) {
+    	_node_drag(d) {
     		d.fx = d3.event.x;
     		d.fy = d3.event.y;
     	}
 
     	// Container dragend handler
-    	container_drag_end(d) {
+    	_node_drag_end(d) {
     		if (!d3.event.active) this._simulation.alphaTarget(0);
     	}
 
     	// Container right click handler (outside nodes)
-    	container_contextmenu(d) {
+    	_container_contextmenu(d) {
     		d3.event.preventDefault(); // Prevent context menu from appearing
     	}
 
     	// Container zoom handler
-    	container_zoom() {
+    	_container_zoom() {
     		this._g.node().setAttribute("transform", d3.event.transform);
     	}
     }
