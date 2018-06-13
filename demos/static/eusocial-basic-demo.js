@@ -1,10 +1,10 @@
-$(document).ready(function() {
-
-    viz = EusocialGraph()
-
-    viz.data(graph_data)
-
-    viz.render(window.getElementById('viz-container'));
+document.addEventListener("DOMContentLoaded", function(event) {
+    // Initialize network object
+    viz = eusocial.Network()
+    // Attach some data
+    viz.data(_graph_data)
+    // Render the network visualization
+    viz.render(document.getElementById('#viz-container'));
 
     console.log("Visualization Loaded");
 });
@@ -13,7 +13,7 @@ $(document).ready(function() {
 
 
 
-_graph_data = {
+const _graph_data = {
     "links": [
     {"source": "machine_learning", "target": "supervised_learning", "type": "derivative"},
     {"source": "machine_learning", "target": "reinforcement_learning", "type": "derivative"},
