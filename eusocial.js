@@ -28,6 +28,32 @@ window.eusocial = (function () {
         	this._CHARGE = -800;
         	// How easily particles are dragged across the screen [0, 1]
         	this._FRICTION = .8;
+            // Node coloring scheme. Possible values:
+        	// "DISTANCE": Color nodes ordinally based on their "distance" attribute using the COLOR_KEY_DISTANCE map
+        	this._COLOR_MODE = "DISTANCE";
+        	// Colors assigned to each distance when COLOR_MODE = "DISTANCE"
+        	this._COLOR_KEY_DISTANCE = ["#63D467", "#63B2D4", "#AE63D4", "#D46363", "#ED9A55", "#E5EB7A"];
+        	// Determines the style of links based on their "type" attribute
+        	// Values should be an even-length array for alternating black / white segments in px
+        	this._LINK_STYLE = {"derivative": "", "related": "10,8"}
+        	// Method by which the distance from root is calculated. Possible values:
+        	// "SOURCE": Calculate by traversing source relationships
+        	// "SHORTEST": Calculate by using Dijkstra's algorithm to find graph-wide shortest distance
+        	this._DISTANCE_MODE = "SOURCE";
+        	// Base node size
+        	this._SIZE_BASE = 10;
+        	// Factor by which to multiply the inverse distance from root in calculating node size
+        	this._SIZE_DISTANCE_MULTIPLIER = 25;
+        	// Factor by which to multiply number of connections in calculating node size
+        	this._SIZE_CONNECTIONS_MULTIPLIER = 1.5;
+        	// Opacity that a node fades to on node hover
+        	this._NODE_FADE_OPACITY = .4;
+        	// Opacity that a link fades to on node hover
+        	this._LINK_FADE_OPACITY = .1;
+        	// Whether to hide nodes with no description
+        	this._HIDE_EMPTY_NODES = false;
+        	// If true, nodes will be collapsed when they are hidden (via the collapsing of a parent node)
+        	this._COLLAPSE_HIDDEN = false;
 
             console.log("Network constructed");
         }
@@ -64,7 +90,7 @@ window.eusocial = (function () {
         		.attr("height", "100%")
         		.attr("viewBox","0 0 " + Math.min(this._container_width, this._container_height) + " " + Math.min(this._container_width, this._container_height))
         		.attr("preserveAspectRatio", "xMinYMin")
-        		// .on("contextmenu", container_contextmenu)
+        		.on("contextmenu", this._container_contextmenu)
         		.call(d3.zoom()
         			.scaleExtent([.1, 10])
         			.on("zoom", this._container_zoom.bind(this))
@@ -137,6 +163,46 @@ window.eusocial = (function () {
                 .attr("cx", function(d) { return d.x; })
                 .attr("cy", function(d) { return d.y; });
         }
+
+
+
+        // STYLES
+
+
+
+    	// Sizes nodes
+    	_node_size(d) {
+    		return (1 / (d.distance + 1)) * SIZE_DISTANCE_MULTIPLIER + (original_link_map[d.id].length - 1) * SIZE_CONNECTIONS_MULTIPLIER + SIZE_BASE;
+    	}
+
+    	// Color nodes depending on COLOR_MODE
+    	_node_color(d) {
+    		if (COLOR_MODE == "DISTANCE") {
+    			if (d.distance == undefined) return "#333";
+    			return COLOR_KEY_DISTANCE[d.distance % COLOR_KEY_DISTANCE.length];
+    		}
+    		// Default scheme: all dark grey
+    		return "#333";
+    	}
+
+    	// Colors node borders depending on if they are leaf nodes or not
+        _node_border_color(d) {
+    		// Only one link means it is the target
+    		if (original_link_map[d.id].filter(function(link) { return link.type == "derivative"; }).length == 1 && d.id != ROOT_ID) return "#333";
+    		return "#F7F6F2";
+    	}
+
+    	// Draws node borders depending on if they are leaf nodes or not
+    	_node_border_width(d) {
+    		// Only one link means it is the target
+    		if (original_link_map[d.id].length == 1 && d.id != ROOT_ID) return "1.6px";
+    		return ".8px";
+    	}
+
+    	// Draws links as dash arrays based on their type
+    	_link_style(d) {
+    		return LINK_STYLE[d.type];
+    	}
 
 
 
