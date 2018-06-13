@@ -1,9 +1,23 @@
 window.eusocial = (function () {
     class Network {
         constructor() {
-            this._data = {}
+
+            this._data = null
+
+            // Elements
             this._container = null;
             this._svg = null;
+            this._g = null;
+            this._simulation = null;
+            this._node = null;
+            this._link = null;
+
+            // Visualization properties
+            this._container_width = 0;
+            this._container_height = 0;
+
+
+            // SETTINGS
 
             // Strength of links (how easily they can be compressed) between nodes [0, INF]
         	this._LINK_STRENGTH = 1;
@@ -19,8 +33,15 @@ window.eusocial = (function () {
 
         // Bind data to the viz
         data(data) {
-            this._data = data;
-            console.log("Binding data to viz")
+            // Initial data
+            if (this._data === null) {
+                this._data = data;
+            }
+            // Performing update
+            else {
+                console.log("Updating data");
+            }
+            console.log("Bound data to viz")
         }
 
         // Render viz element in container
@@ -34,15 +55,15 @@ window.eusocial = (function () {
             }
             this._container = c;
 
-            var width = this._container.getBoundingClientRect().width;
-        	var height = this._container.getBoundingClientRect().height;
+            this._container_width = this._container.getBoundingClientRect().width;
+        	this._container_height = this._container.getBoundingClientRect().height;
 
             // Adds svg box and allows it to resize / zoom as needed
-        	let viz_svg = d3.select(this._container).append("svg")
+        	this._svg = d3.select(this._container).append("svg")
                 .attr("id", "eusocial-network")
         		.attr("width", "100%")
         		.attr("height", "100%")
-        		.attr("viewBox","0 0 " + Math.min(width, height) + " " + Math.min(width, height))
+        		.attr("viewBox","0 0 " + Math.min(this._container_width, this._container_height) + " " + Math.min(this._container_width, this._container_height))
         		.attr("preserveAspectRatio", "xMinYMin")
         		// .on("contextmenu", container_contextmenu)
         		.call(d3.zoom()
@@ -51,21 +72,20 @@ window.eusocial = (function () {
                 )
         		.on("dblclick.zoom", null); // Don't zoom on double left click
 
-            this._svg = viz_svg;
-            c.appendChild(viz_svg.node());
+            c.appendChild(this._svg.node());
 
             // Creates actual force graph container (this is what actually gets resized as needed)
-            let viz_g = viz_svg.append("g")
+            this._g = this._svg.append("g");
 
-            let simulation = d3.forceSimulation()
+            this._simulation = d3.forceSimulation()
         		.force("link", d3.forceLink().id(function(d) { return d.id; }).distance(this._LINK_DISTANCE).strength(this._LINK_STRENGTH))
         		.force("charge", d3.forceManyBody().strength(this._CHARGE))
-        		.force("center", d3.forceCenter(width / 2, height / 2))
+        		.force("center", d3.forceCenter(this._container_width / 2, this._container_height / 2));
 
 
 
             // Appends links to container
-    		var link = viz_g.append("g")
+    		this._link = this._g.append("g")
     			.attr("class", "links")
     			.selectAll("line")
     			// Filters out links with a hidden source or target node
@@ -76,7 +96,7 @@ window.eusocial = (function () {
     				// .attr("stroke-dasharray", link_style);
 
     		// Appends nodes to container
-    		var node = viz_g.append("g")
+    		this._node = this._g.append("g")
                 .attr("class", "node")
                 .selectAll("circle")
     			// Filters out hidden nodes and nodes without a description
@@ -97,9 +117,9 @@ window.eusocial = (function () {
     			// 	.on("end", container_drag_end));
 
             // Initializes simulation
-    		simulation
+    		this._simulation
     			.nodes(this._data.nodes)
-    			.on("tick", () => this.ticked(node, link))
+    			.on("tick", () => this.ticked(this._node, this._link))
     			.force("link")
     				.links(this._data.links);
 
