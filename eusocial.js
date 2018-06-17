@@ -118,7 +118,7 @@ window.eusocial = (function () {
     			.enter().append("line")
     				.attr("class", "link")
     				.attr("stroke-width", 1.5)
-    				// .attr("stroke-dasharray", link_style);
+    				.attr("stroke-dasharray", this._link_style.bind(this));
 
             // Appends node containers to container
     		this._node_container = this._g.append("g")
@@ -177,10 +177,6 @@ window.eusocial = (function () {
                 .attr("y1", function(d) { return d.source.y; })
                 .attr("x2", function(d) { return d.target.x; })
                 .attr("y2", function(d) { return d.target.y; });
-
-            // node
-            //     .attr("cx", function(d) { return d.x; })
-            //     .attr("cy", function(d) { return d.y; });
         }
 
 
@@ -191,37 +187,32 @@ window.eusocial = (function () {
 
     	// Sizes nodes
     	_node_size(d) {
+            // Default: 10px
             return 10;
-    		// return (1 / (d.distance + 1)) * this._SIZE_DISTANCE_MULTIPLIER + (original_link_map[d.id].length - 1) * SIZE_CONNECTIONS_MULTIPLIER + SIZE_BASE;
     	}
 
     	// Color nodes depending on COLOR_MODE
     	_node_color(d) {
-    		if (this._COLOR_MODE == "DISTANCE") {
-    			if (d.distance == undefined) return "#333";
-    			return this._COLOR_KEY_DISTANCE[d.distance % this._COLOR_KEY_DISTANCE.length];
-    		}
-    		// Default scheme: all dark grey
+    		// Default: dark grey
     		return "#333";
     	}
 
     	// Colors node borders depending on if they are leaf nodes or not
         _node_border_color(d) {
-    		// Only one link means it is the target
-    		// if (original_link_map[d.id].filter(function(link) { return link.type == "derivative"; }).length == 1 && d.id != ROOT_ID) return "#333";
+            // Default: white
     		return "#F7F6F2";
     	}
 
     	// Draws node borders depending on if they are leaf nodes or not
     	_node_border_width(d) {
-    		// Only one link means it is the target
-    		// if (original_link_map[d.id].length == 1 && d.id != this._ROOT_ID) return "1.6px";
+            // Default: .8px
     		return ".8px";
     	}
 
     	// Draws links as dash arrays based on their type
     	_link_style(d) {
-    		return this._LINK_STYLE[d.type];
+            // Default: solid
+    		return "";
     	}
 
 
@@ -233,8 +224,6 @@ window.eusocial = (function () {
         // Node mouseover handler
     	_node_mouseover(d) {
     		console.log("Mouseover");
-            // console.log(this);
-            // console.log(d);
     	}
 
     	// Node mouseout handler
@@ -251,8 +240,6 @@ window.eusocial = (function () {
     			d.fx = null;
     			d.fy = null;
     		}
-            // console.log(this);
-            // console.log(d);
     	}
 
     	// Node left click handler
@@ -268,13 +255,7 @@ window.eusocial = (function () {
 
         // Node right click handler
     	_node_contextmenu(d) {
-    		// Unpin node
-    		d3.select(this).classed("fixed", d.fixed = false);
-    		// HACK: Why doesn't just adding d.fixed = false work?
-    		d.fx = null;
-    		d.fy = null;
-            // TODO: Bind "this"
-    		this._simulation.alpha(.3).restart();
+    		console.log("Right click");
     	}
 
         // Container drag start handler
@@ -282,11 +263,6 @@ window.eusocial = (function () {
     		if (!d3.event.active) this._simulation.alphaTarget(0.3).restart();
     		d.fx = d.x;
     		d.fy = d.y;
-    		// Fixes node in place
-            // console.log(d);
-            // console.log(d3.select(d));
-            // NOTE: This probably works, but d3.select(d) needs to represent a <g> element, not data (container?)
-    		// d3.select(d).classed("fixed", d.fixed = true);
     	}
 
     	// Container drag handler
