@@ -128,7 +128,7 @@ window.eusocial = (function () {
     			.data(this._data.nodes)
     			  .enter().append("g")
     			    .attr("class", "node")
-                	.on("mouseover", this._node_mouseover.bind(this))
+                	.on("mouseover", this._node_mouseover)
         			.on("mouseout", this._node_mouseout)
         			.on("mousedown", this._node_mousedown)
         			.on("click", this.node_click)
@@ -223,12 +223,14 @@ window.eusocial = (function () {
 
         // Node mouseover handler
     	_node_mouseover(d) {
-    		console.log("Mouseover");
+            // Default: add blue border
+            d3.select(this.childNodes[0]).attr("stroke", "#7DABFF").attr("stroke-width", "3px");
     	}
 
     	// Node mouseout handler
     	_node_mouseout(d) {
-    		console.log("Mouseout");
+            // Default: remove blue border
+            d3.select(this.childNodes[0]).attr("stroke", "").attr("stroke-width", "0");
     	}
 
     	// Node mousedown handler

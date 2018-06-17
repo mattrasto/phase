@@ -23,22 +23,6 @@ pre {
 	font-family: inherit;
 }
 
-::-webkit-scrollbar {
-	width: 12px;
-}
-
-::-webkit-scrollbar-thumb {
-	background-color: #94BAFF;
-}
-
-::-webkit-scrollbar-thumb:hover {
-	background-color: #7DABFF;
-}
-
-::-webkit-scrollbar-thumb:active {
-	background-color: #699EFF;
-}
-
 p {
 	margin-top: 0;
 	padding-top: 0;
