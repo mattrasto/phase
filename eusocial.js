@@ -245,6 +245,12 @@ window.eusocial = (function () {
     	// Node mousedown handler
     	_node_mousedown(d) {
     		console.log("Mousedown");
+            // Unpin node if middle click
+    		if (d3.event.which == 2) {
+    			d3.select(this).classed("fixed", d.fixed = false);
+    			d.fx = null;
+    			d.fy = null;
+    		}
             // console.log(this);
             // console.log(d);
     	}
