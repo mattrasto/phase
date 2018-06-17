@@ -1,5 +1,5 @@
 #viz-container {
-	width: calc(70% - 102px);
+	width: calc(80% - 102px);
 	height: 100vh;
 	position: fixed;
 }

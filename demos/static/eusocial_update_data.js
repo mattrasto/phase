@@ -2,18 +2,30 @@ document.addEventListener("DOMContentLoaded", function(event) {
     // Initialize network object
     viz = eusocial.Network()
     // Attach some initial data
-    viz.data(_graph_data)
+    viz.data(_data_0)
     // Render the network visualization
     viz.render(document.getElementById('viz-container'));
+
+    CUR_DATA = 0;
 
     console.log("Visualization Loaded");
 });
 
+function update_data() {
+    console.log(CUR_DATA);
+    CUR_DATA = ((CUR_DATA + 1) % 2);
+
+    if (CUR_DATA == 0) {
+        viz.data(_data_0);
+    }
+    else {
+        viz.data(_data_1);
+    }
+}
 
 
 
-
-const _graph_data = {
+const _data_0 = {
   "nodes": [
     {"id": "Myriel", "group": 1},
     {"id": "Napoleon", "group": 1},
@@ -350,3 +362,19 @@ const _graph_data = {
     {"source": "Mme.Hucheloup", "target": "Enjolras", "value": 1}
   ]
 }
+
+const _data_1 = {
+  "nodes": [
+    {"id": "Myriel", "group": 1},
+    {"id": "Napoleon", "group": 1},
+    {"id": "NEW", "group": 1}
+  ],
+  "links": [
+    {"source": "Napoleon", "target": "Myriel", "value": 1}
+  ]
+}
+
+// const _data_1 = {
+//   "nodes": [],
+//   "links": []
+// }
