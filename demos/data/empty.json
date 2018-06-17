@@ -1,0 +1,4 @@
+const empty_data = {
+  "nodes": [],
+  "links": []
+}
