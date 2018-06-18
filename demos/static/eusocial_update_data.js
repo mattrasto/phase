@@ -1,10 +1,9 @@
 document.addEventListener("DOMContentLoaded", function(event) {
     // Initialize network object
-    viz = eusocial.Network()
+    // viz = eusocial.Network(document.getElementById("viz-container"));
+    viz = eusocial.Network("#viz-container");
     // Attach some initial data
     viz.data(les_miserables_data);
-    // Render the network visualization
-    viz.render(document.getElementById('viz-container'));
 
     CUR_DATA = 0;
 

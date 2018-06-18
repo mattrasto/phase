@@ -1,11 +1,12 @@
 window.eusocial = (function () {
     class Network {
-        constructor() {
+        constructor(query) {
 
-            this._data = null
+            this._container = (typeof query === "string") ? document.querySelectorAll(query)[0] : query;
+
+            this._data = {"nodes": [], "links": []};
 
             // Elements
-            this._container = null;
             this._svg = null;
             this._g = null;
             this._simulation = null;
@@ -18,7 +19,7 @@ window.eusocial = (function () {
 
 
 
-            // SETTINGS (user-accessible)
+            // Settings (user-accessible)
 
             // Strength of links (how easily they can be compressed) between nodes [0, INF]
             this._LINK_STRENGTH = 1;
@@ -34,11 +35,13 @@ window.eusocial = (function () {
             this._COLOR_KEY = ["#63D467", "#63B2D4", "#AE63D4", "#D46363", "#ED9A55", "#E5EB7A"];
             // Determines the style of links based on their "type" attribute
             // Values should be an even-length array for alternating black / white segments in px
-            this._LINK_STYLE = {"derivative": "", "related": "10,8"}
+            this._LINK_STYLE = {"derivative": "", "related": "10,8"};
             // Base node size
             this._SIZE_BASE = 10;
 
             console.log("Network constructed");
+
+            this._render();
         }
 
         // Binds data to the viz
@@ -53,13 +56,7 @@ window.eusocial = (function () {
         }
 
         // Renders viz element in container
-        render(query) {
-            if (typeof selector === "string") {
-                this._container = document.querySelectorAll(query);
-            }
-            else {
-                this._container = query;
-            }
+        _render() {
 
             this._container_width = this._container.getBoundingClientRect().width;
             this._container_height = this._container.getBoundingClientRect().height;
@@ -333,8 +330,8 @@ window.eusocial = (function () {
     }
 
     var eusocial = {
-        Network: function() {
-            return new Network();
+        Network: function(query) {
+            return new Network(query);
         }
     };
 
