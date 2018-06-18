@@ -64,3 +64,96 @@ li {
 input:-webkit-autofill {
 	-webkit-box-shadow: 0 0 0 1000px #F7F6F2 inset;
 }
+
+
+#sidebar {
+	display: inline-block;
+	float: right;
+	width: 20%;
+	height: 100vh;
+	border-left: 2px solid #94BAFF;
+	background-color: #F7F6F2;
+	padding-left: 50px;
+	padding-right: 50px;
+	overflow-x: hidden;
+	overflow-y: scroll;
+}
+
+/* resize handle on the left */
+.ui-resizable-w {
+    width: 20px;
+}
+
+#sidebar h1 {
+	font-size: 34px;
+	margin-top: 5vh;
+	margin-bottom: 50px;
+}
+
+#sidebar p {
+	text-align: justify;
+	font-size: 20px;
+	line-height: 30px;
+	padding-bottom: 10px;
+}
+
+#sidebar h2 {
+	font-size: 28px;
+}
+
+#sidebar ul, ol, dl {
+	list-style-position: inside;
+}
+
+#sidebar ul, dl {
+	list-style-type: disc;
+}
+
+#sidebar li, dt, dd {
+	text-align: left;
+	font-size: 20px;
+	line-height: 30px;
+}
+
+#sidebar ul li {
+	padding-left: 2em;
+	text-indent: -2em;
+	margin-bottom: 10px;
+}
+
+#sidebar ol li {
+	margin-left: -.75em;
+	text-indent: -1.25em;
+	margin-bottom: 10px;
+}
+
+#sidebar dl dt {
+	display: list-item;
+	list-style-type: disc;
+}
+
+#sidebar dl dd {
+	margin-bottom: 10px;
+}
+
+#sidebar input[type=button] {
+	width: 140px;
+	height: 40px;
+	border: 2px solid #A1D490;
+	color: #81BD6D;
+	font-size: 16px;
+	font-weight: 600;
+	border-radius: 10px;
+	background-color: inherit;
+	vertical-align: middle;
+}
+
+#sidebar input[type=button]:hover {
+	border-width: 3px;
+	border-radius: 10px;
+	cursor: pointer;
+}
+
+#sidebar input[type=button]:focus {
+	outline: none;
+}
