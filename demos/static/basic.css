@@ -6,7 +6,8 @@
 
 .node {
 	cursor: pointer;
-	stroke: #F7F6F2;
+	stroke: #7DABFF;
+	stroke-width: 50px;
 }
 
 .node text {

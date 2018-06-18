@@ -1,19 +1,4 @@
-document.addEventListener("DOMContentLoaded", function(event) {
-    // Initialize network object
-    viz = eusocial.Network()
-    // Attach some initial data
-    viz.data(_graph_data)
-    // Render the network visualization
-    viz.render(document.getElementById('viz-container'));
-
-    console.log("Visualization Loaded");
-});
-
-
-
-
-
-const _graph_data = {
+const les_miserables_data = {
   "nodes": [
     {"id": "Myriel", "group": 1},
     {"id": "Napoleon", "group": 1},
