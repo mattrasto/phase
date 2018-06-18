@@ -58,21 +58,18 @@ window.eusocial = (function () {
             console.log("Network constructed");
         }
 
-        // Bind data to the viz
+        // Binds data to the viz
         data(data) {
-            // Initial data
-            if (this._data === null) {
-                this._data = data;
+            if (this._data != null) {
+                this._bind_data(data);
             }
-            // Performing update
             else {
                 this._data = data;
-                this._bind_data();
             }
             console.log("Bound data to viz");
         }
 
-        // Render viz element in container
+        // Renders viz element in container
         render(query) {
             if (typeof selector === "string") {
                 this._container = document.querySelectorAll(query);
@@ -108,58 +105,23 @@ window.eusocial = (function () {
         		.force("charge", d3.forceManyBody().strength(this._CHARGE))
         		.force("center", d3.forceCenter(this._container_width / 2, this._container_height / 2));
 
-
-
             // Creates g container for links
     		this._link_g = this._g.append("g")
-    			.attr("class", "links")
+    			.attr("class", "links");
 
             // Appends links to link g container
             this._links = this._link_g
-                .selectAll("line")
-    			.data(this._data.links)
-        			.enter().append("line")
-        				.attr("class", "link")
-        				.attr("stroke-width", 1.5)
-        				.attr("stroke-dasharray", this._link_style.bind(this));
+                .selectAll("line");
 
             // Creates g container for node containers
     		this._node_container_g = this._g.append("g")
-    			.attr("class", "nodes")
+    			.attr("class", "nodes");
 
             // Adds node containers to node g container
             this._node_containers = this._node_container_g
-                .selectAll("g")
-                .data(this._data.nodes)
-                  .enter().append("g")
-    			    .attr("class", "node")
-                	.on("mouseover", this._node_mouseover)
-        			.on("mouseout", this._node_mouseout)
-        			.on("mousedown", this._node_mousedown)
-        			.on("click", this.node_click)
-        			.on("dblclick", this._node_dblclick)
-        			.on("contextmenu", this._node_contextmenu)
-        			.call(d3.drag()
-        				.on("start", this._node_drag_start.bind(this))
-        				.on("drag", this._node_drag.bind(this))
-        				.on("end", this._node_drag_end.bind(this))
-                    );
+                .selectAll("g");
 
-    		// Add circles to node containers
-    		this._node_containers
-    			.append("circle")
-    				.attr("r", this._node_size)
-    				.attr("fill", this._node_color)
-    				.attr("stroke", this._node_border_color)
-    				.attr("stroke-width", this._node_border_width);
-
-            // Add node labels
-    		this._node_containers
-    			.append("text")
-    				.attr("dx", 12)
-    				.attr("dy", ".35em")
-    				.style("color", "#333")
-    				.text(function(d) { return d.id });
+            this._bind_data(this._data);
 
             // Initializes simulation
     		this._simulation
@@ -195,15 +157,18 @@ window.eusocial = (function () {
 
 
         // Binds new data to network
-        _bind_data() {
+        _bind_data(data) {
+
+            // Assign new data
+            this._data = data;
 
             // Rejoin link data
             this._links = this._links.data(this._data.links);
 
-            // Removes old links
+            // Remove old links
             this._links.exit().remove();
 
-            // Adds new links to link g container
+            // Add new links to link g container
             this._links = this._links
     			.enter().append("line")
     				.attr("class", "link")
@@ -215,10 +180,10 @@ window.eusocial = (function () {
             // Rejoin node data
             this._node_containers = this._node_containers.data(this._data.nodes);
 
-            // Removes old nodes
+            // Remove old nodes
             this._node_containers.exit().remove();
 
-            // Adds new node containers to node g container
+            // Add new node containers to node g container
             var new_nodes = this._node_containers
               .enter().append("g");
 
@@ -271,7 +236,7 @@ window.eusocial = (function () {
     				.style("color", "#333")
     				.text(function(d) { return d.id });
 
-            // Rebinds data and restarts simulation
+            // Rebind data and restart simulation
             this._simulation.nodes(this._data.nodes);
             this._simulation.force("link").links(this._data.links);
             this._simulation.alpha(1).restart();
@@ -289,7 +254,7 @@ window.eusocial = (function () {
             return 10;
     	}
 
-    	// Color nodes depending on COLOR_MODE
+    	// Colors nodes depending on COLOR_MODE
     	_node_color(d) {
     		// Default: dark grey
     		return "#333";
