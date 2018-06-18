@@ -66,11 +66,10 @@ window.eusocial = (function () {
             }
             // Performing update
             else {
-                console.warn("NOT IMPLEMENTED: Updating data");
                 this._data = data;
                 this._bind_data();
             }
-            console.log("Bound data to viz")
+            console.log("Bound data to viz");
         }
 
         // Render viz element in container
@@ -175,8 +174,12 @@ window.eusocial = (function () {
         // Recalculates node and link positions every simulation tick
         _ticked(node_container, link) {
 
+            // console.log(node_container);
+
             node_container
                 .attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
+                // .attr("transform", function(d) { console.log(d); return "translate(" + d.x + "," + d.y + ")"; });
+
 
             link
                 .attr("x1", function(d) { return d.source.x; })
@@ -194,47 +197,67 @@ window.eusocial = (function () {
         // Binds new data to network
         _bind_data() {
 
-            // Adds new links to link g container
-            this._links
-    			.data(this._data.links)
-        			.enter().append("line")
-        				.attr("class", "link")
-        				.attr("stroke-width", 1.5)
-        				.attr("stroke-dasharray", this._link_style.bind(this))
-                        .merge(this._links);
+            // Rejoin link data
+            this._links = this._links.data(this._data.links);
 
             // Removes old links
-            this._links
-                .data(this._data.links)
-                    .exit().remove();
+            this._links.exit().remove();
 
-            // Adds new node containers to node g container
-            this._node_container_g
-                .selectAll("g")
-                .data(this._data.nodes)
-                  .enter().append("g")
-    			    .attr("class", "node")
-                	.on("mouseover", this._node_mouseover)
-        			.on("mouseout", this._node_mouseout)
-        			.on("mousedown", this._node_mousedown)
-        			.on("click", this.node_click)
-        			.on("dblclick", this._node_dblclick)
-        			.on("contextmenu", this._node_contextmenu)
-        			.call(d3.drag()
-        				.on("start", this._node_drag_start.bind(this))
-        				.on("drag", this._node_drag.bind(this))
-        				.on("end", this._node_drag_end.bind(this))
-                    )
-                    .merge(this._node_containers);
+            // Adds new links to link g container
+            this._links = this._links
+    			.enter().append("line")
+    				.attr("class", "link")
+    				.attr("stroke-width", 1.5)
+    				.attr("stroke-dasharray", this._link_style.bind(this))
+                    .merge(this._links);
+
+
+            // Rejoin node data
+            this._node_containers = this._node_containers.data(this._data.nodes);
 
             // Removes old nodes
-            this._node_container_g
-                .selectAll("g")
-                .data(this._data.nodes)
-                    .exit().remove();
+            this._node_containers.exit().remove();
+
+            // Adds new node containers to node g container
+            var new_nodes = this._node_containers
+              .enter().append("g");
+
+            // Add new node containers
+            new_nodes
+        .attr("class", "node")
+            	.on("mouseover", this._node_mouseover)
+    			.on("mouseout", this._node_mouseout)
+    			.on("mousedown", this._node_mousedown)
+    			.on("click", this.node_click)
+    			.on("dblclick", this._node_dblclick)
+    			.on("contextmenu", this._node_contextmenu)
+    			.call(d3.drag()
+    				.on("start", this._node_drag_start.bind(this))
+    				.on("drag", this._node_drag.bind(this))
+    				.on("end", this._node_drag_end.bind(this))
+                );
+
+            // Add new circles
+            new_nodes
+                .append("circle")
+    				.attr("r", this._node_size)
+    				.attr("fill", this._node_color)
+    				.attr("stroke", this._node_border_color)
+    				.attr("stroke-width", this._node_border_width);
+
+            // Add new labels
+            new_nodes
+                .append("text")
+    				.attr("dx", 12)
+    				.attr("dy", ".35em")
+    				.style("color", "#333")
+    				.text(function(d) { return d.id });
+
+            this._node_containers = new_nodes.merge(this._node_containers);
 
             // Update circles
-    		this._node_containers.select("circle")
+    		this._node_containers
+                .select("circle")
     				.attr("r", this._node_size)
     				.attr("fill", this._node_color)
     				.attr("stroke", this._node_border_color)
@@ -251,7 +274,7 @@ window.eusocial = (function () {
             // Rebinds data and restarts simulation
             this._simulation.nodes(this._data.nodes);
             this._simulation.force("link").links(this._data.links);
-            this._simulation.alpha(.3).restart();
+            this._simulation.alpha(1).restart();
         }
 
 

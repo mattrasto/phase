@@ -15,9 +15,9 @@ function update_data() {
     CUR_DATA = ((CUR_DATA + 1) % 2);
 
     if (CUR_DATA == 0) {
-        viz.data(_data_0);
+        viz.data(les_miserables_data);
     }
     else {
-        viz.data(_data_1);
+        viz.data(small_les_miserables_data);
     }
 }
