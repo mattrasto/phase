@@ -12,12 +12,15 @@ document.addEventListener("DOMContentLoaded", function(event) {
 });
 
 function update_data() {
-    CUR_DATA = ((CUR_DATA + 1) % 2);
+    CUR_DATA = ((CUR_DATA + 1) % 3);
 
     if (CUR_DATA == 0) {
         viz.data(les_miserables_data);
     }
-    else {
+    else if (CUR_DATA == 1) {
         viz.data(small_les_miserables_data);
+    }
+    else {
+        viz.data(empty_data);
     }
 }
