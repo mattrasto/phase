@@ -17,6 +17,8 @@ window.eusocial = (function () {
             this._container_width = 0;
             this._container_height = 0;
 
+            this._node_groups = {}
+
 
 
             // Settings (user-accessible)
@@ -52,6 +54,9 @@ window.eusocial = (function () {
             else {
                 this._data = data;
             }
+
+            // Update "all" groups
+            this._create_node_group("all", "");
             console.log("Bound data to viz");
         }
 
@@ -124,6 +129,30 @@ window.eusocial = (function () {
                 .attr("y1", function(d) { return d.source.y; })
                 .attr("x2", function(d) { return d.target.x; })
                 .attr("y2", function(d) { return d.target.y; });
+        }
+
+
+
+        // GROUPING
+
+
+
+        // Creates a node group based on attributes or a passed in selection
+        _create_node_group(label, filterer, val) {
+            if (typeof filterer === "string") {
+                if (val == undefined) {
+                    filtered = this._node_containers;
+                }
+                var filtered = this._node_containers.filter(d => d[filterer] == val);
+            }
+            else if (typeof filterer === "function") {
+                var filtered = this._node_containers.filter(d => filterer(d));
+            }
+            this._node_groups[label] = filtered;
+        }
+
+        get_groups() {
+            return this._node_groups;
         }
 
 
