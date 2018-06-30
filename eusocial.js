@@ -152,13 +152,25 @@ window.eusocial = (function () {
             return filtered;
         }
 
+        // Applies a style map to a node group
         style_node_group(group, style_map) {
             for (var attr in style_map) {
                 group.select("circle").style(attr, style_map[attr]);
             }
         }
 
-        get_groups() {
+        // Removes all styles from a group
+        unstyle_node_group(group) {
+            var style_map = {
+                "fill": this._default_node_color,
+                "r": this._default_node_size,
+                "stroke": this._default_node_border_color,
+                "stroke-width": this._default_node_border_width
+            }
+            this.style_node_group(group, style_map);
+        }
+
+        get_all_groups() {
             return this._node_groups;
         }
 
@@ -185,7 +197,7 @@ window.eusocial = (function () {
                 .enter().append("line")
                     .attr("class", "link")
                     .attr("stroke-width", 1.5)
-                    .attr("stroke-dasharray", this._link_style.bind(this))
+                    .attr("stroke-dasharray", this._default_link_style.bind(this))
                     .merge(this._links);
 
 
@@ -205,7 +217,7 @@ window.eusocial = (function () {
                 .on("mouseover", this._node_mouseover)
                 .on("mouseout", this._node_mouseout)
                 .on("mousedown", this._node_mousedown)
-                .on("click", this.node_click)
+                .on("click", this._node_click)
                 .on("dblclick", this._node_dblclick)
                 .on("contextmenu", this._node_contextmenu)
                 .call(d3.drag()
@@ -217,10 +229,10 @@ window.eusocial = (function () {
             // Add new circles
             new_nodes
                 .append("circle")
-                    .attr("r", this._node_size)
-                    .attr("fill", this._node_color)
-                    .attr("stroke", this._node_border_color)
-                    .attr("stroke-width", this._node_border_width);
+                    .attr("r", this._default_node_size)
+                    .attr("fill", this._default_node_color)
+                    .attr("stroke", this._default_node_border_color)
+                    .attr("stroke-width", this._default_node_border_width);
 
             // Add new labels
             new_nodes
@@ -235,10 +247,10 @@ window.eusocial = (function () {
             // Update circles
             this._node_containers
                 .select("circle")
-                    .attr("r", this._node_size.bind(this))
-                    .attr("fill", this._node_color)
-                    .attr("stroke", this._node_border_color)
-                    .attr("stroke-width", this._node_border_width);
+                    .attr("r", this._default_node_size.bind(this))
+                    .attr("fill", this._default_node_color)
+                    .attr("stroke", this._default_node_border_color)
+                    .attr("stroke-width", this._default_node_border_width);
 
             // Update labels
             this._node_containers
@@ -262,31 +274,31 @@ window.eusocial = (function () {
 
 
         // Sizes nodes
-        _node_size(d) {
+        _default_node_size(d) {
             // Default: _SIZE_BASE
             return this._SIZE_BASE;
         }
 
         // Colors nodes depending on COLOR_MODE
-        _node_color(d) {
+        _default_node_color(d) {
             // Default: dark grey
             return "#333";
         }
 
         // Colors node borders depending on if they are leaf nodes or not
-        _node_border_color(d) {
+        _default_node_border_color(d) {
             // Default: white
             return "#F7F6F2";
         }
 
         // Draws node borders depending on if they are leaf nodes or not
-        _node_border_width(d) {
+        _default_node_border_width(d) {
             // Default: .8px
             return ".8px";
         }
 
         // Draws links as dash arrays based on their type
-        _link_style(d) {
+        _default_link_style(d) {
             // Default: solid
             return "";
         }

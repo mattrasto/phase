@@ -181,3 +181,7 @@ input:-webkit-autofill {
 	stroke: #666;
 	stroke-linecap: round;
 }
+
+#sidebar .group-module p {
+	text-align: center;
+}
