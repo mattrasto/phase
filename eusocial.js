@@ -170,7 +170,11 @@ window.eusocial = (function () {
             this.style_node_group(group, style_map);
         }
 
-        get_all_groups() {
+        get_node_group(label) {
+            return this._node_groups[label];
+        }
+
+        get_all_node_groups() {
             return this._node_groups;
         }
 

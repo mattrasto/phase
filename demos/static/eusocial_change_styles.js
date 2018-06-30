@@ -38,5 +38,5 @@ function change_node_color() {
     // Style this group with the same color by evaluating then applying the result
     viz.style_node_group(group_2, {"fill": random_node_color});
 
-    console.log(viz.get_groups());
+    console.log(viz.get_all_node_groups());
 }
