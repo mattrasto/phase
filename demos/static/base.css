@@ -166,8 +166,6 @@ input:-webkit-autofill {
 
 .node {
 	cursor: pointer;
-	stroke: #7DABFF;
-	stroke-width: 50px;
 }
 
 .node text {

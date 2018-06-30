@@ -316,13 +316,13 @@ window.eusocial = (function () {
         // Node mouseover handler
         _node_mouseover(d) {
             // Default: add blue border
-            d3.select(this.childNodes[0]).attr("stroke", "#7DABFF").attr("stroke-width", "3px");
+            d3.select(this.childNodes[0]).style("stroke", "#7DABFF").style("stroke-width", "3px");
         }
 
         // Node mouseout handler
         _node_mouseout(d) {
             // Default: remove blue border
-            d3.select(this.childNodes[0]).attr("stroke", "").attr("stroke-width", "0");
+            d3.select(this.childNodes[0]).style("stroke", "").style("stroke-width", "0");
         }
 
         // Node mousedown handler
