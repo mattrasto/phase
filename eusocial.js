@@ -56,7 +56,7 @@ window.eusocial = (function () {
             }
 
             // Update "all" groups
-            this._create_node_group("all", "");
+            this.create_node_group("all", "");
             console.log("Bound data to viz");
         }
 
@@ -138,7 +138,7 @@ window.eusocial = (function () {
 
 
         // Creates a node group based on attributes or a passed in selection
-        _create_node_group(label, filterer, val) {
+        create_node_group(label, filterer, val) {
             if (typeof filterer === "string") {
                 if (val == undefined) {
                     filtered = this._node_containers;
@@ -149,6 +149,13 @@ window.eusocial = (function () {
                 var filtered = this._node_containers.filter(d => filterer(d));
             }
             this._node_groups[label] = filtered;
+            return filtered;
+        }
+
+        style_node_group(group, style_map) {
+            for (var attr in style_map) {
+                group.select("circle").style(attr, style_map[attr]);
+            }
         }
 
         get_groups() {
