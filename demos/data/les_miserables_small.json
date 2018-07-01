@@ -1,4 +1,4 @@
-const small_les_miserables_data = {
+const les_miserables_small_data = {
   "nodes": [
     {"id": "Myriel", "group": 1},
     {"id": "Napoleon", "group": 1},
