@@ -1,4 +1,4 @@
-window.eusocial = (function () {
+window.phase = (function () {
     class Network {
         constructor(query) {
 
@@ -68,7 +68,7 @@ window.eusocial = (function () {
 
             // Adds svg box and allows it to resize / zoom as needed
             this._svg = d3.select(this._container).append("svg")
-                .attr("id", "eusocial-network")
+                .attr("id", "phase-network")
                 .attr("width", "100%")
                 .attr("height", "100%")
                 .attr("viewBox","0 0 " + Math.min(this._container_width, this._container_height) + " " + Math.min(this._container_width, this._container_height))
@@ -381,11 +381,11 @@ window.eusocial = (function () {
         }
     }
 
-    var eusocial = {
+    var phase = {
         Network: function(query) {
             return new Network(query);
         }
     };
 
-    return eusocial;
+    return phase;
 }());

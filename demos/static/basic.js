@@ -1,6 +1,6 @@
 document.addEventListener("DOMContentLoaded", function(event) {
     // Initialize network object
-    viz = eusocial.Network("#viz-container")
+    viz = phase.Network("#viz-container")
     // Attach some initial data
     viz.data(les_miserables_data)
 
