@@ -24,6 +24,10 @@ A collection of nodes linked together by edges.
 
 In this library, used interchangeably with graph.
 
+**Graph Structure**
+
+The graph structure refers to the elements (nodes and links) present in the graph and their relationship to each other.
+
 **Element Group**
 
 Element groups are, quite simply, collections of elements; that is, nodes or links. The group can be updated in the same way that individual elements can in vanilla D3 - you can modify the data or styles of any group, and it will change all elements belonging to that group.
@@ -74,7 +78,7 @@ In this section, "events" refers to Javascript events. Phase uses events as one 
 
 #### Provided Events
 
-Here are the lifecycle events we provide:
+Here are the lifecycle events we provide by default:
 
 ##### Graph
 
@@ -144,6 +148,10 @@ The morph is beginning to apply its operations.
 
 The morph's operations are finished.
 
+`morph_error`
+
+The morph failed to apply its operations.
+
 #### Example
 
 Let's say you have a social network graph that contains two types of edges: "friends" and "friends of friends". When a person friends another, you want the following to happen in order:
@@ -167,6 +175,42 @@ If we didn't use events, this could get tricky and needlessly complex. But we kn
 With just two element groups, one single-morph phase, and two event listeners, we can create highly dynamic graph changes _and see them happen in realtime_. These can easily be extended to support more complex interactions, all with the same pattern.
 
 ### Phases and Morphs
+
+Phases and morphs are probably the hardest concepts to grasp. Let me explain the motivation behind phases and morphs before we dive into how they work.
+
+#### Motivation
+
+I want to build large-scale social simulations. But social networks are complex, with a potentially infinite number of events that can occur between nodes, sometimes simultaneously and sometimes interacting with each other. For example, a person messaging a friend is an event. A person posting a status is also an event. These two events are somewhat distinct - they have multiple working parts that effect the structure of the graph in different ways, and they can also happen simultaneously. We could code each individual mutation of each event separately, but many times the mutations are reusable and/or must be executed in a certain order. Additionally, when two events operate on the same nodes, how they're supposed to interact is unclear unless we have the context that a phase provides.
+
+#### What is a Morph?
+
+Before we can fully understand phases, we have to understand morphs. Morphs are single-element mutations on the graph. A morph can edit data or styling of an element as well as add or remove data from the graph. That's it - four things. If you want to add a node, remove an edge, highlight a node, or change the style of a link, all you need is a morph.
+
+Morphs can also act on element groups. Yes, the point of a morph is that it modifies _only one_ element, but element groups act as a single element anyway. You can modify every node in the graph with a single morph. You can also delete an entire element group with a morph. However, you can't add a group of nodes, since it won't exist before you add it to the graph.
+
+Morphs are the building blocks of phases. For multi-step visualization events, you can intelligently chain together morphs in a phase.
+
+#### What is a Phase?
+
+A phase represent an event's effect on the graph - it encapsulates multiple morphs and applies them in a specific order dictated by the user. It also maintains properties that affect the application of the morphs as well as the state of the graph during the process. This allows phases to communicate with each other by sharing their execution tree, properties, and state.
+
+It's important to note that "properties" and "state" are not like the properties and state used in other libraries (ie. React). Both are mutable, and the difference is more semantic than functional: **properties control the operation of the phase**, whereas **state keeps track of the graph structure and other phase-specific data that describes (and is sometimes used in) the operation of the phase**. Think of properties as settings and state as internal variables. If you're still confused, take a look at the examples of properties and state below.
+
+#### How Does a Phase Work?
+
+Now that we know the why and the what, let's tackle the tough part: how. Phases have properties that affect their operation, such as how frequently morphs are applied in succession or how the phase should interact if there's a phase conflict. They also contain state, which is used to track the progress of the phase among other things.
+
+Morphs can be applied in serial or parallel, and there are sometimes dependencies between them. So in order to apply morphs as needed, we create a _morph execution tree_. This tree dictates the order that morphs are applied. The root of the tree is executed first ("root" is slightly misleading, as the root may contain multiple morphs), then the next level of the tree is executed. These are called "morph rounds" or "application rounds."
+
+Phases operate on this execution tree, and the tree is able to be modified during the phase's execution. However, the execution tree is not automatically recalculated, as this is an expense operation - execution tree recalculations must be done manually. If you want to recalculate it under certain conditions, you can use events.
+
+Phases don't need to applied just once, though. At any time, a phase can be reset to its initial state. You can also step through morph rounds individually instead of having each round applied automatically. They can be reused on the graph until they are destroyed. Phases were designed to describe events on a graph, so they should be able to be applied to the graph regardless of the graph's structure.
+
+So what happens if a morph is applied to an element that doesn't exist? It emits an error event that can be caught by the phase and handled with the context of the properties and state of the phase. If a phase contains rounds with a morph that updates elements and another that modifies the graph structure, this is likely to happen and can be handled as desired.
+
+#### Phase conflicts
+
+When a phase conflicts with another phase (which occurs when an element is present in two phases at once), regardless of whether the shared elements are currently being morphed, an event `phase_conflict` will be emitted containing the state of the both phases. Each phase is able to handle what happens when this occurs, whether that means pausing one phase until the conflict is resolved, destroying one phase, or something else - it's entirely customizable.
 
 ## Demos
 
