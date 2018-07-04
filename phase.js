@@ -59,7 +59,7 @@ window.phase = (function () {
             // Update "all" groups
             this.nodeGroup("all", "");
             this.linkGroup("all", "");
-            
+
             console.log("Bound data to viz");
         }
 
@@ -93,13 +93,13 @@ window.phase = (function () {
                 .force("charge", d3.forceManyBody().strength(this._CHARGE))
                 .force("center", d3.forceCenter(this._containerWidth / 2, this._containerHeight / 2));
 
-            // Creates g container for links
-            this._linkG = this._g.append("g")
+            // Creates g container for link containers
+            this._linkContainerG = this._g.append("g")
                 .attr("class", "links");
 
             // Appends links to link g container
-            this._links = this._linkG
-                .selectAll("line");
+            this._linkContainers = this._linkContainerG
+                .selectAll("g");
 
             // Creates g container for node containers
             this._nodeContainerG = this._g.append("g")
@@ -114,7 +114,7 @@ window.phase = (function () {
             // Initializes simulation
             this._simulation
                 .nodes(this._data.nodes)
-                .on("tick", () => this._ticked(this._nodeContainers, this._links))
+                .on("tick", () => this._ticked(this._nodeContainers, this._linkContainers))
                 .force("link")
                     .links(this._data.links);
 
@@ -122,12 +122,12 @@ window.phase = (function () {
         }
 
         // Recalculates node and link positions every simulation tick
-        _ticked(nodeContainer, link) {
+        _ticked(nodeContainer, linkContainer) {
 
             nodeContainer
                 .attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
 
-            link
+            linkContainer.select("line")
                 .attr("x1", function(d) { return d.source.x; })
                 .attr("y1", function(d) { return d.source.y; })
                 .attr("x2", function(d) { return d.target.x; })
@@ -183,18 +183,32 @@ window.phase = (function () {
             this._data = data;
 
             // Rejoin link data
-            this._links = this._links.data(this._data.links);
+            this._linkContainers = this._linkContainers.data(this._data.links);
 
             // Remove old links
-            this._links.exit().remove();
+            this._linkContainers.exit().remove();
 
             // Add new links to link g container
-            this._links = this._links
-                .enter().append("line")
-                    .attr("class", "link")
+            var newLinks = this._linkContainers
+                .enter().append("g");
+
+            // Add new link containers
+            newLinks
+                .attr("class", "link")
+
+            // Add new lines
+            newLinks
+                .append("line")
                     .style("stroke-width", 1.5)
-                    .attr("stroke-dasharray", this._defaultLinkStyle.bind(this))
-                    .merge(this._links);
+                    .attr("stroke-dasharray", this._defaultLinkStyle.bind(this));
+
+            this._linkContainers = newLinks.merge(this._linkContainers);
+
+            // Update lines
+            this._linkContainers
+                .select("line")
+                    .style("stroke-width", 1.5)
+                    .attr("stroke-dasharray", this._defaultLinkStyle.bind(this));
 
 
             // Rejoin node data
@@ -421,12 +435,12 @@ window.phase = (function () {
 
             if (typeof filterer === "string") {
                 if (val == undefined) {
-                    filtered = this.network._links;
+                    filtered = this.network._linkContainers;
                 }
-                var filtered = this.network._links.filter(d => d[filterer] == val);
+                var filtered = this.network._linkContainers.filter(d => d[filterer] == val);
             }
             else if (typeof filterer === "function") {
-                var filtered = this.network._links.filter(d => filterer(d));
+                var filtered = this.network._linkContainers.filter(d => filterer(d));
             }
 
             this._selection = filtered;
