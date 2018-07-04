@@ -5,16 +5,13 @@ document.addEventListener("DOMContentLoaded", function(event) {
     // Attach some initial data
     viz.data(lesMiserablesData);
 
-    // Contains node groups
-    GROUPS = []
-
     changeGroups();
 
     console.log("Visualization Loaded");
 });
 
 // Group styling function
-// NOTE: It takes no parameters, since it operates on entire groups
+// NOTE: It takes no parameters, since it only operates on entire groups
 function randomColor() {
     let colors = ["#63D467", "#63B2D4", "#AE63D4", "#D46363", "#ED9A55", "#E5EB7A"];
     return colors[Math.floor(Math.random() * 6)];
@@ -22,32 +19,27 @@ function randomColor() {
 
 function changeGroups() {
 
-    // Unstyle all groups
-    if (GROUPS.length > 0) {
-        GROUPS[0].unstyle();
-        GROUPS[1].unstyle();
-        GROUPS[2].unstyle();
-    }
-
-    GROUPS = []
+    // Unstyle all links
+    viz.getLinkGroup("all").unstyle();
 
     // Create groups of nodes based on data groups they belong to
     var randNum = Math.floor(Math.random() * 8);
-    GROUPS.push(viz.linkGroup("rand_group_1", function(d) { return d.value == randNum; }));
+    viz.linkGroup("rand_group_1", function(d) { return d.value == randNum; });
     d3.select("#data-collection-1").text(randNum);
 
     randNum = Math.floor(Math.random() * 8);
-    GROUPS.push(viz.linkGroup("rand_group_2", function(d) { return d.value == randNum; }));
+    viz.linkGroup("rand_group_2", function(d) { return d.value == randNum; });
     d3.select("#data-collection-2").text(randNum);
 
     randNum = Math.floor(Math.random() * 8);
-    GROUPS.push(viz.linkGroup("rand_group_3", function(d) { return d.value == randNum; }));
+    viz.linkGroup("rand_group_3", function(d) { return d.value == randNum; });
     d3.select("#data-collection-3").text(randNum);
 
+    // Display all link groups
     console.log(viz.getAllLinkGroups());
 }
 
 // Style a group with a specific value
 function styleGroup(groupNum) {
-    GROUPS[groupNum - 1].addStyle({"stroke": randomColor()});
+    viz.getLinkGroup("rand_group_" + groupNum).addStyle({"stroke": randomColor()});
 }

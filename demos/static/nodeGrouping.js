@@ -5,9 +5,6 @@ document.addEventListener("DOMContentLoaded", function(event) {
     // Attach some initial data
     viz.data(lesMiserablesData);
 
-    // Contains node groups
-    GROUPS = []
-
     changeGroups();
 
     console.log("Visualization Loaded");
@@ -22,32 +19,27 @@ function randomColor() {
 
 function changeGroups() {
 
-    // Unstyle all groups
-    if (GROUPS.length > 0) {
-        GROUPS[0].unstyle();
-        GROUPS[1].unstyle();
-        GROUPS[2].unstyle();
-    }
-
-    GROUPS = []
+    // Unstyle all nodes
+    viz.getNodeGroup("all").unstyle();
 
     // Create groups of nodes based on data groups they belong to
     var randNum = Math.floor(Math.random() * 8);
-    GROUPS.push(viz.nodeGroup("rand_group_1", function(d) { return d.group == randNum; }));
+    viz.nodeGroup("rand_group_1", function(d) { return d.group == randNum; });
     d3.select("#data-collection-1").text(randNum);
 
-    randNum = Math.floor(Math.random() * 8);
-    GROUPS.push(viz.nodeGroup("rand_group_2", function(d) { return d.group == randNum; }));
+    randNum = Math.floor(Math.random() * 10) + 1;
+    viz.nodeGroup("rand_group_2", function(d) { return d.group == randNum; });
     d3.select("#data-collection-2").text(randNum);
 
     randNum = Math.floor(Math.random() * 8);
-    GROUPS.push(viz.nodeGroup("rand_group_3", function(d) { return d.group == randNum; }));
+    viz.nodeGroup("rand_group_3", function(d) { return d.group == randNum; });
     d3.select("#data-collection-3").text(randNum);
 
+    // Display all node groups
     console.log(viz.getAllNodeGroups());
 }
 
 // Style a group with a specific value
 function styleGroup(groupNum) {
-    GROUPS[groupNum - 1].addStyle({"fill": randomColor()});
+    viz.getNodeGroup("rand_group_" + groupNum).addStyle({"fill": randomColor()});
 }

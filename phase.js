@@ -58,6 +58,8 @@ window.phase = (function () {
 
             // Update "all" groups
             this.nodeGroup("all", "");
+            this.linkGroup("all", "");
+            
             console.log("Bound data to viz");
         }
 
