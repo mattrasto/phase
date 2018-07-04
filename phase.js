@@ -176,41 +176,24 @@ window.phase = (function () {
 
 
 
-        // Binds new data to network
+        // Binds new data to the network
         _bindData(data) {
 
             // Assign new data
             this._data = data;
 
-            // Rejoin link data
-            this._linkContainers = this._linkContainers.data(this._data.links);
+            this._bindNodes();
+            this._bindLinks();
 
-            // Remove old links
-            this._linkContainers.exit().remove();
+            // Rebind data and restart simulation
+            this._simulation
+                .nodes(this._data.nodes)
+                .force("link").links(this._data.links);
+            this._simulation.alpha(1).restart();
+        }
 
-            // Add new links to link g container
-            var newLinks = this._linkContainers
-                .enter().append("g");
-
-            // Add new link containers
-            newLinks
-                .attr("class", "link")
-
-            // Add new lines
-            newLinks
-                .append("line")
-                    .style("stroke-width", 1.5)
-                    .attr("stroke-dasharray", this._defaultLinkStyle.bind(this));
-
-            this._linkContainers = newLinks.merge(this._linkContainers);
-
-            // Update lines
-            this._linkContainers
-                .select("line")
-                    .style("stroke-width", 1.5)
-                    .attr("stroke-dasharray", this._defaultLinkStyle.bind(this));
-
-
+        // Binds new data to the nodes
+        _bindNodes() {
             // Rejoin node data
             this._nodeContainers = this._nodeContainers.data(this._data.nodes);
 
@@ -269,12 +252,37 @@ window.phase = (function () {
                     .attr("dy", ".35em")
                     .style("color", "#333")
                     .text(function(d) { return d.id });
+        }
 
-            // Rebind data and restart simulation
-            this._simulation
-                .nodes(this._data.nodes)
-                .force("link").links(this._data.links);
-            this._simulation.alpha(1).restart();
+        // Binds new data to the links
+        _bindLinks() {
+            // Rejoin link data
+            this._linkContainers = this._linkContainers.data(this._data.links);
+
+            // Remove old links
+            this._linkContainers.exit().remove();
+
+            // Add new links to link g container
+            var newLinks = this._linkContainers
+                .enter().append("g");
+
+            // Add new link containers
+            newLinks
+                .attr("class", "link")
+
+            // Add new lines
+            newLinks
+                .append("line")
+                    .style("stroke-width", 1.5)
+                    .attr("stroke-dasharray", this._defaultLinkStyle.bind(this));
+
+            this._linkContainers = newLinks.merge(this._linkContainers);
+
+            // Update lines
+            this._linkContainers
+                .select("line")
+                    .style("stroke-width", 1.5)
+                    .attr("stroke-dasharray", this._defaultLinkStyle.bind(this));
         }
 
 
