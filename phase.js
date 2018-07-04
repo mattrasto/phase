@@ -132,6 +132,10 @@ window.phase = (function () {
                 .attr("y1", function(d) { return d.source.y; })
                 .attr("x2", function(d) { return d.target.x; })
                 .attr("y2", function(d) { return d.target.y; });
+
+            linkContainer.select("text").attr('transform', function(d, i) {
+                return "translate(" + ((d.source.x + d.target.x) / 2) + "," + ((d.source.y + d.target.y) / 2) + ")"
+            });
         }
 
 
@@ -232,7 +236,8 @@ window.phase = (function () {
                 .append("text")
                     .attr("dx", 12)
                     .attr("dy", ".35em")
-                    .style("color", "#333")
+                    .style("fill", "#333")
+                    .style("stroke", "#333")
                     .text(function(d) { return d.id });
 
             this._nodeContainers = newNodes.merge(this._nodeContainers);
@@ -250,7 +255,8 @@ window.phase = (function () {
                 .select("text")
                     .attr("dx", 12)
                     .attr("dy", ".35em")
-                    .style("color", "#333")
+                    .style("fill", "#333")
+                    .style("stroke", "#333")
                     .text(function(d) { return d.id });
         }
 
@@ -276,6 +282,17 @@ window.phase = (function () {
                     .style("stroke-width", 1.5)
                     .attr("stroke-dasharray", this._defaultLinkStyle.bind(this));
 
+            // Add new labels
+            newLinks
+                .append("text")
+                    .attr("dx", 5)
+                    .attr("dy", 0)
+                    .style("fill", "#333")
+                    .style("stroke", "#333")
+                    .style("stroke-width", 0)
+                    .style("font-size", "12px")
+                    .text(function(d) { return d.value });
+
             this._linkContainers = newLinks.merge(this._linkContainers);
 
             // Update lines
@@ -283,6 +300,17 @@ window.phase = (function () {
                 .select("line")
                     .style("stroke-width", 1.5)
                     .attr("stroke-dasharray", this._defaultLinkStyle.bind(this));
+
+            // Update labels
+            this._linkContainers
+                .select("text")
+                    .attr("dx", 5)
+                    .attr("dy", 0)
+                    .style("fill", "#333")
+                    .style("stroke", "#333")
+                    .style("stroke-width", 0)
+                    .style("font-size", "12px")
+                    .text(function(d) { return d.value });
         }
 
 
