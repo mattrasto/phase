@@ -33,18 +33,18 @@ function changeGroups() {
 
     // Create groups of nodes based on data groups they belong to
     var randNum = Math.floor(Math.random() * 8);
-    GROUPS.push(viz.nodeGroup("rand_group_1", function(d) { return d.group == randNum; }));
+    GROUPS.push(viz.linkGroup("rand_group_1", function(d) { return d.value == randNum; }));
     d3.select("#data-collection-1").text(randNum);
 
     randNum = Math.floor(Math.random() * 8);
-    GROUPS.push(viz.nodeGroup("rand_group_2", function(d) { return d.group == randNum; }));
+    GROUPS.push(viz.linkGroup("rand_group_2", function(d) { return d.value == randNum; }));
     d3.select("#data-collection-2").text(randNum);
 
     randNum = Math.floor(Math.random() * 8);
-    GROUPS.push(viz.nodeGroup("rand_group_3", function(d) { return d.group == randNum; }));
+    GROUPS.push(viz.linkGroup("rand_group_3", function(d) { return d.value == randNum; }));
     d3.select("#data-collection-3").text(randNum);
 
-    console.log(viz.getAllNodeGroups());
+    console.log(viz.getAllLinkGroups());
 }
 
 // Style a group with a specific value
