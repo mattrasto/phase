@@ -238,7 +238,7 @@ window.phase = (function () {
                     .attr("dy", ".35em")
                     .style("fill", "#333")
                     .style("stroke", "#333")
-                    .text(function(d) { return d.id });
+                    .text(function(d) { return d.id; });
 
             this._nodeContainers = newNodes.merge(this._nodeContainers);
 
@@ -257,7 +257,7 @@ window.phase = (function () {
                     .attr("dy", ".35em")
                     .style("fill", "#333")
                     .style("stroke", "#333")
-                    .text(function(d) { return d.id });
+                    .text(function(d) { return d.id; });
         }
 
         // Binds new data to the links
@@ -291,7 +291,7 @@ window.phase = (function () {
                     .style("stroke", "#333")
                     .style("stroke-width", 0)
                     .style("font-size", "12px")
-                    .text(function(d) { return d.value });
+                    .text(function(d) { return d.value; });
 
             this._linkContainers = newLinks.merge(this._linkContainers);
 
@@ -310,7 +310,7 @@ window.phase = (function () {
                     .style("stroke", "#333")
                     .style("stroke-width", 0)
                     .style("font-size", "12px")
-                    .text(function(d) { return d.value });
+                    .text(function(d) { return d.value; });
         }
 
 
@@ -452,7 +452,7 @@ window.phase = (function () {
         }
 
         // Removes all styles from a group
-        unstyle(group) {
+        unstyle() {
             var styleMap = {
                 "fill": this._defaultNodeColor,
                 "r": this._defaultNodeSize,
@@ -460,6 +460,10 @@ window.phase = (function () {
                 "stroke-width": this._defaultNodeBorderWidth
             }
             this.addStyle(styleMap);
+        }
+
+        labels(labeler) {
+            this._selection.select("text").text(labeler);
         }
     }
 
@@ -492,7 +496,7 @@ window.phase = (function () {
         }
 
         // Removes all styles from a group
-        unstyle(group) {
+        unstyle() {
             var styleMap = {
                 "fill": this._defaultNodeColor,
                 "r": this._defaultNodeSize,
@@ -500,6 +504,10 @@ window.phase = (function () {
                 "stroke-width": this._defaultNodeBorderWidth
             }
             this.addStyle(styleMap);
+        }
+
+        labels(labeler) {
+            this._selection.select("text").text(labeler);
         }
     }
 
