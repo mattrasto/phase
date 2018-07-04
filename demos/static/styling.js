@@ -3,38 +3,38 @@ document.addEventListener("DOMContentLoaded", function(event) {
     // viz = phase.Network(document.getElementById("viz-container"));
     viz = phase.Network("#viz-container");
     // Attach some initial data
-    viz.data(les_miserables_data);
+    viz.data(lesMiserablesData);
 
     console.log("Visualization Loaded");
 });
 
-function change_node_color() {
+function changeNodeColor() {
     // Create a group for the node with "id" of "Gribier"
-    id_gribier = viz.node_group("id_Gribier", "id", "Gribier");
+    idGribier = viz.nodeGroup("id_Gribier", "id", "Gribier");
     // Create a group for the nodes with a "group" of 1
-    group_1 = viz.node_group("group_1", "group", 1);
+    group1 = viz.nodeGroup("group_1", "group", 1);
     // Create a group for the nodes with a "group" of 2 or 3
-    group_2 = viz.node_group("group_2", function(d) {
+    group2 = viz.nodeGroup("group_2", function(d) {
         return d.group >= 2;
     });
 
     // Node styling function
     // NOTE: It takes one parameter, d, that can be used to apply the styling to each node in the group
-    function random_node_color(d) {
+    function randomNodeColor(d) {
         return d.group == 2 ? "#63D467" : "#63B2D4";
     }
 
     // Group styling function
     // NOTE: It takes no parameters, since it operates on entire groups
-    function random_group_color() {
+    function randomGroupColor() {
         let colors = ["#AE63D4", "#D46363", "#ED9A55", "#E5EB7A"];
         return colors[Math.floor(Math.random() * 4)];
     }
 
     // Style this group with a specific value
-    id_gribier.addStyle({"fill": "blue"});
+    idGribier.addStyle({"fill": "blue"});
     // Style this group with a random color for each node
-    group_1.addStyle({"fill": random_group_color});
+    group1.addStyle({"fill": randomGroupColor});
     // Style this group with the same color by evaluating then applying the result
-    viz.get_node_group("group_2").addStyle({"fill": random_group_color()});
+    viz.getNodeGroup("group_2").addStyle({"fill": randomGroupColor()});
 }

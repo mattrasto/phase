@@ -14,10 +14,10 @@ window.phase = (function () {
             this._link = null;
 
             // Visualization properties
-            this._container_width = 0;
-            this._container_height = 0;
+            this._containerWidth = 0;
+            this._containerHeight = 0;
 
-            this._node_groups = {}
+            this._nodeGroups = {}
 
 
 
@@ -49,34 +49,34 @@ window.phase = (function () {
         // Binds data to the viz
         data(data) {
             if (this._data != null) {
-                this._bind_data(data);
+                this._bindData(data);
             }
             else {
                 this._data = data;
             }
 
             // Update "all" groups
-            this.node_group("all", "");
+            this.nodeGroup("all", "");
             console.log("Bound data to viz");
         }
 
         // Renders viz element in container
         _render() {
 
-            this._container_width = this._container.getBoundingClientRect().width;
-            this._container_height = this._container.getBoundingClientRect().height;
+            this._containerWidth = this._container.getBoundingClientRect().width;
+            this._containerHeight = this._container.getBoundingClientRect().height;
 
             // Adds svg box and allows it to resize / zoom as needed
             this._svg = d3.select(this._container).append("svg")
                 .attr("id", "phase-network")
                 .attr("width", "100%")
                 .attr("height", "100%")
-                .attr("viewBox","0 0 " + Math.min(this._container_width, this._container_height) + " " + Math.min(this._container_width, this._container_height))
+                .attr("viewBox","0 0 " + Math.min(this._containerWidth, this._containerHeight) + " " + Math.min(this._containerWidth, this._containerHeight))
                 .attr("preserveAspectRatio", "xMinYMin")
-                .on("contextmenu", this._container_contextmenu)
+                .on("contextmenu", this._containerContextmenu)
                 .call(d3.zoom()
                     .scaleExtent([.1, 10])
-                    .on("zoom", this._container_zoom.bind(this))
+                    .on("zoom", this._containerZoom.bind(this))
                 )
                 .on("dblclick.zoom", null);  // Don't zoom on double left click
 
@@ -88,30 +88,30 @@ window.phase = (function () {
             this._simulation = d3.forceSimulation()
                 .force("link", d3.forceLink().id(function(d) { return d.id; }).distance(this._LINK_DISTANCE).strength(this._LINK_STRENGTH))
                 .force("charge", d3.forceManyBody().strength(this._CHARGE))
-                .force("center", d3.forceCenter(this._container_width / 2, this._container_height / 2));
+                .force("center", d3.forceCenter(this._containerWidth / 2, this._containerHeight / 2));
 
             // Creates g container for links
-            this._link_g = this._g.append("g")
+            this._linkG = this._g.append("g")
                 .attr("class", "links");
 
             // Appends links to link g container
-            this._links = this._link_g
+            this._links = this._linkG
                 .selectAll("line");
 
             // Creates g container for node containers
-            this._node_container_g = this._g.append("g")
+            this._nodeContainerG = this._g.append("g")
                 .attr("class", "nodes");
 
             // Adds node containers to node g container
-            this._node_containers = this._node_container_g
+            this._nodeContainers = this._nodeContainerG
                 .selectAll("g");
 
-            this._bind_data(this._data);
+            this._bindData(this._data);
 
             // Initializes simulation
             this._simulation
                 .nodes(this._data.nodes)
-                .on("tick", () => this._ticked(this._node_containers, this._links))
+                .on("tick", () => this._ticked(this._nodeContainers, this._links))
                 .force("link")
                     .links(this._data.links);
 
@@ -119,9 +119,9 @@ window.phase = (function () {
         }
 
         // Recalculates node and link positions every simulation tick
-        _ticked(node_container, link) {
+        _ticked(nodeContainer, link) {
 
-            node_container
+            nodeContainer
                 .attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
 
             link
@@ -138,18 +138,18 @@ window.phase = (function () {
 
 
         // Creates a new node group
-        node_group(label, filterer, val) {
+        nodeGroup(label, filterer, val) {
             var group = new NodeGroup(this, label, filterer, val)
-            this._node_groups[label] = group;
+            this._nodeGroups[label] = group;
             return group;
         }
 
-        get_node_group(label) {
-            return this._node_groups[label];
+        getNodeGroup(label) {
+            return this._nodeGroups[label];
         }
 
-        get_all_node_groups() {
-            return this._node_groups;
+        getAllNodeGroups() {
+            return this._nodeGroups;
         }
 
 
@@ -159,7 +159,7 @@ window.phase = (function () {
 
 
         // Binds new data to network
-        _bind_data(data) {
+        _bindData(data) {
 
             // Assign new data
             this._data = data;
@@ -175,63 +175,63 @@ window.phase = (function () {
                 .enter().append("line")
                     .attr("class", "link")
                     .attr("stroke-width", 1.5)
-                    .attr("stroke-dasharray", this._default_link_style.bind(this))
+                    .attr("stroke-dasharray", this._defaultLinkStyle.bind(this))
                     .merge(this._links);
 
 
             // Rejoin node data
-            this._node_containers = this._node_containers.data(this._data.nodes);
+            this._nodeContainers = this._nodeContainers.data(this._data.nodes);
 
             // Remove old nodes
-            this._node_containers.exit().remove();
+            this._nodeContainers.exit().remove();
 
             // Add new node containers to node g container
-            var new_nodes = this._node_containers
+            var newNodes = this._nodeContainers
               .enter().append("g");
 
             // Add new node containers
-            new_nodes
+            newNodes
                 .attr("class", "node")
-                .on("mouseover", this._node_mouseover)
-                .on("mouseout", this._node_mouseout)
-                .on("mousedown", this._node_mousedown)
-                .on("click", this._node_click)
-                .on("dblclick", this._node_dblclick)
-                .on("contextmenu", this._node_contextmenu)
+                .on("mouseover", this._nodeMouseover)
+                .on("mouseout", this._nodeMouseout)
+                .on("mousedown", this._nodeMousedown)
+                .on("click", this._nodeClick)
+                .on("dblclick", this._nodeDblclick)
+                .on("contextmenu", this._nodeContextmenu)
                 .call(d3.drag()
-                    .on("start", this._node_drag_start.bind(this))
-                    .on("drag", this._node_drag.bind(this))
-                    .on("end", this._node_drag_end.bind(this))
+                    .on("start", this._nodeDragStart.bind(this))
+                    .on("drag", this._nodeDrag.bind(this))
+                    .on("end", this._nodeDragEnd.bind(this))
                 );
 
             // Add new circles
-            new_nodes
+            newNodes
                 .append("circle")
-                    .attr("r", this._default_node_size)
-                    .attr("fill", this._default_node_color)
-                    .attr("stroke", this._default_node_border_color)
-                    .attr("stroke-width", this._default_node_border_width);
+                    .attr("r", this._defaultNodeSize)
+                    .attr("fill", this._defaultNodeColor)
+                    .attr("stroke", this._defaultNodeBorderColor)
+                    .attr("stroke-width", this._defaultNodeBorderWidth);
 
             // Add new labels
-            new_nodes
+            newNodes
                 .append("text")
                     .attr("dx", 12)
                     .attr("dy", ".35em")
                     .style("color", "#333")
                     .text(function(d) { return d.id });
 
-            this._node_containers = new_nodes.merge(this._node_containers);
+            this._nodeContainers = newNodes.merge(this._nodeContainers);
 
             // Update circles
-            this._node_containers
+            this._nodeContainers
                 .select("circle")
-                    .attr("r", this._default_node_size.bind(this))
-                    .attr("fill", this._default_node_color)
-                    .attr("stroke", this._default_node_border_color)
-                    .attr("stroke-width", this._default_node_border_width);
+                    .attr("r", this._defaultNodeSize.bind(this))
+                    .attr("fill", this._defaultNodeColor)
+                    .attr("stroke", this._defaultNodeBorderColor)
+                    .attr("stroke-width", this._defaultNodeBorderWidth);
 
             // Update labels
-            this._node_containers
+            this._nodeContainers
                 .select("text")
                     .attr("dx", 12)
                     .attr("dy", ".35em")
@@ -252,31 +252,31 @@ window.phase = (function () {
 
 
         // Sizes nodes
-        _default_node_size(d) {
+        _defaultNodeSize(d) {
             // Default: _SIZE_BASE
             return this._SIZE_BASE;
         }
 
         // Colors nodes depending on COLOR_MODE
-        _default_node_color(d) {
+        _defaultNodeColor(d) {
             // Default: dark grey
             return "#333";
         }
 
         // Colors node borders depending on if they are leaf nodes or not
-        _default_node_border_color(d) {
+        _defaultNodeBorderColor(d) {
             // Default: white
             return "#F7F6F2";
         }
 
         // Draws node borders depending on if they are leaf nodes or not
-        _default_node_border_width(d) {
+        _defaultNodeBorderWidth(d) {
             // Default: .8px
             return ".8px";
         }
 
         // Draws links as dash arrays based on their type
-        _default_link_style(d) {
+        _defaultLinkStyle(d) {
             // Default: solid
             return "";
         }
@@ -288,19 +288,19 @@ window.phase = (function () {
 
 
         // Node mouseover handler
-        _node_mouseover(d) {
+        _nodeMouseover(d) {
             // Default: add blue border
             d3.select(this.childNodes[0]).style("stroke", "#7DABFF").style("stroke-width", "3px");
         }
 
         // Node mouseout handler
-        _node_mouseout(d) {
+        _nodeMouseout(d) {
             // Default: remove blue border
             d3.select(this.childNodes[0]).style("stroke", "").style("stroke-width", "0");
         }
 
         // Node mousedown handler
-        _node_mousedown(d) {
+        _nodeMousedown(d) {
             console.log("Mousedown");
             // Unpin node if middle click
             if (d3.event.which == 2) {
@@ -311,46 +311,46 @@ window.phase = (function () {
         }
 
         // Node left click handler
-        _node_click(d) {
+        _nodeClick(d) {
             if (d3.event.defaultPrevented) return;
             d3.event.preventDefault();
         }
 
         // Node double left click handler
-        _node_dblclick(d) {
+        _nodeDblclick(d) {
             console.log("Double click");
         }
 
         // Node right click handler
-        _node_contextmenu(d) {
+        _nodeContextmenu(d) {
             console.log("Right click");
         }
 
         // Container drag start handler
-        _node_drag_start(d) {
+        _nodeDragStart(d) {
             if (!d3.event.active) this._simulation.alphaTarget(0.3).restart();
             d.fx = d.x;
             d.fy = d.y;
         }
 
         // Container drag handler
-        _node_drag(d) {
+        _nodeDrag(d) {
             d.fx = d3.event.x;
             d.fy = d3.event.y;
         }
 
         // Container dragend handler
-        _node_drag_end(d) {
+        _nodeDragEnd(d) {
             if (!d3.event.active) this._simulation.alphaTarget(0);
         }
 
         // Container right click handler (outside nodes)
-        _container_contextmenu(d) {
+        _containerContextmenu(d) {
             d3.event.preventDefault(); // Prevent context menu from appearing
         }
 
         // Container zoom handler
-        _container_zoom() {
+        _containerZoom() {
             this._g.node().setAttribute("transform", d3.event.transform);
         }
     }
@@ -363,12 +363,12 @@ window.phase = (function () {
 
             if (typeof filterer === "string") {
                 if (val == undefined) {
-                    filtered = this.network._node_containers;
+                    filtered = this.network._nodeContainers;
                 }
-                var filtered = this.network._node_containers.filter(d => d[filterer] == val);
+                var filtered = this.network._nodeContainers.filter(d => d[filterer] == val);
             }
             else if (typeof filterer === "function") {
-                var filtered = this.network._node_containers.filter(d => filterer(d));
+                var filtered = this.network._nodeContainers.filter(d => filterer(d));
             }
 
             this._selection = filtered;
@@ -377,21 +377,21 @@ window.phase = (function () {
         }
 
         // Applies a style map to a node group
-        addStyle(style_map) {
-            for (var attr in style_map) {
-                this._selection.select("circle").style(attr, style_map[attr]);
+        addStyle(styleMap) {
+            for (var attr in styleMap) {
+                this._selection.select("circle").style(attr, styleMap[attr]);
             }
         }
 
         // Removes all styles from a group
         unstyle(group) {
-            var style_map = {
-                "fill": this._default_node_color,
-                "r": this._default_node_size,
-                "stroke": this._default_node_border_color,
-                "stroke-width": this._default_node_border_width
+            var styleMap = {
+                "fill": this._defaultNodeColor,
+                "r": this._defaultNodeSize,
+                "stroke": this._defaultNodeBorderColor,
+                "stroke-width": this._defaultNodeBorderWidth
             }
-            this.addStyle(style_map);
+            this.addStyle(styleMap);
         }
     }
 
