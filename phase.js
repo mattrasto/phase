@@ -17,7 +17,8 @@ window.phase = (function () {
             this._containerWidth = 0;
             this._containerHeight = 0;
 
-            this._nodeGroups = {}
+            this._nodeGroups = {};
+            this._linkGroups = {};
 
 
 
@@ -150,6 +151,21 @@ window.phase = (function () {
 
         getAllNodeGroups() {
             return this._nodeGroups;
+        }
+
+        // Creates a new node group
+        linkGroup(label, filterer, val) {
+            var group = new LinkGroup(this, label, filterer, val)
+            this._linkGroups[label] = group;
+            return group;
+        }
+
+        getLinkGroup(label) {
+            return this._linkGroups[label];
+        }
+
+        getAllLinkGroups() {
+            return this._linkGroups;
         }
 
 
@@ -384,6 +400,48 @@ window.phase = (function () {
         }
 
         // Removes all styles from a group
+        unstyle(group) {
+            var styleMap = {
+                "fill": this._defaultNodeColor,
+                "r": this._defaultNodeSize,
+                "stroke": this._defaultNodeBorderColor,
+                "stroke-width": this._defaultNodeBorderWidth
+            }
+            this.addStyle(styleMap);
+        }
+    }
+
+    class LinkGroup {
+        // Creates a link group based on attributes or a passed in selection
+        constructor(network, label, filterer, val) {
+
+            this.network = network;
+
+            if (typeof filterer === "string") {
+                if (val == undefined) {
+                    filtered = this.network._links;
+                }
+                var filtered = this.network._links.filter(d => d[filterer] == val);
+            }
+            else if (typeof filterer === "function") {
+                var filtered = this.network._links.filter(d => filterer(d));
+            }
+
+            this._selection = filtered;
+
+            return this;
+        }
+
+        // Applies a style map to a node group
+        // TODO
+        addStyle(styleMap) {
+            for (var attr in styleMap) {
+                this._selection.select("circle").style(attr, styleMap[attr]);
+            }
+        }
+
+        // Removes all styles from a group
+        // TODO
         unstyle(group) {
             var styleMap = {
                 "fill": this._defaultNodeColor,
