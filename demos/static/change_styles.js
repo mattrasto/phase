@@ -10,11 +10,11 @@ document.addEventListener("DOMContentLoaded", function(event) {
 
 function change_node_color() {
     // Create a group for the node with "id" of "Gribier"
-    id_gribier = viz.create_node_group("id_Gribier", "id", "Gribier");
+    id_gribier = viz.node_group("id_Gribier", "id", "Gribier");
     // Create a group for the nodes with a "group" of 1
-    group_1 = viz.create_node_group("group_1", "group", 1);
+    group_1 = viz.node_group("group_1", "group", 1);
     // Create a group for the nodes with a "group" of 2 or 3
-    group_2 = viz.create_node_group("group_2", function(d) {
+    group_2 = viz.node_group("group_2", function(d) {
         return d.group >= 2;
     });
 
@@ -32,11 +32,9 @@ function change_node_color() {
     }
 
     // Style this group with a specific value
-    viz.style_node_group(id_gribier, {"fill": "blue"});
+    id_gribier.addStyle({"fill": "blue"});
     // Style this group with a random color for each node
-    viz.style_node_group(group_1, {"fill": random_group_color});
+    group_1.addStyle({"fill": random_group_color});
     // Style this group with the same color by evaluating then applying the result
-    viz.style_node_group(group_2, {"fill": random_node_color});
-
-    console.log(viz.get_all_node_groups());
+    viz.get_node_group("group_2").addStyle({"fill": random_group_color()});
 }

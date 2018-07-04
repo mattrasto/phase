@@ -56,7 +56,7 @@ window.phase = (function () {
             }
 
             // Update "all" groups
-            this.create_node_group("all", "");
+            this.node_group("all", "");
             console.log("Bound data to viz");
         }
 
@@ -137,37 +137,11 @@ window.phase = (function () {
 
 
 
-        // Creates a node group based on attributes or a passed in selection
-        create_node_group(label, filterer, val) {
-            if (typeof filterer === "string") {
-                if (val == undefined) {
-                    filtered = this._node_containers;
-                }
-                var filtered = this._node_containers.filter(d => d[filterer] == val);
-            }
-            else if (typeof filterer === "function") {
-                var filtered = this._node_containers.filter(d => filterer(d));
-            }
-            this._node_groups[label] = filtered;
-            return filtered;
-        }
-
-        // Applies a style map to a node group
-        style_node_group(group, style_map) {
-            for (var attr in style_map) {
-                group.select("circle").style(attr, style_map[attr]);
-            }
-        }
-
-        // Removes all styles from a group
-        unstyle_node_group(group) {
-            var style_map = {
-                "fill": this._default_node_color,
-                "r": this._default_node_size,
-                "stroke": this._default_node_border_color,
-                "stroke-width": this._default_node_border_width
-            }
-            this.style_node_group(group, style_map);
+        // Creates a new node group
+        node_group(label, filterer, val) {
+            var group = new NodeGroup(this, label, filterer, val)
+            this._node_groups[label] = group;
+            return group;
         }
 
         get_node_group(label) {
@@ -378,6 +352,46 @@ window.phase = (function () {
         // Container zoom handler
         _container_zoom() {
             this._g.node().setAttribute("transform", d3.event.transform);
+        }
+    }
+
+    class NodeGroup {
+        // Creates a node group based on attributes or a passed in selection
+        constructor(network, label, filterer, val) {
+
+            this.network = network;
+
+            if (typeof filterer === "string") {
+                if (val == undefined) {
+                    filtered = this.network._node_containers;
+                }
+                var filtered = this.network._node_containers.filter(d => d[filterer] == val);
+            }
+            else if (typeof filterer === "function") {
+                var filtered = this.network._node_containers.filter(d => filterer(d));
+            }
+
+            this._selection = filtered;
+
+            return this;
+        }
+
+        // Applies a style map to a node group
+        addStyle(style_map) {
+            for (var attr in style_map) {
+                this._selection.select("circle").style(attr, style_map[attr]);
+            }
+        }
+
+        // Removes all styles from a group
+        unstyle(group) {
+            var style_map = {
+                "fill": this._default_node_color,
+                "r": this._default_node_size,
+                "stroke": this._default_node_border_color,
+                "stroke-width": this._default_node_border_width
+            }
+            this.addStyle(style_map);
         }
     }
 

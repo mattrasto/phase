@@ -24,28 +24,30 @@ function change_groups() {
 
     if (GROUPS.length > 0) {
         // Unstyle all groups
-        viz.unstyle_node_group(GROUPS[0]);
-        viz.unstyle_node_group(GROUPS[1]);
-        viz.unstyle_node_group(GROUPS[2]);
+        GROUPS[0].unstyle();
+        GROUPS[1].unstyle();
+        GROUPS[2].unstyle();
     }
 
     GROUPS = []
 
     // Create groups of nodes based on data groups they belong to
     var rand_num = Math.floor(Math.random() * 8);
-    GROUPS.push(viz.create_node_group("rand_group_1", function(d) { return d.group == rand_num; }));
+    GROUPS.push(viz.node_group("rand_group_1", function(d) { return d.group == rand_num; }));
     d3.select("#data-collection-1").text(rand_num);
 
     rand_num = Math.floor(Math.random() * 8);
-    GROUPS.push(viz.create_node_group("rand_group_2", function(d) { return d.group == rand_num; }));
+    GROUPS.push(viz.node_group("rand_group_2", function(d) { return d.group == rand_num; }));
     d3.select("#data-collection-2").text(rand_num);
 
     rand_num = Math.floor(Math.random() * 8);
-    GROUPS.push(viz.create_node_group("rand_group_3", function(d) { return d.group == rand_num; }));
+    GROUPS.push(viz.node_group("rand_group_3", function(d) { return d.group == rand_num; }));
     d3.select("#data-collection-3").text(rand_num);
+
+    console.log(viz.get_all_node_groups());
 }
 
 // Style a group with a specific value
 function style_group(group_num) {
-    viz.style_node_group(GROUPS[group_num - 1], {"fill": random_color()});
+    GROUPS[group_num - 1].addStyle({"fill": random_color()});
 }
