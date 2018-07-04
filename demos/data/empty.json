@@ -1,4 +1,4 @@
-const empty_data = {
+const emptyData = {
   "nodes": [],
   "links": []
 }
