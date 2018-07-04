@@ -49,5 +49,5 @@ function changeGroups() {
 
 // Style a group with a specific value
 function styleGroup(groupNum) {
-    GROUPS[groupNum - 1].addStyle({"fill": randomColor()});
+    GROUPS[groupNum - 1].addStyle({"stroke": randomColor()});
 }

@@ -190,7 +190,7 @@ window.phase = (function () {
             this._links = this._links
                 .enter().append("line")
                     .attr("class", "link")
-                    .attr("stroke-width", 1.5)
+                    .style("stroke-width", 1.5)
                     .attr("stroke-dasharray", this._defaultLinkStyle.bind(this))
                     .merge(this._links);
 
@@ -433,15 +433,13 @@ window.phase = (function () {
         }
 
         // Applies a style map to a node group
-        // TODO
         addStyle(styleMap) {
             for (var attr in styleMap) {
-                this._selection.select("circle").style(attr, styleMap[attr]);
+                this._selection.style(attr, styleMap[attr]);
             }
         }
 
         // Removes all styles from a group
-        // TODO
         unstyle(group) {
             var styleMap = {
                 "fill": this._defaultNodeColor,
