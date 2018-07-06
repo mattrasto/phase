@@ -246,10 +246,10 @@ window.phase = (function () {
             // Add new circles
             newNodes
                 .append("circle")
-                    .attr("r", this._defaultNodeSize)
-                    .attr("fill", this._defaultNodeColor)
-                    .attr("stroke", this._defaultNodeBorderColor)
-                    .attr("stroke-width", this._defaultNodeBorderWidth);
+                    .style("r", this._defaultNodeSize)
+                    .style("fill", this._defaultNodeColor)
+                    .style("stroke", this._defaultNodeBorderColor)
+                    .style("stroke-width", this._defaultNodeBorderWidth);
 
             // Add new labels
             newNodes
@@ -265,10 +265,10 @@ window.phase = (function () {
             // Update circles
             this._nodeContainers
                 .select("circle")
-                    .attr("r", this._defaultNodeSize.bind(this))
-                    .attr("fill", this._defaultNodeColor)
-                    .attr("stroke", this._defaultNodeBorderColor)
-                    .attr("stroke-width", this._defaultNodeBorderWidth);
+                    .style("r", this._defaultNodeSize.bind(this))
+                    .style("fill", this._defaultNodeColor)
+                    .style("stroke", this._defaultNodeBorderColor)
+                    .style("stroke-width", this._defaultNodeBorderWidth);
 
             // Update labels
             this._nodeContainers
@@ -300,7 +300,7 @@ window.phase = (function () {
             newLinks
                 .append("line")
                     .style("stroke-width", 1.5)
-                    .attr("stroke-dasharray", this._defaultLinkStyle.bind(this));
+                    .style("stroke-dasharray", this._defaultLinkStyle.bind(this));
 
             // Add new labels
             newLinks
@@ -319,7 +319,7 @@ window.phase = (function () {
             this._linkContainers
                 .select("line")
                     .style("stroke-width", 1.5)
-                    .attr("stroke-dasharray", this._defaultLinkStyle.bind(this));
+                    .style("stroke-dasharray", this._defaultLinkStyle.bind(this));
 
             // Update labels
             this._linkContainers
