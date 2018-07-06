@@ -20,6 +20,8 @@ window.phase = (function () {
             this._nodeGroups = {};
             this._linkGroups = {};
 
+            this._morphs = {};
+
 
 
             // Settings (user-accessible)
@@ -172,6 +174,24 @@ window.phase = (function () {
 
         getAllLinkGroups() {
             return this._linkGroups;
+        }
+
+
+
+        // PHASES AND MORPHS
+
+        morph(label, type, change) {
+            var morph = new Morph(this, label, type, change);
+            this._morphs[label] = morph;
+            return morph;
+        }
+
+        getMorph(label) {
+            return this._morphs[label];
+        }
+
+        getAllMorphs() {
+            return this._morphs;
         }
 
 
@@ -428,6 +448,9 @@ window.phase = (function () {
         constructor(network, label, filterer, val) {
 
             this.network = network;
+            this.label = label;
+            this.filterer = filterer;
+            this.val = val;
 
             if (typeof filterer === "string") {
                 if (val == undefined) {
@@ -465,6 +488,13 @@ window.phase = (function () {
         labels(labeler) {
             this._selection.select("text").text(labeler);
         }
+
+        morph(label) {
+            var morph = this.network.getMorph(label);
+            if (morph.type == "style") {
+                this.addStyle(morph.change);
+            }
+        }
     }
 
     class LinkGroup {
@@ -472,6 +502,9 @@ window.phase = (function () {
         constructor(network, label, filterer, val) {
 
             this.network = network;
+            this.label = label;
+            this.filterer = filterer;
+            this.val = val;
 
             if (typeof filterer === "string") {
                 if (val == undefined) {
@@ -508,6 +541,18 @@ window.phase = (function () {
 
         labels(labeler) {
             this._selection.select("text").text(labeler);
+        }
+    }
+
+    class Morph {
+        // Creates a morph
+        constructor(network, label, type, change) {
+            this.network = network;
+            this.label = label;
+            this.type = type;
+            this.change = change;
+
+            return this;
         }
     }
 
