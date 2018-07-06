@@ -20,6 +20,8 @@ window.phase = (function () {
             this._nodeGroups = {};
             this._linkGroups = {};
 
+            this._morphs = {};
+
 
 
             // Settings (user-accessible)
@@ -176,6 +178,24 @@ window.phase = (function () {
 
 
 
+        // PHASES AND MORPHS
+
+        morph(label, type, change) {
+            var morph = new Morph(this, label, type, change);
+            this._morphs[label] = morph;
+            return morph;
+        }
+
+        getMorph(label) {
+            return this._morphs[label];
+        }
+
+        getAllMorphs() {
+            return this._morphs;
+        }
+
+
+
         // DATA BINDING
 
 
@@ -226,10 +246,10 @@ window.phase = (function () {
             // Add new circles
             newNodes
                 .append("circle")
-                    .attr("r", this._defaultNodeSize)
-                    .attr("fill", this._defaultNodeColor)
-                    .attr("stroke", this._defaultNodeBorderColor)
-                    .attr("stroke-width", this._defaultNodeBorderWidth);
+                    .style("r", this._defaultNodeSize)
+                    .style("fill", this._defaultNodeColor)
+                    .style("stroke", this._defaultNodeBorderColor)
+                    .style("stroke-width", this._defaultNodeBorderWidth);
 
             // Add new labels
             newNodes
@@ -245,10 +265,10 @@ window.phase = (function () {
             // Update circles
             this._nodeContainers
                 .select("circle")
-                    .attr("r", this._defaultNodeSize.bind(this))
-                    .attr("fill", this._defaultNodeColor)
-                    .attr("stroke", this._defaultNodeBorderColor)
-                    .attr("stroke-width", this._defaultNodeBorderWidth);
+                    .style("r", this._defaultNodeSize.bind(this))
+                    .style("fill", this._defaultNodeColor)
+                    .style("stroke", this._defaultNodeBorderColor)
+                    .style("stroke-width", this._defaultNodeBorderWidth);
 
             // Update labels
             this._nodeContainers
@@ -280,7 +300,7 @@ window.phase = (function () {
             newLinks
                 .append("line")
                     .style("stroke-width", 1.5)
-                    .attr("stroke-dasharray", this._defaultLinkStyle.bind(this));
+                    .style("stroke-dasharray", this._defaultLinkStyle.bind(this));
 
             // Add new labels
             newLinks
@@ -299,7 +319,7 @@ window.phase = (function () {
             this._linkContainers
                 .select("line")
                     .style("stroke-width", 1.5)
-                    .attr("stroke-dasharray", this._defaultLinkStyle.bind(this));
+                    .style("stroke-dasharray", this._defaultLinkStyle.bind(this));
 
             // Update labels
             this._linkContainers
@@ -428,6 +448,9 @@ window.phase = (function () {
         constructor(network, label, filterer, val) {
 
             this.network = network;
+            this.label = label;
+            this.filterer = filterer;
+            this.val = val;
 
             if (typeof filterer === "string") {
                 if (val == undefined) {
@@ -465,6 +488,22 @@ window.phase = (function () {
         labels(labeler) {
             this._selection.select("text").text(labeler);
         }
+
+        morph(label) {
+            var morph = this.network.getMorph(label);
+            if (morph.type == "style") {
+                this.addStyle(morph.change);
+            }
+            if (morph.type == "data") {
+                var newData = this._selection.data();
+                for (var datum in newData) {
+                    for (var update in morph.change) {
+                        newData[datum][update] = morph.change[update];
+                    }
+                }
+                this._selection.data(newData);
+            }
+        }
     }
 
     class LinkGroup {
@@ -472,6 +511,9 @@ window.phase = (function () {
         constructor(network, label, filterer, val) {
 
             this.network = network;
+            this.label = label;
+            this.filterer = filterer;
+            this.val = val;
 
             if (typeof filterer === "string") {
                 if (val == undefined) {
@@ -491,7 +533,7 @@ window.phase = (function () {
         // Applies a style map to a node group
         addStyle(styleMap) {
             for (var attr in styleMap) {
-                this._selection.style(attr, styleMap[attr]);
+                this._selection.select("line").style(attr, styleMap[attr]);
             }
         }
 
@@ -508,6 +550,34 @@ window.phase = (function () {
 
         labels(labeler) {
             this._selection.select("text").text(labeler);
+        }
+
+        morph(label) {
+            var morph = this.network.getMorph(label);
+            if (morph.type == "style") {
+                this.addStyle(morph.change);
+            }
+            if (morph.type == "data") {
+                var newData = this._selection.data();
+                for (var datum in newData) {
+                    for (var update in morph.change) {
+                        newData[datum][update] = morph.change[update];
+                    }
+                }
+                this._selection.data(newData);
+            }
+        }
+    }
+
+    class Morph {
+        // Creates a morph
+        constructor(network, label, type, change) {
+            this.network = network;
+            this.label = label;
+            this.type = type;
+            this.change = change;
+
+            return this;
         }
     }
 
