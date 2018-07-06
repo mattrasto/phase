@@ -533,7 +533,7 @@ window.phase = (function () {
         // Applies a style map to a node group
         addStyle(styleMap) {
             for (var attr in styleMap) {
-                this._selection.style(attr, styleMap[attr]);
+                this._selection.select("line").style(attr, styleMap[attr]);
             }
         }
 
@@ -550,6 +550,22 @@ window.phase = (function () {
 
         labels(labeler) {
             this._selection.select("text").text(labeler);
+        }
+
+        morph(label) {
+            var morph = this.network.getMorph(label);
+            if (morph.type == "style") {
+                this.addStyle(morph.change);
+            }
+            if (morph.type == "data") {
+                var newData = this._selection.data();
+                for (var datum in newData) {
+                    for (var update in morph.change) {
+                        newData[datum][update] = morph.change[update];
+                    }
+                }
+                this._selection.data(newData);
+            }
         }
     }
 
