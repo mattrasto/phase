@@ -494,6 +494,15 @@ window.phase = (function () {
             if (morph.type == "style") {
                 this.addStyle(morph.change);
             }
+            if (morph.type == "data") {
+                var newData = this._selection.data();
+                for (var datum in newData) {
+                    for (var update in morph.change) {
+                        newData[datum][update] = morph.change[update];
+                    }
+                }
+                this._selection.data(newData);
+            }
         }
     }
 

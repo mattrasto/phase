@@ -16,10 +16,13 @@ function createRandGroup() {
 }
 
 function createMorphs() {
-    viz.morph("color_blue", "style", {"fill": "blue"});
-    console.log(viz.getAllMorphs());
+    viz.morph("color_blue", "style", {"fill": "#7DABFF"});
+    viz.morph("change_group", "data", {"group": "200"});
+    console.log(viz.getNodeGroup("all")._selection.data());
 }
 
 function applyMorphs() {
     viz.getNodeGroup("rand_group_1").morph("color_blue");
+    viz.getNodeGroup("rand_group_1").morph("change_group");
+    console.log(viz.getNodeGroup("all")._selection.data());
 }
