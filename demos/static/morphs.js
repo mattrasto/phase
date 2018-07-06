@@ -4,25 +4,32 @@ document.addEventListener("DOMContentLoaded", function(event) {
     // Attach some initial data
     viz.data(lesMiserablesData);
 
-    createRandGroup();
+    createRandGroups();
 
     console.log("Visualization Loaded");
 });
 
-// Create random group of nodes
-function createRandGroup() {
-    var randNum = Math.floor(Math.random() * 8);
-    return viz.nodeGroup("rand_group_1", function(d) { return d.group == randNum; });
+// Create random groups of nodes and links
+function createRandGroups() {
+    var randNum = Math.floor(Math.random() * 6);
+    viz.nodeGroup("rand_node_group", function(d) { return d.group == randNum; });
+    viz.linkGroup("rand_link_group", function(d) { return d.value == randNum; });
 }
 
 function createMorphs() {
-    viz.morph("color_blue", "style", {"fill": "#7DABFF"});
-    viz.morph("change_group", "data", {"group": "200"});
-    console.log(viz.getNodeGroup("all")._selection.data());
+    // Node styling morph
+    viz.morph("style_nodes", "style", {"fill": "#7DABFF", "stroke": "#AE63D4", "stroke-width": "3px"});
+    // Node data morph
+    viz.morph("update_nodes", "data", {"group": "200"});
+    // Link styling morph
+    viz.morph("style_links", "style", {"stroke": "#D46363", "stroke-width": "3px"});
+    // Link data morph
+    viz.morph("update_links", "data", {"value": "200"});
 }
 
 function applyMorphs() {
-    viz.getNodeGroup("rand_group_1").morph("color_blue");
-    viz.getNodeGroup("rand_group_1").morph("change_group");
-    console.log(viz.getNodeGroup("all")._selection.data());
+    viz.getNodeGroup("rand_node_group").morph("style_nodes");
+    viz.getNodeGroup("rand_node_group").morph("update_nodes");
+    viz.getLinkGroup("rand_link_group").morph("style_links");
+    viz.getLinkGroup("rand_link_group").morph("update_links");
 }
