@@ -1,6 +1,5 @@
 document.addEventListener("DOMContentLoaded", function(event) {
     // Initialize network object
-    // viz = phase.Network(document.getElementById("viz-container"));
     viz = phase.Network("#viz-container");
     // Attach some initial data
     viz.data(lesMiserablesData);
