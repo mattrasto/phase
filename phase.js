@@ -10,8 +10,6 @@ window.phase = (function () {
             this._svg = null;
             this._g = null;
             this._simulation = null;
-            this._node = null;
-            this._link = null;
 
             // Visualization properties
             this._containerWidth = 0;
@@ -85,6 +83,7 @@ window.phase = (function () {
                 )
                 .on("dblclick.zoom", null);  // Don't zoom on double left click
 
+            // TODO
             this._container.appendChild(this._svg.node());
 
             // Creates actual force graph container (this is what actually gets resized as needed)
@@ -416,7 +415,7 @@ window.phase = (function () {
 
         // Container drag start handler
         _nodeDragStart(d) {
-            if (!d3.event.active) this._simulation.alphaTarget(0.3).restart();
+            if (!d3.event.active) this._simulation.alphaTarget(.3).restart();
             d.fx = d.x;
             d.fy = d.y;
         }
@@ -578,6 +577,43 @@ window.phase = (function () {
             this.change = change;
 
             return this;
+        }
+    }
+
+    class Phase {
+        // Creates a phase
+        constructor(network, label) {
+            this.network = network;
+            this.label = label;
+
+            this._root = null;
+
+            return this;
+        }
+
+        root(element) {
+            this._root = element;
+        }
+
+        start() {
+            // TODO: Play through the animation in layers
+        }
+    }
+
+    class MorphNode {
+        // Creates a node in the morph execution tree
+        constructor(element, morphLabel) {
+            this.element = element;
+            this.morph = morphLabel; // TODO: get morph
+            this.children = [];
+
+            return this;
+        }
+
+        branch(element, morphLabel) {
+            childMorph = new Morph(element, morphLabel);
+            this.children.push(childMorph);
+            return childMorph;
         }
     }
 
