@@ -19,6 +19,7 @@ window.phase = (function () {
             this._linkGroups = {};
 
             this._morphs = {};
+            this._phases = {};
 
 
 
@@ -191,6 +192,20 @@ window.phase = (function () {
 
         getAllMorphs() {
             return this._morphs;
+        }
+
+        phase(label) {
+            var phase = new Phase(this, label);
+            this._phases[label] = phase;
+            return phase;
+        }
+
+        getPhase(label) {
+            return this._phases[label];
+        }
+
+        getAllPhases() {
+            return this._phases;
         }
 
 
@@ -588,15 +603,49 @@ window.phase = (function () {
 
             this._root = null;
 
+            // SETTINGS
+            this._timeStep = 500; // Time between execution tree layer applications
+
+            // STATE
+            this._curLayer = 0;
+            this._interval = null;
+
             return this;
         }
 
-        root(element) {
-            this._root = element;
+        root(element, morph) {
+            if (element == undefined) {
+                return this._root;
+            }
+            this._root = new MorphNode(element, morph.label);
+            return this._root;
         }
 
         start() {
-            // TODO: Play through the animation in layers
+
+            function step() {
+                var curLayer = 0;
+                var curLayerNodes = [this._root];
+                var nextLayerNodes = [];
+                while (curLayer < this._curLayer) {
+                    if (curLayerNodes.length == 0) {
+                        clearInterval(this._interval);
+                        return;
+                    }
+                    for (var i = 0; i < curLayerNodes.length; i++) {
+                        nextLayerNodes.push(...curLayerNodes[i].children);
+                    }
+                    curLayerNodes = nextLayerNodes;
+                    nextLayerNodes = [];
+                    curLayer++;
+                }
+                for (var i = 0; i < curLayerNodes.length; i++) {
+                    curLayerNodes[i].element.morph(curLayerNodes[i].morphLabel);
+                }
+                this._curLayer++;
+            }
+
+            this._interval = setInterval(step.bind(this), this._timeStep);
         }
     }
 
@@ -604,14 +653,14 @@ window.phase = (function () {
         // Creates a node in the morph execution tree
         constructor(element, morphLabel) {
             this.element = element;
-            this.morph = morphLabel; // TODO: get morph
+            this.morphLabel = morphLabel; // TODO: get morph
             this.children = [];
 
             return this;
         }
 
         branch(element, morphLabel) {
-            childMorph = new Morph(element, morphLabel);
+            var childMorph = new MorphNode(element, morphLabel);
             this.children.push(childMorph);
             return childMorph;
         }
