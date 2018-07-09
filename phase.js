@@ -607,8 +607,9 @@ window.phase = (function () {
             this._timeStep = 500; // Time between execution tree layer applications
 
             // STATE
-            this._curLayer = 0;
-            this._interval = null;
+            this._curLayer = 0; // Current layer of the phase's execution
+            this._interval = null; // Interval ID for the phase
+            this._layerNodes = []; // Array of MorphNodes present in each layer of the execution tree
 
             return this;
         }
@@ -617,30 +618,20 @@ window.phase = (function () {
             if (element == undefined) {
                 return this._root;
             }
-            this._root = new MorphNode(element, morph.label);
+            this._root = new MorphNode(this, element, morph.label);
             return this._root;
         }
 
         start() {
 
             function step() {
-                var curLayer = 0;
-                var curLayerNodes = [this._root];
-                var nextLayerNodes = [];
-                while (curLayer < this._curLayer) {
-                    if (curLayerNodes.length == 0) {
-                        clearInterval(this._interval);
-                        return;
-                    }
-                    for (var i = 0; i < curLayerNodes.length; i++) {
-                        nextLayerNodes.push(...curLayerNodes[i].children);
-                    }
-                    curLayerNodes = nextLayerNodes;
-                    nextLayerNodes = [];
-                    curLayer++;
+                var curLayerNodes = this._layerNodes[this._curLayer];
+                if (curLayerNodes == undefined) {
+                    clearInterval(this._interval);
+                    return;
                 }
                 for (var i = 0; i < curLayerNodes.length; i++) {
-                    curLayerNodes[i].element.morph(curLayerNodes[i].morphLabel);
+                    curLayerNodes[i]._element.morph(curLayerNodes[i]._morphLabel);
                 }
                 this._curLayer++;
             }
@@ -651,17 +642,30 @@ window.phase = (function () {
 
     class MorphNode {
         // Creates a node in the morph execution tree
-        constructor(element, morphLabel) {
-            this.element = element;
-            this.morphLabel = morphLabel; // TODO: get morph
-            this.children = [];
+        constructor(phase, element, morphLabel) {
+            this._phase = phase;
+            this._element = element;
+            this._morphLabel = morphLabel; // TODO: get morph
+            this._children = [];
+
+            this._layer = 0;
+
+            this._phase._layerNodes[0] = [this];
 
             return this;
         }
 
+        // Creates a node in the next layer from the current node in the morph execution tree
         branch(element, morphLabel) {
-            var childMorph = new MorphNode(element, morphLabel);
-            this.children.push(childMorph);
+            var childMorph = new MorphNode(this._phase, element, morphLabel);
+            childMorph._layer = this._layer + 1;
+
+            this._children.push(childMorph);
+            if (this._phase._layerNodes.length <= childMorph._layer) {
+                this._phase._layerNodes.push([]);
+            }
+            this._phase._layerNodes[childMorph._layer].push(this);
+
             return childMorph;
         }
     }
