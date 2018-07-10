@@ -4,10 +4,6 @@ document.addEventListener("DOMContentLoaded", function(event) {
     // Attach some initial data
     viz.data(lesMiserablesData);
 
-    const childDict = createChildDict();
-    const startNode = "Brujon";
-    const bfs = createPhase(createMorph(), childDict, startNode);
-
     console.log("Visualization Loaded");
 });
 
@@ -28,9 +24,14 @@ function createChildDict(){
 }
 
 // Constructs phase for BFS
-function createPhase(morph, childDict, startNode) {
+function bfsPhase(childDict, startNode) {
     // Initialize phase with root node
     let phase = viz.phase("bfs");
+
+    // Keeps track of node depth
+    let depth = 0;
+
+    let morph = createMorph(depth++);
     let root = phase.root(viz.nodeGroup(startNode, "id", startNode), morph);
 
     // Contains visited nodes
@@ -58,17 +59,25 @@ function createPhase(morph, childDict, startNode) {
         function filter(elem) {
             return validChildren.has(elem.id);
         }
-        // It doesn't matter what we call this group
-        let ng = viz.nodeGroup("_", filter);
+
+        let ng = viz.nodeGroup("depth_" + depth, filter);
+        morph = createMorph(depth++);
         root = root.branch(ng, morph._label);
     }
 
     return phase;
 }
 
+function createPhase() {
+    const childDict = createChildDict();
+    const startNode = document.getElementById("startNode").value;
+    bfsPhase(childDict, startNode);
+}
+
 // Creates the morph that changes the color of the node
-function createMorph() {
-    return viz.morph("style_nodes", "style", {"fill": "#7DABFF"});
+function createMorph(depth) {
+    const colors = ["#63D467", "#63B2D4", "#AE63D4", "#D46363", "#ED9A55", "#E5EB7A"];
+    return viz.morph("style_nodes_" + depth, "style", {"fill": colors[depth]});
 }
 
 // Starts the phase

@@ -159,6 +159,26 @@ input:-webkit-autofill {
 	outline: none;
 }
 
+#sidebar input[type=text] {
+	width: 140px;
+	height: 40px;
+	border: 2px solid #A1D490;
+	color: #81BD6D;
+	font-size: 16px;
+	font-weight: 600;
+	border-radius: 10px;
+	background-color: inherit;
+	vertical-align: middle;
+	margin-bottom: 20px;
+	color: #333;
+	padding-left: 10px;
+	box-sizing: border-box;
+}
+
+#sidebar input[type=text]:focus {
+	outline: none;
+}
+
 #viz-container {
 	width: calc(80% - 102px);
 	height: 100vh;
