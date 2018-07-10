@@ -498,8 +498,7 @@ window.phase = (function () {
         }
     }
 
-    class NodeGroup {
-        // Creates a node group based on attributes or a passed in selection
+    class Group {
         constructor(network, label, filterer, val) {
 
             this._network = network;
@@ -507,15 +506,14 @@ window.phase = (function () {
             this.filterer = filterer;
             this.val = val;
 
+            const containers = this instanceof NodeGroup ? this._network._nodeContainers : this._network._linkContainers;
+
             let filtered;
             if (typeof filterer === "string") {
-                if (val == undefined) {
-                    filtered = this._network._nodeContainers;
-                }
-                filtered = this._network._nodeContainers.filter(d => d[filterer] == val);
+                filtered = val === undefined ? containers : containers.filter(d => d[filterer] == val);
             }
             else if (typeof filterer === "function") {
-                filtered = this._network._nodeContainers.filter(d => filterer(d));
+                filtered = containers.filter(d => filterer(d));
             }
 
             this._selection = filtered;
@@ -523,22 +521,10 @@ window.phase = (function () {
             return this;
         }
 
-        // Applies a style map to a node group
-        addStyle(styleMap) {
+        addStyle(styleMap, selector){
             for (const attr in styleMap) {
-                this._selection.select("circle").style(attr, styleMap[attr]);
+                this._selection.select(selector).style(attr, styleMap[attr]);
             }
-        }
-
-        // Removes all styles from a group
-        unstyle() {
-            const styleMap = {
-                "fill": this._network._defaultNodeColor.bind(this._network),
-                "r": this._network._defaultNodeSize.bind(this._network),
-                "stroke": this._network._defaultNodeBorderColor.bind(this._network),
-                "stroke-width": this._network._defaultNodeBorderWidth.bind(this._network)
-            }
-            this.addStyle(styleMap);
         }
 
         labels(labeler) {
@@ -562,36 +548,38 @@ window.phase = (function () {
         }
     }
 
-    class LinkGroup {
-        // Creates a link group based on attributes or a passed in selection
+    class NodeGroup extends Group {
+        // Creates a node group based on attributes or a passed in selection
         constructor(network, label, filterer, val) {
-
-            this._network = network;
-            this.label = label;
-            this.filterer = filterer;
-            this.val = val;
-
-            let filtered;
-            if (typeof filterer === "string") {
-                if (val == undefined) {
-                    filtered = this._network._linkContainers;
-                }
-                filtered = this._network._linkContainers.filter(d => d[filterer] == val);
-            }
-            else if (typeof filterer === "function") {
-                filtered = this._network._linkContainers.filter(d => filterer(d));
-            }
-
-            this._selection = filtered;
-
-            return this;
+            super(network, label, filterer, val)
         }
 
         // Applies a style map to a node group
         addStyle(styleMap) {
-            for (const attr in styleMap) {
-                this._selection.select("line").style(attr, styleMap[attr]);
+            super.addStyle(styleMap, "circle")
+        }
+
+        // Removes all styles from a group
+        unstyle() {
+            const styleMap = {
+                "fill": this._network._defaultNodeColor.bind(this._network),
+                "r": this._network._defaultNodeSize.bind(this._network),
+                "stroke": this._network._defaultNodeBorderColor.bind(this._network),
+                "stroke-width": this._network._defaultNodeBorderWidth.bind(this._network)
             }
+            this.addStyle(styleMap);
+        }
+    }
+
+    class LinkGroup extends Group {
+        // Creates a link group based on attributes or a passed in selection
+        constructor(network, label, filterer, val) {
+            super(network, label, filterer, val)
+        }
+
+        // Applies a style map to a node group
+        addStyle(styleMap) {
+            super.addStyle(styleMap, "line")
         }
 
         // Removes all styles from a group
@@ -603,26 +591,6 @@ window.phase = (function () {
                 "stroke-width": this._network._defaultLinkWidth.bind(this._network)
             }
             this.addStyle(styleMap);
-        }
-
-        labels(labeler) {
-            this._selection.select("text").text(labeler);
-        }
-
-        morph(label) {
-            const morph = this._network.getMorph(label);
-            if (morph._type == "style") {
-                this.addStyle(morph._change);
-            }
-            if (morph.type == "data") {
-                let newData = this._selection.data();
-                for (const datum in newData) {
-                    for (const update in morph._change) {
-                        newData[datum][update] = morph._change[update];
-                    }
-                }
-                this._selection.data(newData);
-            }
         }
     }
 
