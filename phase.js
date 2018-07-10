@@ -172,7 +172,7 @@ window.phase = (function () {
 
         // Creates a new node group
         nodeGroup(label, filterer, val) {
-            var group = new NodeGroup(this, label, filterer, val)
+            const group = new NodeGroup(this, label, filterer, val)
             this._nodeGroups[label] = group;
             return group;
         }
@@ -187,7 +187,7 @@ window.phase = (function () {
 
         // Creates a new node group
         linkGroup(label, filterer, val) {
-            var group = new LinkGroup(this, label, filterer, val)
+            const group = new LinkGroup(this, label, filterer, val)
             this._linkGroups[label] = group;
             return group;
         }
@@ -264,7 +264,7 @@ window.phase = (function () {
             this._nodeContainers.exit().remove();
 
             // Add new node containers to node g container
-            var newNodes = this._nodeContainers
+            let newNodes = this._nodeContainers
               .enter().append("g");
 
             // Add new node containers
@@ -328,7 +328,7 @@ window.phase = (function () {
             this._linkContainers.exit().remove();
 
             // Add new links to link g container
-            var newLinks = this._linkContainers
+            let newLinks = this._linkContainers
                 .enter().append("g");
 
             // Add new link containers
@@ -507,14 +507,15 @@ window.phase = (function () {
             this.filterer = filterer;
             this.val = val;
 
+            let filtered;
             if (typeof filterer === "string") {
                 if (val == undefined) {
                     filtered = this._network._nodeContainers;
                 }
-                var filtered = this._network._nodeContainers.filter(d => d[filterer] == val);
+                filtered = this._network._nodeContainers.filter(d => d[filterer] == val);
             }
             else if (typeof filterer === "function") {
-                var filtered = this._network._nodeContainers.filter(d => filterer(d));
+                filtered = this._network._nodeContainers.filter(d => filterer(d));
             }
 
             this._selection = filtered;
@@ -524,14 +525,14 @@ window.phase = (function () {
 
         // Applies a style map to a node group
         addStyle(styleMap) {
-            for (var attr in styleMap) {
+            for (const attr in styleMap) {
                 this._selection.select("circle").style(attr, styleMap[attr]);
             }
         }
 
         // Removes all styles from a group
         unstyle() {
-            var styleMap = {
+            const styleMap = {
                 "fill": this._network._defaultNodeColor.bind(this._network),
                 "r": this._network._defaultNodeSize.bind(this._network),
                 "stroke": this._network._defaultNodeBorderColor.bind(this._network),
@@ -545,14 +546,14 @@ window.phase = (function () {
         }
 
         morph(label) {
-            var morph = this._network.getMorph(label);
+            const morph = this._network.getMorph(label);
             if (morph._type == "style") {
                 this.addStyle(morph._change);
             }
             if (morph._type == "data") {
-                var newData = this._selection.data();
-                for (var datum in newData) {
-                    for (var update in morph._change) {
+                let newData = this._selection.data();
+                for (const datum in newData) {
+                    for (const update in morph._change) {
                         newData[datum][update] = morph._change[update];
                     }
                 }
@@ -570,14 +571,15 @@ window.phase = (function () {
             this.filterer = filterer;
             this.val = val;
 
+            let filtered;
             if (typeof filterer === "string") {
                 if (val == undefined) {
                     filtered = this._network._linkContainers;
                 }
-                var filtered = this._network._linkContainers.filter(d => d[filterer] == val);
+                filtered = this._network._linkContainers.filter(d => d[filterer] == val);
             }
             else if (typeof filterer === "function") {
-                var filtered = this._network._linkContainers.filter(d => filterer(d));
+                filtered = this._network._linkContainers.filter(d => filterer(d));
             }
 
             this._selection = filtered;
@@ -587,14 +589,14 @@ window.phase = (function () {
 
         // Applies a style map to a node group
         addStyle(styleMap) {
-            for (var attr in styleMap) {
+            for (const attr in styleMap) {
                 this._selection.select("line").style(attr, styleMap[attr]);
             }
         }
 
         // Removes all styles from a group
         unstyle() {
-            var styleMap = {
+            const styleMap = {
                 "stroke-dasharray": this._network._defaultLinkType.bind(this._network),
                 "fill": this._network._defaultLinkColor.bind(this._network),
                 "stroke": this._network._defaultLinkColor.bind(this._network),
@@ -608,14 +610,14 @@ window.phase = (function () {
         }
 
         morph(label) {
-            var morph = this._network.getMorph(label);
+            const morph = this._network.getMorph(label);
             if (morph._type == "style") {
                 this.addStyle(morph._change);
             }
             if (morph.type == "data") {
-                var newData = this._selection.data();
-                for (var datum in newData) {
-                    for (var update in morph._change) {
+                let newData = this._selection.data();
+                for (const datum in newData) {
+                    for (const update in morph._change) {
                         newData[datum][update] = morph._change[update];
                     }
                 }
@@ -666,12 +668,12 @@ window.phase = (function () {
         start() {
 
             function step() {
-                var curLayerNodes = this._layerNodes[this._curLayer];
+                let curLayerNodes = this._layerNodes[this._curLayer];
                 if (curLayerNodes == undefined) {
                     clearInterval(this._interval);
                     return;
                 }
-                for (var i = 0; i < curLayerNodes.length; i++) {
+                for (let i = 0; i < curLayerNodes.length; i++) {
                     curLayerNodes[i]._element.morph(curLayerNodes[i]._morphLabel);
                 }
                 this._curLayer++;
@@ -698,7 +700,7 @@ window.phase = (function () {
 
         // Creates a node in the next layer from the current node in the morph execution tree
         branch(element, morphLabel) {
-            var childMorph = new MorphNode(this._phase, element, morphLabel);
+            const childMorph = new MorphNode(this._phase, element, morphLabel);
             childMorph._layer = this._layer + 1;
 
             this._children.push(childMorph);
@@ -711,7 +713,7 @@ window.phase = (function () {
         }
     }
 
-    var phase = {
+    const phase = {
         Network: function(query) {
             return new Network(query);
         }
