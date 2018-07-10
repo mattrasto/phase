@@ -477,17 +477,15 @@ window.phase = (function () {
 
             this._network = network;
             this.label = label;
-            this.filterer = filterer;
-            this.val = val;
+            this._filterer = filterer;
+            this._val = val;
 
-            if (typeof filterer === "string") {
-                if (val == undefined) {
-                    filtered = this._network._nodeContainers;
-                }
-                var filtered = this._network._nodeContainers.filter(d => d[filterer] == val);
+            var filtered = this._network._nodeContainers;
+            if (typeof filterer === "string" && val != undefined) {
+                filtered = this._network._nodeContainers.filter(d => d[this._filterer] == val);
             }
             else if (typeof filterer === "function") {
-                var filtered = this._network._nodeContainers.filter(d => filterer(d));
+                filtered = this._network._nodeContainers.filter(d => this._filterer(d));
             }
 
             this._selection = filtered;
@@ -612,7 +610,7 @@ window.phase = (function () {
     class Phase {
         // Creates a phase
         constructor(network, label) {
-            this.network = network;
+            this._network = network;
             this.label = label;
 
             this._root = null;
@@ -656,11 +654,20 @@ window.phase = (function () {
 
     class MorphNode {
         // Creates a node in the morph execution tree
-        constructor(phase, element, morphLabel) {
+        constructor(phase, elementLabel, morphLabel) {
             this._phase = phase;
-            this._element = element;
+            this._elementLabel = elementLabel;
             this._morphLabel = morphLabel; // TODO: get morph
             this._children = [];
+
+            // Get the element object
+            this._element = this._phase._network.getNodeGroup(elementLabel);
+            if (this._element == undefined) {
+                this._element = this._phase._network.getLinkGroup(elementLabel);
+                if (this._element == undefined) {
+                    console.warn("Invalid elementLabel passed to MorphNode constructor: " + elementLabel);
+                }
+            }
 
             this._layer = 0;
 
@@ -670,8 +677,9 @@ window.phase = (function () {
         }
 
         // Creates a node in the next layer from the current node in the morph execution tree
-        branch(element, morphLabel) {
-            var childMorph = new MorphNode(this._phase, element, morphLabel);
+        branch(elementLabel, morphLabel) {
+            
+            var childMorph = new MorphNode(this._phase, elementLabel, morphLabel);
             childMorph._layer = this._layer + 1;
 
             this._children.push(childMorph);

@@ -18,9 +18,9 @@ function createMorph() {
 // Creates the phase
 function createPhase(morph, groups) {
     var phase = viz.phase("random_order_coloring");
-    var root = phase.root(groups[0], morph);
+    var root = phase.root(groups[0].label, morph);
     for (var i = 1; i < groups.length; i++) {
-        root = root.branch(groups[i], morph._label);
+        root = root.branch(groups[i].label, morph._label);
     }
     return phase;
 }

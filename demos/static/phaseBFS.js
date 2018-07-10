@@ -32,7 +32,8 @@ function bfsPhase(childDict, startNode) {
     let depth = 0;
 
     let morph = createMorph(depth++);
-    let root = phase.root(viz.nodeGroup(startNode, "id", startNode), morph);
+    let ng = viz.nodeGroup(startNode, "id", startNode)
+    let root = phase.root(ng.label, morph);
 
     // Contains visited nodes
     let visited = new Set([startNode]);
@@ -60,9 +61,9 @@ function bfsPhase(childDict, startNode) {
             return validChildren.has(elem.id);
         }
 
-        let ng = viz.nodeGroup("depth_" + depth, filter);
+        ng = viz.nodeGroup("depth_" + depth, filter);
         morph = createMorph(depth++);
-        root = root.branch(ng, morph._label);
+        root = root.branch(ng.label, morph._label);
     }
 
     return phase;
