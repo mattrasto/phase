@@ -51,8 +51,6 @@ window.phase = (function () {
 
         // Binds data to the viz
         data(data) {
-            this._graph = this._generateGraph(data)
-
             if (this._data != null) {
                 this._bindData(data);
             }
@@ -242,6 +240,7 @@ window.phase = (function () {
 
         // Binds new data to the network
         _bindData(data) {
+            this._graph = this._generateGraph(data)
 
             // Assign new data
             this._data = data;
