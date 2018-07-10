@@ -260,10 +260,10 @@ window.phase = (function () {
             // Add new circles
             newNodes
                 .append("circle")
-                    .style("r", this._defaultNodeSize)
-                    .style("fill", this._defaultNodeColor)
-                    .style("stroke", this._defaultNodeBorderColor)
-                    .style("stroke-width", this._defaultNodeBorderWidth);
+                    .style("r", this._defaultNodeSize.bind(this))
+                    .style("fill", this._defaultNodeColor.bind(this))
+                    .style("stroke", this._defaultNodeBorderColor.bind(this))
+                    .style("stroke-width", this._defaultNodeBorderWidth.bind(this));
 
             // Add new labels
             newNodes
@@ -280,9 +280,9 @@ window.phase = (function () {
             this._nodeContainers
                 .select("circle")
                     .style("r", this._defaultNodeSize.bind(this))
-                    .style("fill", this._defaultNodeColor)
-                    .style("stroke", this._defaultNodeBorderColor)
-                    .style("stroke-width", this._defaultNodeBorderWidth);
+                    .style("fill", this._defaultNodeColor.bind(this))
+                    .style("stroke", this._defaultNodeBorderColor.bind(this))
+                    .style("stroke-width", this._defaultNodeBorderWidth.bind(this));
 
             // Update labels
             this._nodeContainers
@@ -313,8 +313,9 @@ window.phase = (function () {
             // Add new lines
             newLinks
                 .append("line")
-                    .style("stroke-width", 1.5)
-                    .style("stroke-dasharray", this._defaultLinkStyle.bind(this));
+                    .style("stroke", this._defaultLinkColor.bind(this))
+                    .style("stroke-width", this._defaultLinkWidth.bind(this))
+                    .style("stroke-dasharray", this._defaultLinkType.bind(this))
 
             // Add new labels
             newLinks
@@ -332,8 +333,9 @@ window.phase = (function () {
             // Update lines
             this._linkContainers
                 .select("line")
-                    .style("stroke-width", 1.5)
-                    .style("stroke-dasharray", this._defaultLinkStyle.bind(this));
+                .style("stroke", this._defaultLinkColor.bind(this))
+                .style("stroke-width", this._defaultLinkWidth.bind(this))
+                .style("stroke-dasharray", this._defaultLinkType.bind(this))
 
             // Update labels
             this._linkContainers
@@ -378,9 +380,21 @@ window.phase = (function () {
         }
 
         // Draws links as dash arrays based on their type
-        _defaultLinkStyle(d) {
+        _defaultLinkType(d) {
             // Default: solid
             return "";
+        }
+
+        // Draws links as dash arrays based on their type
+        _defaultLinkColor(d) {
+            // Default: medium grey
+            return "#666";
+        }
+
+        // Draws links as dash arrays based on their type
+        _defaultLinkWidth(d) {
+            // Default: 1.5px
+            return "1.5px";
         }
 
 
@@ -553,13 +567,13 @@ window.phase = (function () {
 
         // Removes all styles from a group
         unstyle() {
-            // var styleMap = {
-            //     "fill": this._network._defaultNodeColor.bind(this._network),
-            //     "r": this._network._defaultNodeSize.bind(this._network),
-            //     "stroke": this._network._defaultNodeBorderColor.bind(this._network),
-            //     "stroke-width": this._network._defaultNodeBorderWidth.bind(this._network)
-            // }
-            // this.addStyle(styleMap);
+            var styleMap = {
+                "stroke-dasharray": this._network._defaultLinkType.bind(this._network),
+                "fill": this._network._defaultLinkColor.bind(this._network),
+                "stroke": this._network._defaultLinkColor.bind(this._network),
+                "stroke-width": this._network._defaultLinkWidth.bind(this._network)
+            }
+            this.addStyle(styleMap);
         }
 
         labels(labeler) {
