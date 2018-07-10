@@ -25,6 +25,7 @@ function createChildDict(){
 
 // Constructs phase for BFS
 function bfsPhase(childDict, startNode) {
+    resetGraph()
     // Initialize phase with root node
     let phase = viz.phase("bfs");
 
@@ -41,6 +42,10 @@ function bfsPhase(childDict, startNode) {
     // Contains children in the next layer
     let newValidChildren;
 
+    function filter(elem) {
+        return validChildren.has(elem.id);
+    }
+
     while (validChildren.size > 0) {
         // Get all children in the next layer that haven't been visited
         let newValidChildren = new Set();
@@ -56,16 +61,20 @@ function bfsPhase(childDict, startNode) {
         validChildren = newValidChildren;
 
         // Add a node group and branch
-        function filter(elem) {
-            return validChildren.has(elem.id);
-        }
-
         let ng = viz.nodeGroup("depth_" + depth, filter);
         morph = createMorph(depth++);
         root = root.branch(ng, morph._label);
     }
 
     return phase;
+}
+
+// Reset graph nodes back to default color on phase creation
+function resetGraph() {
+    const nodeGroups = viz.getAllNodeGroups()
+    for(group in nodeGroups){
+        nodeGroups[group].addStyle({'fill': '#333'})
+    }
 }
 
 function createPhase() {
@@ -77,7 +86,7 @@ function createPhase() {
 // Creates the morph that changes the color of the node
 function createMorph(depth) {
     const colors = ["#63D467", "#63B2D4", "#AE63D4", "#D46363", "#ED9A55", "#E5EB7A"];
-    return viz.morph("style_nodes_" + depth, "style", {"fill": colors[depth]});
+    return viz.morph("style_nodes_" + depth, "style", {"fill": colors[depth % colors.length]});
 }
 
 // Starts the phase
