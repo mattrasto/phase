@@ -505,14 +505,14 @@ window.phase = (function () {
 
         morph(label) {
             var morph = this.network.getMorph(label);
-            if (morph.type == "style") {
-                this.addStyle(morph.change);
+            if (morph._type == "style") {
+                this.addStyle(morph._change);
             }
-            if (morph.type == "data") {
+            if (morph._type == "data") {
                 var newData = this._selection.data();
                 for (var datum in newData) {
-                    for (var update in morph.change) {
-                        newData[datum][update] = morph.change[update];
+                    for (var update in morph._change) {
+                        newData[datum][update] = morph._change[update];
                     }
                 }
                 this._selection.data(newData);
@@ -568,14 +568,14 @@ window.phase = (function () {
 
         morph(label) {
             var morph = this.network.getMorph(label);
-            if (morph.type == "style") {
-                this.addStyle(morph.change);
+            if (morph._type == "style") {
+                this.addStyle(morph._change);
             }
             if (morph.type == "data") {
                 var newData = this._selection.data();
                 for (var datum in newData) {
-                    for (var update in morph.change) {
-                        newData[datum][update] = morph.change[update];
+                    for (var update in morph._change) {
+                        newData[datum][update] = morph._change[update];
                     }
                 }
                 this._selection.data(newData);
@@ -586,10 +586,10 @@ window.phase = (function () {
     class Morph {
         // Creates a morph
         constructor(network, label, type, change) {
-            this.network = network;
-            this.label = label;
-            this.type = type;
-            this.change = change;
+            this._network = network;
+            this._label = label;
+            this._type = type;
+            this._change = change;
 
             return this;
         }
@@ -618,7 +618,7 @@ window.phase = (function () {
             if (element == undefined) {
                 return this._root;
             }
-            this._root = new MorphNode(this, element, morph.label);
+            this._root = new MorphNode(this, element, morph._label);
             return this._root;
         }
 
