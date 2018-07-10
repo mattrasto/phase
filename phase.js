@@ -21,7 +21,8 @@ window.phase = (function () {
             this._morphs = {};
             this._phases = {};
 
-
+            // Internal store of graph structure as adjacency list
+            this._graph = {}
 
             // Settings (user-accessible)
 
@@ -50,6 +51,8 @@ window.phase = (function () {
 
         // Binds data to the viz
         data(data) {
+            this._graph = this._generateGraph(data)
+
             if (this._data != null) {
                 this._bindData(data);
             }
@@ -63,6 +66,8 @@ window.phase = (function () {
 
             console.log("Bound data to viz");
         }
+
+
 
         // Renders viz element in container
         _render() {
@@ -140,10 +145,31 @@ window.phase = (function () {
             });
         }
 
+        // GRAPH STORE
+
+
+        // Creates a dict containing children of each node
+        _generateGraph(data){
+            const links = data.links;
+            const nodes = data.nodes;
+            let graph = {}
+            nodes.forEach(node => {
+                graph[node.id] = []
+            });
+            // Bidirectional
+            links.forEach(link => {
+                graph[link.source].push(link.target);
+                graph[link.target].push(link.source);
+            });
+            return graph;
+        }
+
+        getGraph(){
+            return this._graph;
+        }
 
 
         // GROUPING
-
 
 
         // Creates a new node group

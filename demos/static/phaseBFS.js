@@ -7,24 +7,8 @@ document.addEventListener("DOMContentLoaded", function(event) {
     console.log("Visualization Loaded");
 });
 
-// Create a dict containing the children of each node
-function createChildDict(){
-    const links = lesMiserablesData.links;
-    const nodes = lesMiserablesData.nodes;
-    let childDict = {}
-    nodes.forEach(node => {
-        childDict[node.id] = []
-    });
-    // Bidirectional
-    links.forEach(link => {
-        childDict[link.source.id].push(link.target.id);
-        childDict[link.target.id].push(link.source.id);
-    });
-    return childDict;
-}
-
 // Constructs phase for BFS
-function bfsPhase(childDict, startNode) {
+function bfsPhase(startNode) {
     resetGraph()
     // Initialize phase with root node
     let phase = viz.phase("bfs");
@@ -45,6 +29,8 @@ function bfsPhase(childDict, startNode) {
     function filter(elem) {
         return validChildren.has(elem.id);
     }
+
+    const childDict = viz.getGraph()
 
     while (validChildren.size > 0) {
         // Get all children in the next layer that haven't been visited
@@ -78,9 +64,8 @@ function resetGraph() {
 }
 
 function createPhase() {
-    const childDict = createChildDict();
     const startNode = document.getElementById("startNode").value;
-    bfsPhase(childDict, startNode);
+    bfsPhase(startNode);
 }
 
 // Creates the morph that changes the color of the node
