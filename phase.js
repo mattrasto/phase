@@ -205,7 +205,7 @@ window.phase = (function () {
         // PHASES AND MORPHS
 
         morph(label, type, change) {
-            var morph = new Morph(this, label, type, change);
+            const morph = new Morph(this, label, type, change);
             this._morphs[label] = morph;
             return morph;
         }
@@ -219,7 +219,7 @@ window.phase = (function () {
         }
 
         phase(label) {
-            var phase = new Phase(this, label);
+            const phase = new Phase(this, label);
             this._phases[label] = phase;
             return phase;
         }
@@ -453,8 +453,10 @@ window.phase = (function () {
 
         // Node left click handler
         _nodeClick(d) {
-            if (d3.event.defaultPrevented) return;
-            d3.event.preventDefault();
+            const currentColor = d3.select(this.childNodes[0]).style("fill");
+            const defaultColor = 'rgb(51, 51, 51)';
+            const newColor = currentColor === defaultColor ? "#63B2D4" : defaultColor;
+            d3.select(this.childNodes[0]).style("fill", newColor);
         }
 
         // Node double left click handler
