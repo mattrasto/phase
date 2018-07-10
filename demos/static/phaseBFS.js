@@ -35,7 +35,7 @@ function bfsPhase(childDict, startNode) {
     let root = phase.root(viz.nodeGroup(startNode, "id", startNode), morph);
 
     // Contains visited nodes
-    let visited = new Set();
+    let visited = new Set([startNode]);
     // Contains children in a given layer that haven't been visited
     let validChildren = new Set([startNode]);
     // Contains children in the next layer
