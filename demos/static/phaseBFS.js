@@ -9,7 +9,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
 
 // Constructs phase for BFS
 function bfsPhase(startNode) {
-    resetGraph()
+    viz.resetGraph()
     // Initialize phase with root node
     let phase = viz.phase("bfs");
 
@@ -53,14 +53,6 @@ function bfsPhase(startNode) {
     }
 
     return phase;
-}
-
-// Reset graph nodes back to default color on phase creation
-function resetGraph() {
-    const nodeGroups = viz.getAllNodeGroups()
-    for(group in nodeGroups){
-        nodeGroups[group].addStyle({'fill': '#333'})
-    }
 }
 
 function createPhase() {

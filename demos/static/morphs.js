@@ -11,12 +11,13 @@ document.addEventListener("DOMContentLoaded", function(event) {
 
 // Create random groups of nodes and links
 function createRandGroups() {
-    var randNum = Math.floor(Math.random() * 6);
+    const randNum = Math.floor(Math.random() * 6);
     viz.nodeGroup("rand_node_group", function(d) { return d.group == randNum; });
     viz.linkGroup("rand_link_group", function(d) { return d.value == randNum; });
 }
 
 function createMorphs() {
+    viz.resetGraph()
     // Node styling morph
     viz.morph("style_nodes", "style", {"fill": "#7DABFF", "stroke": "#AE63D4", "stroke-width": "3px"});
     // Node data morph
