@@ -380,14 +380,8 @@ window.phase = (function () {
 
         // Reset graph to default colors
         resetGraph(){
-            const nodeGroups = this.getAllNodeGroups()
-            const linkGroups = this.getAllLinkGroups()
-            for(const node in nodeGroups){
-                nodeGroups[node].unstyle()
-            }
-            for(const link in linkGroups){
-                linkGroups[link].unstyle()
-            }
+            this.getNodeGroup("all").unstyle()
+            this.getLinkGroup("all").unstyle()
         }
 
         // Sizes nodes
