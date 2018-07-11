@@ -516,19 +516,32 @@ window.phase = (function () {
             this.filterer = filterer;
             this.val = val;
 
-            const containers = this instanceof NodeGroup ? this._network._nodeContainers : this._network._linkContainers;
-
-            let filtered;
-            if (typeof filterer === "string") {
-                filtered = val === undefined ? containers : containers.filter(d => d[filterer] == val);
-            }
-            else if (typeof filterer === "function") {
-                filtered = containers.filter(d => filterer(d));
-            }
-
-            this._selection = filtered;
+            this._selection = this._filter(filterer, val)
 
             return this;
+        }
+
+        _filter(filterer, val) {
+            const isNodeGroup = this instanceof NodeGroup;
+            const containers = isNodeGroup ? this._network._nodeContainers : this._network._linkContainers;
+
+            if (typeof filterer === "string") {
+                return val === undefined ? containers : containers.filter(d => d[filterer] == val);
+            }
+            else if (typeof filterer === "function") {
+                return containers.filter(d => filterer(d));
+            }
+            else if (Array.isArray(filterer) || filterer instanceof Set){
+                const set = new Set(filterer)
+                if(isNodeGroup){
+                    return containers.filter(d => set.has(d.id))
+                } else {
+                    return containers.filter(d => set.has(d.source.id) || set.has(d.target.id))
+                }
+            }
+            else {
+                throw new InvalidFilterException("Invalid filterer type");
+            }
         }
 
         addStyle(styleMap, selector){
