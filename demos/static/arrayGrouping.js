@@ -4,16 +4,15 @@ document.addEventListener("DOMContentLoaded", function(event) {
     // Attach some initial data
     viz.data(lesMiserablesData);
 
-    createRandGroups();
+    createGroups()
 
     console.log("Visualization Loaded");
 });
 
-// Create random groups of nodes and links
-function createRandGroups() {
-    const randNum = Math.floor(Math.random() * 6);
-    viz.nodeGroup("rand_node_group", function(d) { return d.group == randNum; });
-    viz.linkGroup("rand_link_group", function(d) { return d.value == randNum; });
+// Create Groups of Nodes and Links using both a set and an array
+function createGroups() {
+    viz.nodeGroup("node_group", new Set(["Pontmercy", "Magnon", "Fantine", "Myriel", "Scaufflaire"]));
+    viz.linkGroup("link_group", ["Perpetue", "Gribier", "Labarre", "Gervais", "Thenardier"]);
 }
 
 function createMorphs() {
@@ -29,8 +28,8 @@ function createMorphs() {
 }
 
 function applyMorphs() {
-    viz.getNodeGroup("rand_node_group").morph("style_nodes");
-    viz.getNodeGroup("rand_node_group").morph("update_nodes");
-    viz.getLinkGroup("rand_link_group").morph("style_links");
-    viz.getLinkGroup("rand_link_group").morph("update_links");
+    viz.getNodeGroup("node_group").morph("style_nodes");
+    viz.getNodeGroup("node_group").morph("update_nodes");
+    viz.getLinkGroup("link_group").morph("style_links");
+    viz.getLinkGroup("link_group").morph("update_links");
 }

@@ -7,24 +7,9 @@ document.addEventListener("DOMContentLoaded", function(event) {
     console.log("Visualization Loaded");
 });
 
-// Create a dict containing the children of each node
-function createChildDict(){
-    const links = lesMiserablesData.links;
-    const nodes = lesMiserablesData.nodes;
-    let childDict = {}
-    nodes.forEach(node => {
-        childDict[node.id] = []
-    });
-    // Bidirectional
-    links.forEach(link => {
-        childDict[link.source.id].push(link.target.id);
-        childDict[link.target.id].push(link.source.id);
-    });
-    return childDict;
-}
-
 // Constructs phase for BFS
-function bfsPhase(childDict, startNode) {
+function bfsPhase(startNode) {
+    viz.resetGraph()
     // Initialize phase with root node
     let phase = viz.phase("bfs");
 
@@ -42,6 +27,12 @@ function bfsPhase(childDict, startNode) {
     // Contains children in the next layer
     let newValidChildren;
 
+    function filter(elem) {
+        return validChildren.has(elem.id);
+    }
+
+    const childDict = viz.getGraph()
+
     while (validChildren.size > 0) {
         // Get all children in the next layer that haven't been visited
         let newValidChildren = new Set();
@@ -57,11 +48,7 @@ function bfsPhase(childDict, startNode) {
         validChildren = newValidChildren;
 
         // Add a node group and branch
-        function filter(elem) {
-            return validChildren.has(elem.id);
-        }
-
-        ng = viz.nodeGroup("depth_" + depth, filter);
+        const ng = viz.nodeGroup("depth_" + depth, filter);
         morph = createMorph(depth++);
         root = root.branch(ng.label, morph._label);
     }
@@ -70,15 +57,14 @@ function bfsPhase(childDict, startNode) {
 }
 
 function createPhase() {
-    const childDict = createChildDict();
     const startNode = document.getElementById("startNode").value;
-    bfsPhase(childDict, startNode);
+    bfsPhase(startNode);
 }
 
 // Creates the morph that changes the color of the node
 function createMorph(depth) {
     const colors = ["#63D467", "#63B2D4", "#AE63D4", "#D46363", "#ED9A55", "#E5EB7A"];
-    return viz.morph("style_nodes_" + depth, "style", {"fill": colors[depth]});
+    return viz.morph("style_nodes_" + depth, "style", {"fill": colors[depth % colors.length]});
 }
 
 // Starts the phase
