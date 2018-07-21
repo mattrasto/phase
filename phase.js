@@ -176,7 +176,7 @@ window.phase = (function () {
             return graph;
         }
 
-        getGraph(){
+        getGraph() {
             return this._graph;
         }
 
@@ -262,16 +262,6 @@ window.phase = (function () {
 
         getAllPhases() {
             return this._phases;
-        }
-
-
-
-        // PHASE TRANSITIONS
-
-
-
-        _transition(transition) {
-            transition();
         }
 
 
@@ -688,6 +678,8 @@ window.phase = (function () {
             // External state
             this._state = {}; // State variables belonging to state
 
+            // Functions called on when phase is initialized
+            this._initials = []
             // Functions called on each timestep to compute phase's next state
             this._transitions = []
             // Functions called to determine whether the phase is finished
@@ -704,30 +696,35 @@ window.phase = (function () {
             }
         }
 
+        initial(initial) {
+            this._initials.push(initial);
+        }
+
         next(transition) {
             this._transitions.push(transition);
         }
 
-        stop(terminal) {
+        end(terminal) {
             this._terminals.push(terminal);
         }
 
         _calculateNextState() {
             for (const transition of this._transitions) {
-                this._network._transition(transition);
+                transition(this.state(), this._network.state());
             }
         }
 
+        // QUESTION: Should this be public? What if user wants to evluate in the middle of a step?
         _evaluateTermination() {
             for (const terminal of this._terminals) {
-                if (terminal()) {
+                if (terminal(this.state(), this._network.state())) {
                     return true;
                 }
             }
         }
 
         // Stop the phase's application but don't clear settings/state
-        pause() {
+        stop() {
             clearInterval(this._interval);
         }
 
@@ -750,70 +747,21 @@ window.phase = (function () {
             return this._root;
         }
 
+        // Begins the simulation
         start() {
 
-            // TODO: Make this default when phase transitions are fully implemented
+            // TODO: Only initialize if the simulation has not been started yet or has been reset
+            for (const initial of this._initials) {
+                initial(this.state(), this._network.state());            }
+
             if (this._transitions.length > 0) {
                 function step() {
                     this._calculateNextState();
-                    if (this._evaluateTermination()) this.pause();
+                    if (this._evaluateTermination()) this.stop();
                 }
                 this._interval = setInterval(step.bind(this), this._timeStep);
                 return;
             }
-
-            function step() {
-                let curLayerNodes = this._layerNodes[this._curLayer];
-                if (curLayerNodes == undefined) {
-                    this.stop();
-                    return;
-                }
-                for (let i = 0; i < curLayerNodes.length; i++) {
-                    curLayerNodes[i]._element.morph(curLayerNodes[i]._morphLabel);
-                }
-                this._curLayer++;
-            }
-
-            this._interval = setInterval(step.bind(this), this._timeStep);
-        }
-    }
-
-    class MorphNode {
-        // Creates a node in the morph execution tree
-        constructor(phase, elementLabel, morphLabel) {
-            this._phase = phase;
-            this._elementLabel = elementLabel;
-            this._morphLabel = morphLabel; // TODO: get morph
-            this._children = [];
-
-            // Get the element object
-            this._element = this._phase._network.getNodeGroup(elementLabel);
-            if (this._element == undefined) {
-                this._element = this._phase._network.getLinkGroup(elementLabel);
-                if (this._element == undefined) {
-                    console.warn("Invalid elementLabel passed to MorphNode constructor: " + elementLabel);
-                }
-            }
-
-            this._layer = 0;
-
-            this._phase._layerNodes[0] = [this];
-
-            return this;
-        }
-
-        // Creates a node in the next layer from the current node in the morph execution tree
-        branch(element, morphLabel) {
-            const childMorph = new MorphNode(this._phase, element, morphLabel);
-            childMorph._layer = this._layer + 1;
-
-            this._children.push(childMorph);
-            if (this._phase._layerNodes.length <= childMorph._layer) {
-                this._phase._layerNodes.push([]);
-            }
-            this._phase._layerNodes[childMorph._layer].push(this);
-
-            return childMorph;
         }
     }
 

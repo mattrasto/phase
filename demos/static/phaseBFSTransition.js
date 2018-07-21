@@ -9,49 +9,52 @@ document.addEventListener("DOMContentLoaded", function(event) {
 
 // Constructs phase for BFS
 function bfsPhase(startNode) {
-    viz.resetGraph()
-    // Initialize phase with root node
+
+    viz.resetGraph();
+
+    // Initialize phase
     let searchPhase = viz.phase("bfs");
 
-    // Keeps track of node depth
-    let depth = 0;
+    searchPhase.initial(function(phaseState, vizState) {
+        // Create initial morph and node group
+        const morph = createMorph(0);
+        const ng = viz.nodeGroup(startNode, "id", startNode);
 
-    let morph = createMorph(depth++);
-    let ng = viz.nodeGroup(startNode, "id", startNode)
-
-    // Adjacency list for quick access to neighbors
-    const childDict = viz.getGraph();
-
-    searchPhase.state({
-        'visited': new Set([startNode]), // Nodes we've visited
-        'validNeighbors': new Set([startNode]), // Neighbors that haven't been visited
+        searchPhase.state({
+            'visited': new Set([startNode]), // Nodes we've visited
+            'validNeighbors': new Set([startNode]), // Neighbors that haven't been visited
+            'depth': 1, // Distance from start node
+        });
     });
 
-    searchPhase.next(function() {
-        let state = searchPhase.state();
+    searchPhase.next(function(phaseState, vizState) {
         let newValidNeighbors = new Set();
 
+        // Adjacency list for quick access to neighbors
+        const childDict = viz.getGraph();
+
         // Morph the next layer in the BFS
-        const ng = viz.nodeGroup("depth_" + depth, state.validNeighbors);
-        const morph = createMorph(depth++);
+        const ng = viz.nodeGroup("depth_" + phaseState.depth, phaseState.validNeighbors);
+        const morph = createMorph(phaseState.depth++);
         ng.morph(morph.label);
 
         // Classic BFS
-        state.validNeighbors.forEach(node => {
+        phaseState.validNeighbors.forEach(node => {
             childDict[node].forEach(child => {
-                if(!state.visited.has(child)) {
+                if(!phaseState.visited.has(child)) {
                     newValidNeighbors.add(child);
-                    state.visited.add(child);
+                    phaseState.visited.add(child);
                 }
             });
         });
 
         // Update the valid neighbors in the phase's state
-        searchPhase.state({'validNeighbors': newValidNeighbors});
+        phaseState.validNeighbors = newValidNeighbors;
     });
 
-    searchPhase.stop(function() {
-        return searchPhase.state().validNeighbors.size <= 0;
+    // Tell the phase when to stop
+    searchPhase.end(function(phaseState, vizState) {
+        return phaseState.validNeighbors.size <= 0;
     });
 
     return searchPhase;
