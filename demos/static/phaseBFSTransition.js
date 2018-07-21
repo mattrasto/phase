@@ -16,7 +16,7 @@ function bfsPhase(startNode) {
     let searchPhase = viz.phase("bfs");
 
     // Create initial morph and node group
-    let morph = createMorph(depth++);
+    let morph = createMorph(0);
     let ng = viz.nodeGroup(startNode, "id", startNode);
 
     // Adjacency list for quick access to neighbors
@@ -25,7 +25,7 @@ function bfsPhase(startNode) {
     searchPhase.state({
         'visited': new Set([startNode]), // Nodes we've visited
         'validNeighbors': new Set([startNode]), // Neighbors that haven't been visited
-        `depth`: 0, // Distance from start node
+        'depth': 1, // Distance from start node
     });
 
     searchPhase.next(function(vizState, phaseState) {
@@ -33,8 +33,9 @@ function bfsPhase(startNode) {
         let newValidNeighbors = new Set();
 
         // Morph the next layer in the BFS
-        const ng = viz.nodeGroup("depth_" + depth, state.validNeighbors);
-        const morph = createMorph(depth++);
+        const ng = viz.nodeGroup("depth_" + state.depth, state.validNeighbors);
+        const morph = createMorph(state.depth++);
+        searchPhase.state({'depth': state.depth++});
         ng.morph(morph.label);
 
         // Classic BFS
