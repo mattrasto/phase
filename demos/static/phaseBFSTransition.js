@@ -52,7 +52,7 @@ function bfsPhase(startNode) {
         searchPhase.state({'validNeighbors': newValidNeighbors});
     });
 
-    searchPhase.stop(function() {
+    searchPhase.end(function() {
         return searchPhase.state().validNeighbors.size <= 0;
     });
 

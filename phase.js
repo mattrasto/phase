@@ -704,7 +704,7 @@ window.phase = (function () {
             this._transitions.push(transition);
         }
 
-        stop(terminal) {
+        end(terminal) {
             this._terminals.push(terminal);
         }
 
@@ -723,7 +723,7 @@ window.phase = (function () {
         }
 
         // Stop the phase's application but don't clear settings/state
-        pause() {
+        stop() {
             clearInterval(this._interval);
         }
 
@@ -754,68 +754,14 @@ window.phase = (function () {
                 initial();
             }
 
-            // TODO: Make this default when phase transitions are fully implemented
             if (this._transitions.length > 0) {
                 function step() {
                     this._calculateNextState();
-                    if (this._evaluateTermination()) this.pause();
+                    if (this._evaluateTermination()) this.stop();
                 }
                 this._interval = setInterval(step.bind(this), this._timeStep);
                 return;
             }
-
-            function step() {
-                let curLayerNodes = this._layerNodes[this._curLayer];
-                if (curLayerNodes == undefined) {
-                    this.stop();
-                    return;
-                }
-                for (let i = 0; i < curLayerNodes.length; i++) {
-                    curLayerNodes[i]._element.morph(curLayerNodes[i]._morphLabel);
-                }
-                this._curLayer++;
-            }
-
-            this._interval = setInterval(step.bind(this), this._timeStep);
-        }
-    }
-
-    class MorphNode {
-        // Creates a node in the morph execution tree
-        constructor(phase, elementLabel, morphLabel) {
-            this._phase = phase;
-            this._elementLabel = elementLabel;
-            this._morphLabel = morphLabel; // TODO: get morph
-            this._children = [];
-
-            // Get the element object
-            this._element = this._phase._network.getNodeGroup(elementLabel);
-            if (this._element == undefined) {
-                this._element = this._phase._network.getLinkGroup(elementLabel);
-                if (this._element == undefined) {
-                    console.warn("Invalid elementLabel passed to MorphNode constructor: " + elementLabel);
-                }
-            }
-
-            this._layer = 0;
-
-            this._phase._layerNodes[0] = [this];
-
-            return this;
-        }
-
-        // Creates a node in the next layer from the current node in the morph execution tree
-        branch(element, morphLabel) {
-            const childMorph = new MorphNode(this._phase, element, morphLabel);
-            childMorph._layer = this._layer + 1;
-
-            this._children.push(childMorph);
-            if (this._phase._layerNodes.length <= childMorph._layer) {
-                this._phase._layerNodes.push([]);
-            }
-            this._phase._layerNodes[childMorph._layer].push(this);
-
-            return childMorph;
         }
     }
 
