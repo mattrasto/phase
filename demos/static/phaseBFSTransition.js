@@ -15,15 +15,12 @@ function bfsPhase(startNode) {
     // Initialize phase
     let searchPhase = viz.phase("bfs");
 
-    searchPhase.initial(function(phaseState, vizState) {
-        // Create initial morph and node group
-        const morph = createMorph(0);
-        const ng = viz.nodeGroup(startNode, "id", startNode);
-
+    // Set the phase's initial state
+    searchPhase.initial(function(vizState) {
         searchPhase.state({
             'visited': new Set([startNode]), // Nodes we've visited
             'validNeighbors': new Set([startNode]), // Neighbors that haven't been visited
-            'depth': 1, // Distance from start node
+            'depth': 0, // Distance from start node
         });
     });
 
@@ -65,9 +62,9 @@ function createPhase() {
     bfsPhase(startNode);
 }
 
-// Creates the morph that changes the color of the node
+// Changes the color of the node based on its distance from the start
 function createMorph(depth) {
-    const colors = ["#63D467", "#63B2D4", "#AE63D4", "#D46363", "#ED9A55", "#E5EB7A"];
+    const colors = ["#AE63D4", "#63B2D4", "#63D467", "#E5EB7A", "#ED9A55", "#D46363"];
     return viz.morph("style_nodes_" + depth, "style", {"fill": colors[depth % colors.length]});
 }
 
