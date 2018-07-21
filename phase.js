@@ -176,7 +176,7 @@ window.phase = (function () {
             return graph;
         }
 
-        getGraph(){
+        getGraph() {
             return this._graph;
         }
 

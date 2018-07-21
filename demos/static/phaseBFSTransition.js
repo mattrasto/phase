@@ -9,13 +9,13 @@ document.addEventListener("DOMContentLoaded", function(event) {
 
 // Constructs phase for BFS
 function bfsPhase(startNode) {
+
     viz.resetGraph()
-    // Initialize phase with root node
+
+    // Initialize phase
     let searchPhase = viz.phase("bfs");
 
-    // Keeps track of node depth
-    let depth = 0;
-
+    // Create initial morph and node group
     let morph = createMorph(depth++);
     let ng = viz.nodeGroup(startNode, "id", startNode)
 
@@ -25,6 +25,7 @@ function bfsPhase(startNode) {
     searchPhase.state({
         'visited': new Set([startNode]), // Nodes we've visited
         'validNeighbors': new Set([startNode]), // Neighbors that haven't been visited
+        `depth`: 0, // Distance from start node
     });
 
     searchPhase.next(function() {
