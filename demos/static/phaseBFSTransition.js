@@ -18,40 +18,40 @@ function bfsPhase(startNode) {
 
     let morph = createMorph(depth++);
     let ng = viz.nodeGroup(startNode, "id", startNode)
-    let root = searchPhase.root(ng.label, morph);
 
     // Adjacency list for quick access to neighbors
     const childDict = viz.getGraph();
 
     searchPhase.state({
         'visited': new Set([startNode]), // Nodes we've visited
-        'validNeighbor': new Set([startNode]), // Neighbors that haven't been visited
+        'validNeighbors': new Set([startNode]), // Neighbors that haven't been visited
     });
 
     searchPhase.next(function() {
         let state = searchPhase.state();
-        let newValidNeighbor = new Set();
+        let newValidNeighbors = new Set();
 
-        state.validNeighbor.forEach(node => {
+        // Morph the next layer in the BFS
+        const ng = viz.nodeGroup("depth_" + depth, state.validNeighbors);
+        const morph = createMorph(depth++);
+        ng.morph(morph.label);
+
+        // Classic BFS
+        state.validNeighbors.forEach(node => {
             childDict[node].forEach(child => {
                 if(!state.visited.has(child)) {
-                    newValidNeighbor.add(child);
+                    newValidNeighbors.add(child);
                     state.visited.add(child);
                 }
             });
         });
 
-        searchPhase.state({'validNeighbor': newValidNeighbor});
-
-        // Add a node group and branch
-        const ng = viz.nodeGroup("depth_" + depth, newValidNeighbor);
-        morph = createMorph(depth++);
-        console.log(morph);
-        ng.morph(morph.label);
+        // Update the valid neighbors in the phase's state
+        searchPhase.state({'validNeighbors': newValidNeighbors});
     });
 
     searchPhase.stop(function() {
-        return searchPhase.state().validNeighbor.size <= 0;
+        return searchPhase.state().validNeighbors.size <= 0;
     });
 
     return searchPhase;
@@ -70,6 +70,5 @@ function createMorph(depth) {
 
 // Starts the phase
 function startPhase() {
-    console.log(viz.getPhase("bfs")._transitions);
     viz.getPhase("bfs").start();
 }

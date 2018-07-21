@@ -266,6 +266,16 @@ window.phase = (function () {
 
 
 
+        // PHASE TRANSITIONS
+
+
+
+        _transition(transition) {
+            transition();
+        }
+
+
+
         // DATA BINDING
 
 
@@ -649,7 +659,7 @@ window.phase = (function () {
         // Creates a morph
         constructor(network, label, type, change) {
             this._network = network;
-            this._label = label;
+            this.label = label;
             this._type = type;
             this._change = change;
 
@@ -703,14 +713,13 @@ window.phase = (function () {
         }
 
         _calculateNextState() {
-            for (const transition in this._transitions) {
-                // TODO: Implement _transition
+            for (const transition of this._transitions) {
                 this._network._transition(transition);
             }
         }
 
         _evaluateTermination() {
-            for (const terminal in this._terminals) {
+            for (const terminal of this._terminals) {
                 if (terminal()) {
                     return true;
                 }
@@ -747,7 +756,7 @@ window.phase = (function () {
             if (this._transitions.length > 0) {
                 function step() {
                     this._calculateNextState();
-                    if (this._evaluateTermination()) this.stop();
+                    if (this._evaluateTermination()) this.pause();
                 }
                 this._interval = setInterval(step.bind(this), this._timeStep);
                 return;
