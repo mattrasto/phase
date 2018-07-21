@@ -266,16 +266,6 @@ window.phase = (function () {
 
 
 
-        // PHASE TRANSITIONS
-
-
-
-        _transition(transition) {
-            transition();
-        }
-
-
-
         // DATA BINDING
 
 
@@ -688,6 +678,8 @@ window.phase = (function () {
             // External state
             this._state = {}; // State variables belonging to state
 
+            // Functions called on when phase is initialized
+            this._initials = []
             // Functions called on each timestep to compute phase's next state
             this._transitions = []
             // Functions called to determine whether the phase is finished
@@ -704,6 +696,10 @@ window.phase = (function () {
             }
         }
 
+        initial(initial) {
+            this._initials.push(initial);
+        }
+
         next(transition) {
             this._transitions.push(transition);
         }
@@ -714,7 +710,7 @@ window.phase = (function () {
 
         _calculateNextState() {
             for (const transition of this._transitions) {
-                this._network._transition(transition);
+                transition();
             }
         }
 
@@ -750,7 +746,13 @@ window.phase = (function () {
             return this._root;
         }
 
+        // Begins the simulation
         start() {
+
+            // TODO: Only initialize if the simulation has not been started yet or has been reset
+            for (const initial of this._initials) {
+                initial();
+            }
 
             // TODO: Make this default when phase transitions are fully implemented
             if (this._transitions.length > 0) {

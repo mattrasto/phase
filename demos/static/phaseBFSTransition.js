@@ -10,14 +10,14 @@ document.addEventListener("DOMContentLoaded", function(event) {
 // Constructs phase for BFS
 function bfsPhase(startNode) {
 
-    viz.resetGraph()
+    viz.resetGraph();
 
     // Initialize phase
     let searchPhase = viz.phase("bfs");
 
     // Create initial morph and node group
     let morph = createMorph(depth++);
-    let ng = viz.nodeGroup(startNode, "id", startNode)
+    let ng = viz.nodeGroup(startNode, "id", startNode);
 
     // Adjacency list for quick access to neighbors
     const childDict = viz.getGraph();
@@ -28,7 +28,7 @@ function bfsPhase(startNode) {
         `depth`: 0, // Distance from start node
     });
 
-    searchPhase.next(function() {
+    searchPhase.next(function(vizState, phaseState) {
         let state = searchPhase.state();
         let newValidNeighbors = new Set();
 
