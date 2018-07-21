@@ -655,7 +655,17 @@ window.phase = (function () {
             this._interval = null; // Interval ID for the phase
             this._layerNodes = []; // Array of MorphNodes present in each layer of the execution tree
 
+            this._state = {}; // State variables belonging to state
+
             return this;
+        }
+
+        // Updates or returns the current state
+        state(updatedState) {
+            if (updatedState == undefined) return this._state;
+            for (const key in updatedState) {
+                this._state[key] = updatedState[key];
+            }
         }
 
         root(element, morph) {
