@@ -710,13 +710,13 @@ window.phase = (function () {
 
         _calculateNextState() {
             for (const transition of this._transitions) {
-                transition();
+                transition(this._network.state(), this.state());
             }
         }
 
         _evaluateTermination() {
             for (const terminal of this._terminals) {
-                if (terminal()) {
+                if (terminal(this._network.state(), this.state())) {
                     return true;
                 }
             }
@@ -751,7 +751,7 @@ window.phase = (function () {
 
             // TODO: Only initialize if the simulation has not been started yet or has been reset
             for (const initial of this._initials) {
-                initial();
+                initial(this._network.state(), this.state());
             }
 
             if (this._transitions.length > 0) {

@@ -28,24 +28,23 @@ function bfsPhase(startNode) {
     });
 
     searchPhase.next(function(vizState, phaseState) {
-        let state = searchPhase.state();
         let newValidNeighbors = new Set();
 
         // Adjacency list for quick access to neighbors
         const childDict = viz.getGraph();
 
         // Morph the next layer in the BFS
-        const ng = viz.nodeGroup("depth_" + state.depth, state.validNeighbors);
-        const morph = createMorph(state.depth++);
-        searchPhase.state({'depth': state.depth++});
+        const ng = viz.nodeGroup("depth_" + phaseState.depth, phaseState.validNeighbors);
+        const morph = createMorph(phaseState.depth++);
+        searchPhase.state({'depth': phaseState.depth++});
         ng.morph(morph.label);
 
         // Classic BFS
-        state.validNeighbors.forEach(node => {
+        phaseState.validNeighbors.forEach(node => {
             childDict[node].forEach(child => {
-                if(!state.visited.has(child)) {
+                if(!phaseState.visited.has(child)) {
                     newValidNeighbors.add(child);
-                    state.visited.add(child);
+                    phaseState.visited.add(child);
                 }
             });
         });
@@ -56,7 +55,7 @@ function bfsPhase(startNode) {
 
     // Tell the phase when to stop
     searchPhase.end(function(vizState, phaseState) {
-        return searchPhase.state().validNeighbors.size <= 0;
+        return phaseState.validNeighbors.size <= 0;
     });
 
     return searchPhase;
