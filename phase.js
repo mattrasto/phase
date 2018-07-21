@@ -710,13 +710,14 @@ window.phase = (function () {
 
         _calculateNextState() {
             for (const transition of this._transitions) {
-                transition(this._network.state(), this.state());
+                transition(this.state(), this._network.state());
             }
         }
 
+        // QUESTION: Should this be public? What if user wants to evluate in the middle of a step?
         _evaluateTermination() {
             for (const terminal of this._terminals) {
-                if (terminal(this._network.state(), this.state())) {
+                if (terminal(this.state(), this._network.state())) {
                     return true;
                 }
             }
@@ -751,8 +752,7 @@ window.phase = (function () {
 
             // TODO: Only initialize if the simulation has not been started yet or has been reset
             for (const initial of this._initials) {
-                initial(this._network.state(), this.state());
-            }
+                initial(this.state(), this._network.state());            }
 
             if (this._transitions.length > 0) {
                 function step() {
