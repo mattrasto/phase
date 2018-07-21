@@ -665,15 +665,23 @@ window.phase = (function () {
 
             this._root = null;
 
-            // SETTINGS
+            // Settings
+            // TODO: Consider moving into state or exposing
             this._timeStep = 500; // Time between execution tree layer applications
 
-            // STATE
+            // Internal state
+            // TODO: Consider moving into state or exposing
             this._curLayer = 0; // Current layer of the phase's execution
             this._interval = null; // Interval ID for the phase
             this._layerNodes = []; // Array of MorphNodes present in each layer of the execution tree
 
+            // External state
             this._state = {}; // State variables belonging to state
+
+            // Functions called on each timestep to compute phase's next state
+            this._transitions = []
+            // Functions called to determine whether the phase is finished
+            this._terminals = [];
 
             return this;
         }
@@ -686,6 +694,45 @@ window.phase = (function () {
             }
         }
 
+        next(transition) {
+            this._transitions.push(transition);
+        }
+
+        stop(terminal) {
+            this._terminals.push(terminal);
+        }
+
+        _calculateNextState() {
+            for (const transition in this._transitions) {
+                // TODO: Implement _transition
+                this._network._transition(transition);
+            }
+        }
+
+        _evaluateTermination() {
+            for (const terminal in this._terminals) {
+                if (terminal()) {
+                    return true;
+                }
+            }
+        }
+
+        // Stop the phase's application but don't clear settings/state
+        pause() {
+            clearInterval(this._interval);
+        }
+
+        // Reset the phase to its initial settings/state
+        reset() {
+            // TODO: Move settings to own object (state?) and reset
+            this._state = {};
+        }
+
+        // Teardown the phase and remove from viz
+        destroy() {
+            delete this._network._phases[this.label];
+        }
+
         root(element, morph) {
             if (element == undefined) {
                 return this._root;
@@ -696,10 +743,20 @@ window.phase = (function () {
 
         start() {
 
+            // TODO: Make this default when phase transitions are fully implemented
+            if (this._transitions.length > 0) {
+                function step() {
+                    this._calculateNextState();
+                    if (this._evaluateTermination()) this.stop();
+                }
+                this._interval = setInterval(step.bind(this), this._timeStep);
+                return;
+            }
+
             function step() {
                 let curLayerNodes = this._layerNodes[this._curLayer];
                 if (curLayerNodes == undefined) {
-                    clearInterval(this._interval);
+                    this.stop();
                     return;
                 }
                 for (let i = 0; i < curLayerNodes.length; i++) {
