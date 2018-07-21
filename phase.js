@@ -172,6 +172,10 @@ window.phase = (function () {
 
         // Creates a new node group
         nodeGroup(label, filterer, val) {
+            if (label in this._nodeGroups) {
+                console.warn("Node group '" + label + "' already exists", this._nodeGroups[label]);
+                return this._nodeGroups[label];
+            }
             const group = new NodeGroup(this, label, filterer, val)
             this._nodeGroups[label] = group;
             return group;
@@ -187,6 +191,10 @@ window.phase = (function () {
 
         // Creates a new node group
         linkGroup(label, filterer, val) {
+            if (label in this._linkGroups) {
+                console.warn("Link group '" + label + "' already exists", this._linkGroups[label]);
+                return this._linkGroups[label];
+            }
             const group = new LinkGroup(this, label, filterer, val)
             this._linkGroups[label] = group;
             return group;
@@ -205,6 +213,10 @@ window.phase = (function () {
         // PHASES AND MORPHS
 
         morph(label, type, change) {
+            if (label in this._morphs) {
+                console.warn("Morph '" + label + "' already exists", this._morphs[label]);
+                return this._morphs[label];
+            }
             const morph = new Morph(this, label, type, change);
             this._morphs[label] = morph;
             return morph;
@@ -219,6 +231,10 @@ window.phase = (function () {
         }
 
         phase(label) {
+            if (label in this._phases) {
+                console.warn("Phase '" + label + "' already exists", this._phases[label]);
+                return this._phases[label];
+            }
             const phase = new Phase(this, label);
             this._phases[label] = phase;
             return phase;
@@ -527,7 +543,7 @@ window.phase = (function () {
             }
             else if (Array.isArray(filterer) || filterer instanceof Set){
                 const set = new Set(filterer)
-                if(isNodeGroup){
+                if (isNodeGroup) {
                     return containers.filter(d => set.has(d.id))
                 } else {
                     return containers.filter(d => set.has(d.source.id) || set.has(d.target.id))
