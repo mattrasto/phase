@@ -22,7 +22,10 @@ window.phase = (function () {
             this._phases = {};
 
             // Internal store of graph structure as adjacency list
-            this._graph = {}
+            this._graph = {};
+
+            // Viz state
+            this._state = {};
 
             // Settings (user-accessible)
 
@@ -63,6 +66,14 @@ window.phase = (function () {
             this.linkGroup("all", "");
 
             console.log("Bound data to viz");
+        }
+
+        // Updates or returns the current viz state
+        state(updatedState) {
+            if (updatedState == undefined) return this._state;
+            for (const key in updatedState) {
+                this._state[key] = updatedState[key];
+            }
         }
 
 
@@ -143,7 +154,10 @@ window.phase = (function () {
             });
         }
 
+
+
         // GRAPH STORE
+
 
 
         // Creates a dict containing children of each node
@@ -167,7 +181,9 @@ window.phase = (function () {
         }
 
 
+
         // GROUPING
+
 
 
         // Creates a new node group
@@ -393,6 +409,8 @@ window.phase = (function () {
 
 
         // STYLES
+
+
 
         // Reset graph to default colors
         resetGraph(){
