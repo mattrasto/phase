@@ -29,23 +29,27 @@ window.phase = (function () {
 
             // Settings (user-accessible)
 
-            // Strength of links (how easily they can be compressed) between nodes [0, INF]
-            this._LINK_STRENGTH = 1;
-            // Distance between nodes [0, INF]
-            this._LINK_DISTANCE = 60;
-            // Charge between nodes [-INF, INF]
-            this._CHARGE = -800;
-            // How easily particles are dragged across the screen [0, 1]
-            this._FRICTION = .8;
-            // Node coloring scheme
-            this._COLOR_MODE = "";
-            // Default node color palette
-            this._COLOR_KEY = ["#63D467", "#63B2D4", "#AE63D4", "#D46363", "#ED9A55", "#E5EB7A"];
-            // Determines the style of links based on their "type" attribute
-            // Values should be an even-length array for alternating black / white segments in px
-            this._LINK_STYLE = {"derivative": "", "related": "10,8"};
-            // Base node size
-            this._SIZE_BASE = 10;
+            this._settings = {
+                // Strength of links (how easily they can be compressed) between nodes [0, INF]
+                _LINK_STRENGTH: 1,
+                // Distance between nodes [0, INF]
+                _LINK_DISTANCE: 60,
+                // Charge between nodes [-INF, INF]
+                _CHARGE: -800,
+                // How easily particles are dragged across the screen [0, 1]
+                _FRICTION: .8,
+                // Node coloring scheme
+                _COLOR_MODE: "",
+                // Default node color palette
+                _COLOR_KEY: ["#63D467", "#63B2D4", "#AE63D4", "#D46363", "#ED9A55", "#E5EB7A"],
+                // Determines the style of links based on their "type" attribute
+                // Values should be an even-length array for alternating black / white segments in px
+                _LINK_STYLE: {"derivative": "", "related": "10,8"},
+                // Base node size
+                _SIZE_BASE: 10,
+                // Whether the user can zoom
+                _ZOOM: true,
+            };
 
             console.log("Network constructed");
 
@@ -92,11 +96,14 @@ window.phase = (function () {
                 .attr("viewBox","0 0 " + Math.min(this._containerWidth, this._containerHeight) + " " + Math.min(this._containerWidth, this._containerHeight))
                 .attr("preserveAspectRatio", "xMinYMin")
                 .on("contextmenu", this._containerContextmenu)
-                .call(d3.zoom()
+                .on("dblclick.zoom", null);  // Don't zoom on double left click
+
+            if (this._settings._ZOOM) {
+                this._svg.call(d3.zoom()
                     .scaleExtent([.1, 10])
                     .on("zoom", this._containerZoom.bind(this))
-                )
-                .on("dblclick.zoom", null);  // Don't zoom on double left click
+                );
+            }
 
             // TODO
             this._container.appendChild(this._svg.node());
@@ -105,8 +112,8 @@ window.phase = (function () {
             this._g = this._svg.append("g");
 
             this._simulation = d3.forceSimulation()
-                .force("link", d3.forceLink().id(function(d) { return d.id; }).distance(this._LINK_DISTANCE).strength(this._LINK_STRENGTH))
-                .force("charge", d3.forceManyBody().strength(this._CHARGE))
+                .force("link", d3.forceLink().id(function(d) { return d.id; }).distance(this._settings._LINK_DISTANCE).strength(this._settings._LINK_STRENGTH))
+                .force("charge", d3.forceManyBody().strength(this._settings._CHARGE))
                 .force("center", d3.forceCenter(this._containerWidth / 2, this._containerHeight / 2));
 
             // Creates g container for link containers
@@ -421,7 +428,7 @@ window.phase = (function () {
         // Sizes nodes
         _defaultNodeSize(d) {
             // Default: _SIZE_BASE
-            return this._SIZE_BASE;
+            return this._settings._SIZE_BASE;
         }
 
         // Colors nodes depending on COLOR_MODE
