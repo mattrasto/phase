@@ -5,6 +5,8 @@ window.phase = (function () {
             this._container = (typeof query === "string") ? document.querySelectorAll(query)[0] : query;
 
             this._data = {"nodes": [], "links": []};
+            this._dataLoaded = false; // Indicates whether the data has been loaded into this._data
+            this._dataBound = false; // Indicate whether the data has been bound to objects (this changes the structure of link references)
 
             // Elements
             this._svg = null;
@@ -22,7 +24,7 @@ window.phase = (function () {
             this._phases = {};
 
             // Internal store of graph structure as adjacency list
-            this._graph = {};
+            this._adjList = {};
 
             // Settings (user-accessible)
 
@@ -60,9 +62,12 @@ window.phase = (function () {
         data(data) {
             if (this._data != null) {
                 this._bindData(data);
+                this._dataLoaded = true;
+                this._dataBound = true;
             }
             else {
                 this._data = data;
+                this._dataLoaded = true;
             }
 
             // Update "all" groups
@@ -91,7 +96,8 @@ window.phase = (function () {
         // Resets the network to initial rendered state
         // TODO
         reset() {
-
+            this._svg.node().outerHTML = "";
+            this._render();
         }
 
 
@@ -182,23 +188,29 @@ window.phase = (function () {
 
 
         // Creates a dict containing children of each node
-        _generateGraph(data){
+        _generateAdjacencyList(data) {
             const links = data.links;
             const nodes = data.nodes;
-            let graph = {}
+
+            this._adjList = {};
             nodes.forEach(node => {
-                graph[node.id] = []
+                this._adjList[node.id] = [];
             });
             // Bidirectional
             links.forEach(link => {
-                graph[link.source].push(link.target);
-                graph[link.target].push(link.source);
+                if (this._dataBound) {
+                    this._adjList[link.source.id].push(link.target.id);
+                    this._adjList[link.target.id].push(link.source.id);
+                }
+                else {
+                    this._adjList[link.source].push(link.target);
+                    this._adjList[link.target].push(link.source);
+                }
             });
-            return graph;
         }
 
-        getGraph() {
-            return this._graph;
+        getAdjacencyList() {
+            return this._adjList;
         }
 
 
@@ -293,7 +305,7 @@ window.phase = (function () {
 
         // Binds new data to the network
         _bindData(data) {
-            this._graph = this._generateGraph(data)
+            this._graph = this._generateAdjacencyList(data)
 
             // Assign new data
             this._data = data;
@@ -433,8 +445,8 @@ window.phase = (function () {
 
 
 
-        // Reset graph to default colors
-        resetGraph(){
+        // Reset graph to default styles
+        unstyleGraph() {
             this.getNodeGroup("all").unstyle()
             this.getLinkGroup("all").unstyle()
         }
