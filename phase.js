@@ -91,6 +91,8 @@ window.phase = (function () {
             for (const key in updatedSettings) {
                 this._settings[key] = updatedSettings[key];
             }
+            // TODO: If entire viz doesn't need to be rerendered, don't call this
+            this.reset();
         }
 
         // Resets the network to initial rendered state
@@ -116,14 +118,11 @@ window.phase = (function () {
                 .attr("viewBox","0 0 " + Math.min(this._containerWidth, this._containerHeight) + " " + Math.min(this._containerWidth, this._containerHeight))
                 .attr("preserveAspectRatio", "xMinYMin")
                 .on("contextmenu", this._containerContextmenu)
-                .on("dblclick.zoom", null);  // Don't zoom on double left click
-
-            if (this._settings._ZOOM) {
-                this._svg.call(d3.zoom()
-                    .scaleExtent([.1, 10])
+                .on("dblclick.zoom", null)  // Don't zoom on double left click
+                .call(d3.zoom()
+                    .scaleExtent(this._settings._ZOOM ? [.1, 10] : [1, 1])
                     .on("zoom", this._containerZoom.bind(this))
                 );
-            }
 
             // TODO
             this._container.appendChild(this._svg.node());

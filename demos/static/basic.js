@@ -3,6 +3,6 @@ document.addEventListener("DOMContentLoaded", function(event) {
     viz = phase.Network("#viz-container");
     // Attach some initial data
     viz.data(lesMiserablesData);
-    
+
     console.log("Visualization Loaded");
 });

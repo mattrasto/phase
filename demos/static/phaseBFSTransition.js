@@ -10,7 +10,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
 // Constructs phase for BFS
 function bfsPhase(startNode) {
 
-    viz.resetGraph();
+    viz.unstyleGraph();
 
     // Initialize phase
     let searchPhase = viz.phase("bfs");

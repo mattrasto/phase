@@ -9,7 +9,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
 
 // Constructs phase for BFS
 function bfsPhase(startNode) {
-    viz.resetGraph()
+    viz.unstyleGraph()
     // Initialize phase with root node
     let phase = viz.phase("bfs");
 
