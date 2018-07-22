@@ -24,9 +24,6 @@ window.phase = (function () {
             // Internal store of graph structure as adjacency list
             this._graph = {};
 
-            // Viz state
-            this._state = {};
-
             // Settings (user-accessible)
 
             this._settings = {
@@ -50,6 +47,9 @@ window.phase = (function () {
                 // Whether the user can zoom
                 _ZOOM: true,
             };
+
+            // Viz state
+            this._state = {};
 
             console.log("Network constructed");
 
@@ -78,6 +78,20 @@ window.phase = (function () {
             for (const key in updatedState) {
                 this._state[key] = updatedState[key];
             }
+        }
+
+        // Updates or returns the current viz settings
+        settings(updatedSettings) {
+            if (updatedSettings == undefined) return this._settings;
+            for (const key in updatedSettings) {
+                this._settings[key] = updatedSettings[key];
+            }
+        }
+
+        // Resets the network to initial rendered state
+        // TODO
+        reset() {
+
         }
 
 
