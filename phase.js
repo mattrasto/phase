@@ -678,12 +678,12 @@ window.phase = (function () {
             // External state
             this._state = {}; // State variables belonging to state
 
-            // Functions called on when phase is initialized
-            this._initials = []
-            // Functions called on each timestep to compute phase's next state
-            this._transitions = []
-            // Functions called to determine whether the phase is finished
-            this._terminals = [];
+            // Function called on when phase is initialized
+            this._initial;
+            // Function called on each timestep to compute phase's next state
+            this._transition;
+            // Function called to determine whether the phase is finished
+            this._terminal;
 
             return this;
         }
@@ -697,30 +697,26 @@ window.phase = (function () {
         }
 
         initial(initial) {
-            this._initials.push(initial);
+            this._initial = initial;
         }
 
         next(transition) {
-            this._transitions.push(transition);
+            this._transition = transition;
         }
 
         end(terminal) {
-            this._terminals.push(terminal);
+            this._terminal = terminal;
         }
 
         _calculateNextState() {
-            for (const transition of this._transitions) {
-                transition(this.state(), this._network.state());
-            }
+            this._transition(this.state(), this._network.state())
         }
 
-        // QUESTION: Should this be public? What if user wants to evluate in the middle of a step?
         _evaluateTermination() {
-            for (const terminal of this._terminals) {
-                if (terminal(this.state(), this._network.state())) {
-                    return true;
-                }
+            if(this._terminal(this.state(), this._network.state())){
+                return true;
             }
+            return false;
         }
 
         // Stop the phase's application but don't clear settings/state
@@ -751,10 +747,9 @@ window.phase = (function () {
         start() {
 
             // TODO: Only initialize if the simulation has not been started yet or has been reset
-            for (const initial of this._initials) {
-                initial(this.state(), this._network.state());            }
+            this._initial(this.state(), this._network.state());
 
-            if (this._transitions.length > 0) {
+            if (this._transition) {
                 function step() {
                     this._calculateNextState();
                     if (this._evaluateTermination()) this.stop();
