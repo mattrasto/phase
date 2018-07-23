@@ -86,26 +86,26 @@ window.phase = (function () {
                 // How easily particles are dragged across the screen [0, 1]
                 friction: .8,
                 // Node coloring scheme
-                color_mode: "",
+                colorMode: "",
                 // Default node color palette
-                color_key: ["#63D467", "#63B2D4", "#AE63D4", "#D46363", "#ED9A55", "#E5EB7A"],
+                colorKey: ["#63D467", "#63B2D4", "#AE63D4", "#D46363", "#ED9A55", "#E5EB7A"],
                 // Determines the style of links based on their "type" attribute
                 // Values should be an even-length array for alternating black / white segments in px
-                link_style: {"derivative": "", "related": "10,8"},
+                linkStyle: {"derivative": "", "related": "10,8"},
                 // Node size
-                node_size: 10,
+                nodeSize: 10,
                 // Node fill color
-                node_color: "#333",
+                nodeColor: "#333",
                 // Node border color
-                node_border_color: "#F7F6F2",
+                nodeBorderColor: "#F7F6F2",
                 // Node border width
-                node_border_width: ".8px",
+                nodeBorderWidth: ".8px",
                 // Link type (solid, dash array, etc.)
-                link_stroke: "",
+                linkStroke: "",
                 // Link color
-                link_color: "#666",
+                linkColor: "#666",
                 // Link width
-                link_width: "1.5px",
+                linkWidth: "1.5px",
                 // Whether the user can zoom
                 zoom: true,
             };
@@ -117,6 +117,12 @@ window.phase = (function () {
         reset() {
             this._svg.node().outerHTML = "";
             this._render();
+        }
+
+        // Reset graph to default styles
+        unstyleGraph() {
+            this.getNodeGroup("all").unstyle();
+            this.getLinkGroup("all").unstyle();
         }
 
 
@@ -366,10 +372,10 @@ window.phase = (function () {
             // Add new circles
             newNodes
                 .append("circle")
-                    .style("r", this._defaultNodeSize.bind(this))
-                    .style("fill", this._defaultNodeColor.bind(this))
-                    .style("stroke", this._defaultNodeBorderColor.bind(this))
-                    .style("stroke-width", this._defaultNodeBorderWidth.bind(this));
+                    .style("r", this._settings.nodeSize)
+                    .style("fill", this._settings.nodeColor)
+                    .style("stroke", this._settings.nodeBorderColor)
+                    .style("stroke-width", this._settings.nodeBorderWidth);
 
             // Add new labels
             newNodes
@@ -385,10 +391,10 @@ window.phase = (function () {
             // Update circles
             this._nodeContainers
                 .select("circle")
-                    .style("r", this._defaultNodeSize.bind(this))
-                    .style("fill", this._defaultNodeColor.bind(this))
-                    .style("stroke", this._defaultNodeBorderColor.bind(this))
-                    .style("stroke-width", this._defaultNodeBorderWidth.bind(this));
+                .style("r", this._settings.nodeSize)
+                .style("fill", this._settings.nodeColor)
+                .style("stroke", this._settings.nodeBorderColor)
+                .style("stroke-width", this._settings.nodeBorderWidth);
 
             // Update labels
             this._nodeContainers
@@ -419,9 +425,9 @@ window.phase = (function () {
             // Add new lines
             newLinks
                 .append("line")
-                    .style("stroke", this._defaultLinkColor.bind(this))
-                    .style("stroke-width", this._defaultLinkWidth.bind(this))
-                    .style("stroke-dasharray", this._defaultLinkType.bind(this))
+                    .style("stroke", this._settings.linkColor)
+                    .style("stroke-width", this._settings.linkWidth)
+                    .style("stroke-dasharray", this._settings.linkStroke)
 
             // Add new labels
             newLinks
@@ -439,9 +445,9 @@ window.phase = (function () {
             // Update lines
             this._linkContainers
                 .select("line")
-                .style("stroke", this._defaultLinkColor.bind(this))
-                .style("stroke-width", this._defaultLinkWidth.bind(this))
-                .style("stroke-dasharray", this._defaultLinkType.bind(this))
+                .style("stroke", this._settings.linkColor)
+                .style("stroke-width", this._settings.linkWidth)
+                .style("stroke-dasharray", this._settings.linkStroke)
 
             // Update labels
             this._linkContainers
@@ -453,55 +459,6 @@ window.phase = (function () {
                     .style("stroke-width", 0)
                     .style("font-size", "12px")
                     .text(function(d) { return d.value; });
-        }
-
-
-
-        // STYLES
-
-
-
-        // Reset graph to default styles
-        unstyleGraph() {
-            this.getNodeGroup("all").unstyle()
-            this.getLinkGroup("all").unstyle()
-        }
-
-        // Sizes nodes
-        _defaultNodeSize(d) {
-            return this._settings.node_size;
-        }
-
-        // Colors nodes
-        _defaultNodeColor(d) {
-            return this._settings.node_color;
-        }
-
-        // Colors node borders depending on if they are leaf nodes or not
-        _defaultNodeBorderColor(d) {
-            return this._settings.node_border_color;
-        }
-
-        // Draws node borders depending on if they are leaf nodes or not
-        _defaultNodeBorderWidth(d) {
-            return this._settings.node_border_width;
-        }
-
-        // Draws links as dash arrays based on their type
-        _defaultLinkType(d) {
-            return this._settings.link_stroke;
-        }
-
-        // Draws links as dash arrays based on their type
-        _defaultLinkColor(d) {
-            // Default: medium grey
-            return this._settings.link_color;
-        }
-
-        // Draws links as dash arrays based on their type
-        _defaultLinkWidth(d) {
-            // Default: 1.5px
-            return this._settings.link_width;
         }
 
 
