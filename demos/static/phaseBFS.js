@@ -9,51 +9,56 @@ document.addEventListener("DOMContentLoaded", function(event) {
 
 // Constructs phase for BFS
 function bfsPhase(startNode) {
-    viz.unstyleGraph()
-    // Initialize phase with root node
-    let phase = viz.phase("bfs");
 
-    // Keeps track of node depth
-    let depth = 0;
+    // Reset
+    viz.unstyleGraph();
+    viz.destroyPhase("bfs");
 
-    let morph = createMorph(depth++);
-    let ng = viz.nodeGroup(startNode, "id", startNode)
-    let root = phase.root(ng.label, morph);
+    // Initialize phase
+    let searchPhase = viz.phase("bfs");
 
-    // Contains visited nodes
-    let visited = new Set([startNode]);
-    // Contains children in a given layer that haven't been visited
-    let validChildren = new Set([startNode]);
-    // Contains children in the next layer
-    let newValidChildren;
+    // Set the phase's initial state
+    searchPhase.initial(function(vizState) {
+        searchPhase.state({
+            'visited': new Set([startNode, "Boulatruelle"]), // Nodes we've visited
+            'validNeighbors': new Set([startNode, "Boulatruelle"]), // Neighbors that haven't been visited
+            'depth': 0, // Distance from start node
+        });
+    });
 
-    function filter(elem) {
-        return validChildren.has(elem.id);
-    }
+    searchPhase.next(function(phaseState, vizState) {
+        let newValidNeighbors = new Set();
 
-    const childDict = viz.getGraph()
+        // Adjacency list for quick access to neighbors
+        const childDict = viz.getAdjacencyList();
 
-    while (validChildren.size > 0) {
-        // Get all children in the next layer that haven't been visited
-        let newValidChildren = new Set();
-        validChildren.forEach(node => {
+        // Morph the next layer in the BFS
+        const ng = searchPhase.nodeGroup("depth_" + phaseState.depth, phaseState.validNeighbors);
+        const morph = createMorph(searchPhase, phaseState.depth++);
+        ng.morph(morph.label);
+
+        // Classic BFS
+        phaseState.validNeighbors.forEach(node => {
             childDict[node].forEach(child => {
-                if(!visited.has(child)) {
-                    newValidChildren.add(child);
-                    visited.add(child);
+                if(!phaseState.visited.has(child)) {
+                    newValidNeighbors.add(child);
+                    phaseState.visited.add(child);
                 }
             });
         });
 
-        validChildren = newValidChildren;
+        // Update the valid neighbors in the phase's state
+        phaseState.validNeighbors = newValidNeighbors;
+    });
 
-        // Add a node group and branch
-        const ng = viz.nodeGroup("depth_" + depth, filter);
-        morph = createMorph(depth++);
-        root = root.branch(ng.label, morph._label);
-    }
+    // Tell the phase when to stop
+    searchPhase.end(function(phaseState, vizState) {
+        return phaseState.validNeighbors.size <= 0;
+    });
 
-    return phase;
+    console.log(viz._data);
+
+    return searchPhase;
 }
 
 function createPhase() {
@@ -61,10 +66,10 @@ function createPhase() {
     bfsPhase(startNode);
 }
 
-// Creates the morph that changes the color of the node
-function createMorph(depth) {
-    const colors = ["#63D467", "#63B2D4", "#AE63D4", "#D46363", "#ED9A55", "#E5EB7A"];
-    return viz.morph("style_nodes_" + depth, "style", {"fill": colors[depth % colors.length]});
+// Changes the color of the node based on its distance from the start
+function createMorph(searchPhase, depth) {
+    const colors = ["#AE63D4", "#63B2D4", "#63D467", "#E5EB7A", "#ED9A55", "#D46363"];
+    return searchPhase.morph("style_nodes_" + depth, "style", {"fill": colors[depth % colors.length]});
 }
 
 // Starts the phase
