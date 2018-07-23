@@ -145,11 +145,11 @@ window.phase = (function () {
                 .attr("viewBox","0 0 " + Math.min(this._containerWidth, this._containerHeight) + " " + Math.min(this._containerWidth, this._containerHeight))
                 .attr("preserveAspectRatio", "xMinYMin")
                 .on("contextmenu", this._containerContextmenu)
-                .on("dblclick.zoom", null)  // Don't zoom on double left click
                 .call(d3.zoom()
                     .scaleExtent(this._settings.zoom ? [.1, 10] : [1, 1])
                     .on("zoom", this._containerZoom.bind(this))
-                );
+                )
+                .on("dblclick.zoom", null);  // Don't zoom on double left click
 
             // TODO
             this._container.appendChild(this._svg.node());
@@ -492,7 +492,6 @@ window.phase = (function () {
 
         // Node mousedown handler
         _nodeMousedown(d) {
-            console.log("Mousedown");
             // Unpin node if middle click
             if (d3.event.which == 2) {
                 d3.select(this).classed("fixed", d.fixed = false);
@@ -574,7 +573,7 @@ window.phase = (function () {
             else if (typeof filterer === "function") {
                 return containers.filter(d => filterer(d));
             }
-            else if (Array.isArray(filterer) || filterer instanceof Set){
+            else if (Array.isArray(filterer) || filterer instanceof Set) {
                 const set = new Set(filterer)
                 if (isNodeGroup) {
                     return containers.filter(d => set.has(d.id))
@@ -587,7 +586,7 @@ window.phase = (function () {
             }
         }
 
-        addStyle(styleMap, selector){
+        addStyle(styleMap, selector) {
             for (const attr in styleMap) {
                 this._selection.select(selector).style(attr, styleMap[attr]);
             }
@@ -760,14 +759,6 @@ window.phase = (function () {
             this._linkGroups = {};
 
             delete this._network._phases[this.label];
-        }
-
-        root(element, morph) {
-            if (element == undefined) {
-                return this._root;
-            }
-            this._root = new MorphNode(this, element, morph._label);
-            return this._root;
         }
 
         // Begins the simulation
