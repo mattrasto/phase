@@ -87,6 +87,8 @@ window.phase = (function () {
                 charge: -800,
                 // How easily particles are dragged across the screen [0, 1]
                 friction: .8,
+                // Gravity force strength [0, 1]
+                gravity: .25,
                 // Node coloring scheme
                 colorMode: "",
                 // Default node color palette
@@ -158,7 +160,8 @@ window.phase = (function () {
             this._simulation = d3.forceSimulation()
                 .force("link", d3.forceLink().id(function(d) { return d.id; }).distance(this._settings.link_distance).strength(this._settings.link_strength))
                 .force("charge", d3.forceManyBody().strength(this._settings.charge))
-                .force("center", d3.forceCenter(this._containerWidth / 2, this._containerHeight / 2));
+                .force('centerX', d3.forceX(this._containerWidth / 2).strength(this._settings.gravity))
+                .force('centerY', d3.forceY(this._containerHeight / 2).strength(this._settings.gravity));
 
             // Creates g container for link containers
             this._linkContainerG = this._g.append("g")
