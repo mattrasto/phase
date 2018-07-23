@@ -23,6 +23,8 @@ window.phase = (function () {
             this._morphs = {};
             this._phases = {};
 
+            this._network = this;
+
             // Internal store of graph structure as adjacency list
             this._adjList = {};
 
@@ -247,7 +249,7 @@ window.phase = (function () {
                 console.warn("Node group '" + label + "' already exists", this._nodeGroups[label]);
                 return this._nodeGroups[label];
             }
-            const group = new NodeGroup(this, label, filterer, val)
+            const group = new NodeGroup(this._network, label, filterer, val)
             this._nodeGroups[label] = group;
             return group;
         }
@@ -266,7 +268,7 @@ window.phase = (function () {
                 console.warn("Link group '" + label + "' already exists", this._linkGroups[label]);
                 return this._linkGroups[label];
             }
-            const group = new LinkGroup(this, label, filterer, val)
+            const group = new LinkGroup(this._network, label, filterer, val)
             this._linkGroups[label] = group;
             return group;
         }
@@ -288,7 +290,7 @@ window.phase = (function () {
                 console.warn("Morph '" + label + "' already exists", this._morphs[label]);
                 return this._morphs[label];
             }
-            const morph = new Morph(this, label, type, change);
+            const morph = new Morph(this._network, label, type, change);
             this._morphs[label] = morph;
             return morph;
         }
@@ -313,6 +315,12 @@ window.phase = (function () {
 
         getPhase(label) {
             return this._phases[label];
+        }
+
+        destroyPhase(label){
+            if(label in this._phases){
+                this.getPhase(label).destroy();
+            }
         }
 
         getAllPhases() {
@@ -545,6 +553,9 @@ window.phase = (function () {
             this._filterer = filterer;
             this._val = val;
 
+            // Phase the group is associated with
+            this.phase;
+
             this._selection = this._filter(filterer, val)
 
             return this;
@@ -584,7 +595,7 @@ window.phase = (function () {
         }
 
         morph(label) {
-            const morph = this._network.getMorph(label);
+            const morph = this.phase ? this._network.getPhase(this.phase).getMorph(label) : this._network.getMorph(label);
             if (morph._type == "style") {
                 this.addStyle(morph._change);
             }
@@ -654,6 +665,9 @@ window.phase = (function () {
             this._type = type;
             this._change = change;
 
+            // Phase the morph is associated with
+            this.phase;
+
             return this;
         }
     }
@@ -679,12 +693,17 @@ window.phase = (function () {
             // External state
             this._state = {}; // State variables belonging to state
 
-            // Functions called on when phase is initialized
-            this._initials = []
-            // Functions called on each timestep to compute phase's next state
-            this._transitions = []
-            // Functions called to determine whether the phase is finished
-            this._terminals = [];
+            // Morphs and groups associated with the phase
+            this._morphs = {};
+            this._nodeGroups = {};
+            this._linkGroups = {};
+
+            // Function called on when phase is initialized
+            this._initial;
+            // Function called on each timestep to compute phase's next state
+            this._transition;
+            // Function called to determine whether the phase is finished
+            this._terminal;
 
             return this;
         }
@@ -698,30 +717,26 @@ window.phase = (function () {
         }
 
         initial(initial) {
-            this._initials.push(initial);
+            this._initial = initial;
         }
 
         next(transition) {
-            this._transitions.push(transition);
+            this._transition = transition;
         }
 
         end(terminal) {
-            this._terminals.push(terminal);
+            this._terminal = terminal;
         }
 
         _calculateNextState() {
-            for (const transition of this._transitions) {
-                transition(this.state(), this._network.state());
-            }
+            this._transition(this.state(), this._network.state())
         }
 
-        // QUESTION: Should this be public? What if user wants to evluate in the middle of a step?
         _evaluateTermination() {
-            for (const terminal of this._terminals) {
-                if (terminal(this.state(), this._network.state())) {
-                    return true;
-                }
+            if(this._terminal(this.state(), this._network.state())){
+                return true;
             }
+            return false;
         }
 
         // Stop the phase's application but don't clear settings/state
@@ -735,8 +750,12 @@ window.phase = (function () {
             this._state = {};
         }
 
-        // Teardown the phase and remove from viz
+        // Teardown the phase along with its associated groups/morphs and remove from viz
         destroy() {
+            this._morphs = {};
+            this._nodeGroups = {};
+            this._linkGroups = {};
+
             delete this._network._phases[this.label];
         }
 
@@ -752,10 +771,9 @@ window.phase = (function () {
         start() {
 
             // TODO: Only initialize if the simulation has not been started yet or has been reset
-            for (const initial of this._initials) {
-                initial(this.state(), this._network.state());            }
+            this._initial(this.state(), this._network.state());
 
-            if (this._transitions.length > 0) {
+            if (this._transition) {
                 function step() {
                     this._calculateNextState();
                     if (this._evaluateTermination()) this.stop();
@@ -763,6 +781,52 @@ window.phase = (function () {
                 this._interval = setInterval(step.bind(this), this._timeStep);
                 return;
             }
+        }
+
+        // Morphs and Groups instantiated and stored within a phase
+
+        // Creates a new node group
+        nodeGroup(label, filterer, val) {
+            let nodeGroup = this._network.nodeGroup.call(this, label, filterer, val);
+            nodeGroup.phase = this.label;
+            return nodeGroup;
+        }
+
+        getNodeGroup(label) {
+            return this._nodeGroups[label];
+        }
+
+        getAllNodeGroups() {
+            return this._nodeGroups;
+        }
+
+        // Creates a new node group
+        linkGroup(label, filterer, val) {
+            let linkGroup = this._network.linkGroup.call(this, label, filterer, val);
+            linkGroup.phase = this.label;
+            return linkGroup;
+        }
+
+        getLinkGroup(label) {
+            return this._linkGroups[label];
+        }
+
+        getAllLinkGroups() {
+            return this._linkGroups;
+        }
+
+        morph(label, type, change) {
+            let morph = this._network.morph.call(this, label, type, change);
+            morph.phase = this.label;
+            return morph;
+        }
+
+        getMorph(label) {
+            return this._morphs[label];
+        }
+
+        getAllMorphs() {
+            return this._morphs;
         }
     }
 
