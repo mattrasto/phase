@@ -8,10 +8,10 @@ document.addEventListener("DOMContentLoaded", function(event) {
 });
 
 function toggleZoom() {
-    if (viz.settings()._ZOOM) {
-        viz.settings({_ZOOM: false});
+    if (viz.settings().zoom) {
+        viz.settings({zoom: false});
     }
     else {
-        viz.settings({_ZOOM: true});
+        viz.settings({zoom: true});
     }
 }
