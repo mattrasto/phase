@@ -20,8 +20,8 @@ function bfsPhase(startNode) {
     // Set the phase's initial state
     searchPhase.initial(function(vizState) {
         searchPhase.state({
-            'visited': new Set([startNode]), // Nodes we've visited
-            'validNeighbors': new Set([startNode]), // Neighbors that haven't been visited
+            'visited': new Set([startNode, "Boulatruelle"]), // Nodes we've visited
+            'validNeighbors': new Set([startNode, "Boulatruelle"]), // Neighbors that haven't been visited
             'depth': 0, // Distance from start node
         });
     });
@@ -30,7 +30,7 @@ function bfsPhase(startNode) {
         let newValidNeighbors = new Set();
 
         // Adjacency list for quick access to neighbors
-        const childDict = viz.getGraph();
+        const childDict = viz.getAdjacencyList();
 
         // Morph the next layer in the BFS
         const ng = searchPhase.nodeGroup("depth_" + phaseState.depth, phaseState.validNeighbors);
@@ -55,6 +55,8 @@ function bfsPhase(startNode) {
     searchPhase.end(function(phaseState, vizState) {
         return phaseState.validNeighbors.size <= 0;
     });
+
+    console.log(viz._data);
 
     return searchPhase;
 }

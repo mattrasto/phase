@@ -80,9 +80,9 @@ window.phase = (function () {
             // Default settings
             this._settings = {
                 // Strength of links (how easily they can be compressed) between nodes [0, INF]
-                link_strength: 1,
+                linkStrength: 1,
                 // Distance between nodes [0, INF]
-                link_distance: 60,
+                linkDistance: 60,
                 // Charge between nodes [-INF, INF]
                 charge: -800,
                 // How easily particles are dragged across the screen [0, 1]
@@ -158,7 +158,7 @@ window.phase = (function () {
             this._g = this._svg.append("g");
 
             this._simulation = d3.forceSimulation()
-                .force("link", d3.forceLink().id(function(d) { return d.id; }).distance(this._settings.link_distance).strength(this._settings.link_strength))
+                .force("link", d3.forceLink().id(function(d) { return d.id; }).distance(this._settings.linkDistance).strength(this._settings.linkStrength))
                 .force("charge", d3.forceManyBody().strength(this._settings.charge))
                 .force('centerX', d3.forceX(this._containerWidth / 2).strength(this._settings.gravity))
                 .force('centerY', d3.forceY(this._containerHeight / 2).strength(this._settings.gravity));
@@ -628,10 +628,10 @@ window.phase = (function () {
         // Removes all styles from a group
         unstyle() {
             const styleMap = {
-                "fill": this._network._defaultNodeColor.bind(this._network),
-                "r": this._network._defaultNodeSize.bind(this._network),
-                "stroke": this._network._defaultNodeBorderColor.bind(this._network),
-                "stroke-width": this._network._defaultNodeBorderWidth.bind(this._network)
+                "fill": this._network._settings.nodeColor,
+                "r": this._network._settings.nodeSize,
+                "stroke": this._network._settings.nodeBorderColor,
+                "stroke-width": this._network._settings.nodeBorderWidth
             }
             this.addStyle(styleMap);
         }
@@ -651,10 +651,10 @@ window.phase = (function () {
         // Removes all styles from a group
         unstyle() {
             const styleMap = {
-                "stroke-dasharray": this._network._defaultLinkType.bind(this._network),
-                "fill": this._network._defaultLinkColor.bind(this._network),
-                "stroke": this._network._defaultLinkColor.bind(this._network),
-                "stroke-width": this._network._defaultLinkWidth.bind(this._network)
+                "stroke-dasharray": this._network._settings.linkStroke,
+                "fill": this._network._settings.linkColor,
+                "stroke": this._network._settings.linkColor,
+                "stroke-width": this._network._settings.linkWidth
             }
             this.addStyle(styleMap);
         }

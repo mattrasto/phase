@@ -17,7 +17,7 @@ function createRandGroups() {
 }
 
 function createMorphs() {
-    viz.resetGraph()
+    viz.unstyleGraph()
     // Node styling morph
     viz.morph("style_nodes", "style", {"fill": "#7DABFF", "stroke": "#AE63D4", "stroke-width": "3px"});
     // Node data morph
