@@ -1,17 +1,17 @@
 window.phase = (function () {
     class Network {
-        constructor(query) {
+        constructor(query, settings) {
 
             this._container = (typeof query === "string") ? document.querySelectorAll(query)[0] : query;
 
             this._data = {"nodes": [], "links": []};
+            this._dataLoaded = false; // Whether the data has been loaded into this._data
+            this._dataBound = false; // Whether the data has been bound to objects (this changes the structure of link references)
 
             // Elements
             this._svg = null;
             this._g = null;
             this._simulation = null;
-            this._node = null;
-            this._link = null;
 
             // Visualization properties
             this._containerWidth = 0;
@@ -20,27 +20,19 @@ window.phase = (function () {
             this._nodeGroups = {};
             this._linkGroups = {};
 
+            this._morphs = {};
+            this._phases = {};
 
+            this._network = this;
+
+            // Internal store of graph structure as adjacency list
+            this._adjList = {};
 
             // Settings (user-accessible)
+            this.initSettings(settings);
 
-            // Strength of links (how easily they can be compressed) between nodes [0, INF]
-            this._LINK_STRENGTH = 1;
-            // Distance between nodes [0, INF]
-            this._LINK_DISTANCE = 60;
-            // Charge between nodes [-INF, INF]
-            this._CHARGE = -800;
-            // How easily particles are dragged across the screen [0, 1]
-            this._FRICTION = .8;
-            // Node coloring scheme
-            this._COLOR_MODE = "";
-            // Default node color palette
-            this._COLOR_KEY = ["#63D467", "#63B2D4", "#AE63D4", "#D46363", "#ED9A55", "#E5EB7A"];
-            // Determines the style of links based on their "type" attribute
-            // Values should be an even-length array for alternating black / white segments in px
-            this._LINK_STYLE = {"derivative": "", "related": "10,8"};
-            // Base node size
-            this._SIZE_BASE = 10;
+            // Viz state
+            this._state = {};
 
             console.log("Network constructed");
 
@@ -48,20 +40,99 @@ window.phase = (function () {
         }
 
         // Binds data to the viz
+        // TODO: Fix this (see data update demo)
         data(data) {
-            if (this._data != null) {
+            if (this._data != null && !this._dataBound) {
                 this._bindData(data);
+                this._dataLoaded = true;
+                this._dataBound = true;
             }
             else {
                 this._data = data;
+                this._dataLoaded = true;
+                this._dataBound = false;
             }
 
             // Update "all" groups
+            // QUESTION: Should duplicate constructor calls cause group reevaluation?
             this.nodeGroup("all", "");
             this.linkGroup("all", "");
 
             console.log("Bound data to viz");
         }
+
+        // Updates or returns the current viz state
+        state(updatedState) {
+            if (updatedState == undefined) return this._state;
+            for (const key in updatedState) {
+                this._state[key] = updatedState[key];
+            }
+        }
+
+        // Updates or returns the current viz settings
+        settings(updatedSettings) {
+            if (updatedSettings == undefined) return this._settings;
+            for (const key in updatedSettings) {
+                this._settings[key] = updatedSettings[key];
+            }
+            // TODO: If entire viz doesn't need to be rerendered, don't call this
+            this.reset();
+        }
+
+        initSettings(settings) {
+            // Default settings
+            this._settings = {
+                // Strength of links (how easily they can be compressed) between nodes [0, INF]
+                linkStrength: 1,
+                // Distance between nodes [0, INF]
+                linkDistance: 60,
+                // Charge between nodes [-INF, INF]
+                charge: -800,
+                // How easily particles are dragged across the screen [0, 1]
+                friction: .8,
+                // Gravity force strength [0, 1]
+                gravity: .25,
+                // Node coloring scheme
+                colorMode: "",
+                // Default node color palette
+                colorKey: ["#63D467", "#63B2D4", "#AE63D4", "#D46363", "#ED9A55", "#E5EB7A"],
+                // Determines the style of links based on their "type" attribute
+                // Values should be an even-length array for alternating black / white segments in px
+                linkStyle: {"derivative": "", "related": "10,8"},
+                // Node size
+                nodeSize: 10,
+                // Node fill color
+                nodeColor: "#333",
+                // Node border color
+                nodeBorderColor: "#F7F6F2",
+                // Node border width
+                nodeBorderWidth: ".8px",
+                // Link type (solid, dash array, etc.)
+                linkStroke: "",
+                // Link color
+                linkColor: "#666",
+                // Link width
+                linkWidth: "1.5px",
+                // Whether the user can zoom
+                zoom: true,
+            };
+            this.settings(settings);
+        }
+
+        // Resets the network to initial rendered state
+        // TODO
+        reset() {
+            this._svg.node().outerHTML = "";
+            this._render();
+        }
+
+        // Reset graph to default styles
+        unstyleGraph() {
+            this.getNodeGroup("all").unstyle();
+            this.getLinkGroup("all").unstyle();
+        }
+
+
 
         // Renders viz element in container
         _render() {
@@ -78,20 +149,22 @@ window.phase = (function () {
                 .attr("preserveAspectRatio", "xMinYMin")
                 .on("contextmenu", this._containerContextmenu)
                 .call(d3.zoom()
-                    .scaleExtent([.1, 10])
+                    .scaleExtent(this._settings.zoom ? [.1, 10] : [1, 1])
                     .on("zoom", this._containerZoom.bind(this))
                 )
                 .on("dblclick.zoom", null);  // Don't zoom on double left click
 
+            // TODO
             this._container.appendChild(this._svg.node());
 
             // Creates actual force graph container (this is what actually gets resized as needed)
             this._g = this._svg.append("g");
 
             this._simulation = d3.forceSimulation()
-                .force("link", d3.forceLink().id(function(d) { return d.id; }).distance(this._LINK_DISTANCE).strength(this._LINK_STRENGTH))
-                .force("charge", d3.forceManyBody().strength(this._CHARGE))
-                .force("center", d3.forceCenter(this._containerWidth / 2, this._containerHeight / 2));
+                .force("link", d3.forceLink().id(function(d) { return d.id; }).distance(this._settings.linkDistance).strength(this._settings.linkStrength))
+                .force("charge", d3.forceManyBody().strength(this._settings.charge))
+                .force('centerX', d3.forceX(this._containerWidth / 2).strength(this._settings.gravity))
+                .force('centerY', d3.forceY(this._containerHeight / 2).strength(this._settings.gravity));
 
             // Creates g container for link containers
             this._linkContainerG = this._g.append("g")
@@ -140,13 +213,49 @@ window.phase = (function () {
 
 
 
+        // GRAPH STORE
+
+
+
+        // Creates a dict containing children of each node
+        _generateAdjacencyList(data) {
+            const links = data.links;
+            const nodes = data.nodes;
+
+            this._adjList = {};
+            nodes.forEach(node => {
+                this._adjList[node.id] = [];
+            });
+            // Bidirectional
+            links.forEach(link => {
+                if (this._dataBound) {
+                    this._adjList[link.source.id].push(link.target.id);
+                    this._adjList[link.target.id].push(link.source.id);
+                }
+                else {
+                    this._adjList[link.source].push(link.target);
+                    this._adjList[link.target].push(link.source);
+                }
+            });
+        }
+
+        getAdjacencyList() {
+            return this._adjList;
+        }
+
+
+
         // GROUPING
 
 
 
         // Creates a new node group
         nodeGroup(label, filterer, val) {
-            var group = new NodeGroup(this, label, filterer, val)
+            if (label in this._nodeGroups) {
+                console.warn("Node group '" + label + "' already exists", this._nodeGroups[label]);
+                return this._nodeGroups[label];
+            }
+            const group = new NodeGroup(this._network, label, filterer, val)
             this._nodeGroups[label] = group;
             return group;
         }
@@ -161,7 +270,11 @@ window.phase = (function () {
 
         // Creates a new node group
         linkGroup(label, filterer, val) {
-            var group = new LinkGroup(this, label, filterer, val)
+            if (label in this._linkGroups) {
+                console.warn("Link group '" + label + "' already exists", this._linkGroups[label]);
+                return this._linkGroups[label];
+            }
+            const group = new LinkGroup(this._network, label, filterer, val)
             this._linkGroups[label] = group;
             return group;
         }
@@ -176,12 +289,59 @@ window.phase = (function () {
 
 
 
+        // PHASES AND MORPHS
+
+        morph(label, type, change) {
+            if (label in this._morphs) {
+                console.warn("Morph '" + label + "' already exists", this._morphs[label]);
+                return this._morphs[label];
+            }
+            const morph = new Morph(this._network, label, type, change);
+            this._morphs[label] = morph;
+            return morph;
+        }
+
+        getMorph(label) {
+            return this._morphs[label];
+        }
+
+        getAllMorphs() {
+            return this._morphs;
+        }
+
+        phase(label) {
+            if (label in this._phases) {
+                console.warn("Phase '" + label + "' already exists", this._phases[label]);
+                return this._phases[label];
+            }
+            const phase = new Phase(this, label);
+            this._phases[label] = phase;
+            return phase;
+        }
+
+        getPhase(label) {
+            return this._phases[label];
+        }
+
+        destroyPhase(label){
+            if(label in this._phases){
+                this.getPhase(label).destroy();
+            }
+        }
+
+        getAllPhases() {
+            return this._phases;
+        }
+
+
+
         // DATA BINDING
 
 
 
         // Binds new data to the network
         _bindData(data) {
+            this._graph = this._generateAdjacencyList(data)
 
             // Assign new data
             this._data = data;
@@ -205,7 +365,7 @@ window.phase = (function () {
             this._nodeContainers.exit().remove();
 
             // Add new node containers to node g container
-            var newNodes = this._nodeContainers
+            let newNodes = this._nodeContainers
               .enter().append("g");
 
             // Add new node containers
@@ -226,10 +386,10 @@ window.phase = (function () {
             // Add new circles
             newNodes
                 .append("circle")
-                    .attr("r", this._defaultNodeSize)
-                    .attr("fill", this._defaultNodeColor)
-                    .attr("stroke", this._defaultNodeBorderColor)
-                    .attr("stroke-width", this._defaultNodeBorderWidth);
+                    .style("r", this._settings.nodeSize)
+                    .style("fill", this._settings.nodeColor)
+                    .style("stroke", this._settings.nodeBorderColor)
+                    .style("stroke-width", this._settings.nodeBorderWidth);
 
             // Add new labels
             newNodes
@@ -245,10 +405,10 @@ window.phase = (function () {
             // Update circles
             this._nodeContainers
                 .select("circle")
-                    .attr("r", this._defaultNodeSize.bind(this))
-                    .attr("fill", this._defaultNodeColor)
-                    .attr("stroke", this._defaultNodeBorderColor)
-                    .attr("stroke-width", this._defaultNodeBorderWidth);
+                .style("r", this._settings.nodeSize)
+                .style("fill", this._settings.nodeColor)
+                .style("stroke", this._settings.nodeBorderColor)
+                .style("stroke-width", this._settings.nodeBorderWidth);
 
             // Update labels
             this._nodeContainers
@@ -269,7 +429,7 @@ window.phase = (function () {
             this._linkContainers.exit().remove();
 
             // Add new links to link g container
-            var newLinks = this._linkContainers
+            let newLinks = this._linkContainers
                 .enter().append("g");
 
             // Add new link containers
@@ -279,8 +439,9 @@ window.phase = (function () {
             // Add new lines
             newLinks
                 .append("line")
-                    .style("stroke-width", 1.5)
-                    .attr("stroke-dasharray", this._defaultLinkStyle.bind(this));
+                    .style("stroke", this._settings.linkColor)
+                    .style("stroke-width", this._settings.linkWidth)
+                    .style("stroke-dasharray", this._settings.linkStroke)
 
             // Add new labels
             newLinks
@@ -298,8 +459,9 @@ window.phase = (function () {
             // Update lines
             this._linkContainers
                 .select("line")
-                    .style("stroke-width", 1.5)
-                    .attr("stroke-dasharray", this._defaultLinkStyle.bind(this));
+                .style("stroke", this._settings.linkColor)
+                .style("stroke-width", this._settings.linkWidth)
+                .style("stroke-dasharray", this._settings.linkStroke)
 
             // Update labels
             this._linkContainers
@@ -311,42 +473,6 @@ window.phase = (function () {
                     .style("stroke-width", 0)
                     .style("font-size", "12px")
                     .text(function(d) { return d.value; });
-        }
-
-
-
-        // STYLES
-
-
-
-        // Sizes nodes
-        _defaultNodeSize(d) {
-            // Default: _SIZE_BASE
-            return this._SIZE_BASE;
-        }
-
-        // Colors nodes depending on COLOR_MODE
-        _defaultNodeColor(d) {
-            // Default: dark grey
-            return "#333";
-        }
-
-        // Colors node borders depending on if they are leaf nodes or not
-        _defaultNodeBorderColor(d) {
-            // Default: white
-            return "#F7F6F2";
-        }
-
-        // Draws node borders depending on if they are leaf nodes or not
-        _defaultNodeBorderWidth(d) {
-            // Default: .8px
-            return ".8px";
-        }
-
-        // Draws links as dash arrays based on their type
-        _defaultLinkStyle(d) {
-            // Default: solid
-            return "";
         }
 
 
@@ -369,7 +495,6 @@ window.phase = (function () {
 
         // Node mousedown handler
         _nodeMousedown(d) {
-            console.log("Mousedown");
             // Unpin node if middle click
             if (d3.event.which == 2) {
                 d3.select(this).classed("fixed", d.fixed = false);
@@ -380,8 +505,10 @@ window.phase = (function () {
 
         // Node left click handler
         _nodeClick(d) {
-            if (d3.event.defaultPrevented) return;
-            d3.event.preventDefault();
+            const currentColor = d3.select(this.childNodes[0]).style("fill");
+            const defaultColor = 'rgb(51, 51, 51)';
+            const newColor = currentColor === defaultColor ? "#63B2D4" : defaultColor;
+            d3.select(this.childNodes[0]).style("fill", newColor);
         }
 
         // Node double left click handler
@@ -396,7 +523,7 @@ window.phase = (function () {
 
         // Container drag start handler
         _nodeDragStart(d) {
-            if (!d3.event.active) this._simulation.alphaTarget(0.3).restart();
+            if (!d3.event.active) this._simulation.alphaTarget(.3).restart();
             d.fx = d.x;
             d.fy = d.y;
         }
@@ -423,95 +550,284 @@ window.phase = (function () {
         }
     }
 
-    class NodeGroup {
+    class Group {
+        constructor(network, label, filterer, val) {
+
+            this._network = network;
+            this.label = label;
+            this._filterer = filterer;
+            this._val = val;
+
+            // Phase the group is associated with
+            this.phase;
+
+            this._selection = this._filter(filterer, val)
+
+            return this;
+        }
+
+        _filter(filterer, val) {
+            const isNodeGroup = this instanceof NodeGroup;
+            const containers = isNodeGroup ? this._network._nodeContainers : this._network._linkContainers;
+
+            if (typeof filterer === "string") {
+                return val === undefined ? containers : containers.filter(d => d[filterer] == val);
+            }
+            else if (typeof filterer === "function") {
+                return containers.filter(d => filterer(d));
+            }
+            else if (Array.isArray(filterer) || filterer instanceof Set) {
+                const set = new Set(filterer)
+                if (isNodeGroup) {
+                    return containers.filter(d => set.has(d.id))
+                } else {
+                    return containers.filter(d => set.has(d.source.id) || set.has(d.target.id))
+                }
+            }
+            else {
+                throw new InvalidFilterException("Invalid filterer type");
+            }
+        }
+
+        addStyle(styleMap, selector) {
+            for (const attr in styleMap) {
+                this._selection.select(selector).style(attr, styleMap[attr]);
+            }
+        }
+
+        labels(labeler) {
+            this._selection.select("text").text(labeler);
+        }
+
+        morph(label) {
+            const morph = this.phase ? this._network.getPhase(this.phase).getMorph(label) : this._network.getMorph(label);
+            if (morph._type == "style") {
+                this.addStyle(morph._change);
+            }
+            if (morph._type == "data") {
+                let newData = this._selection.data();
+                for (const datum in newData) {
+                    for (const update in morph._change) {
+                        newData[datum][update] = morph._change[update];
+                    }
+                }
+                this._selection.data(newData);
+            }
+        }
+    }
+
+    class NodeGroup extends Group {
         // Creates a node group based on attributes or a passed in selection
         constructor(network, label, filterer, val) {
-
-            this.network = network;
-
-            if (typeof filterer === "string") {
-                if (val == undefined) {
-                    filtered = this.network._nodeContainers;
-                }
-                var filtered = this.network._nodeContainers.filter(d => d[filterer] == val);
-            }
-            else if (typeof filterer === "function") {
-                var filtered = this.network._nodeContainers.filter(d => filterer(d));
-            }
-
-            this._selection = filtered;
-
-            return this;
+            super(network, label, filterer, val)
         }
 
         // Applies a style map to a node group
         addStyle(styleMap) {
-            for (var attr in styleMap) {
-                this._selection.select("circle").style(attr, styleMap[attr]);
-            }
+            super.addStyle(styleMap, "circle")
         }
 
         // Removes all styles from a group
         unstyle() {
-            var styleMap = {
-                "fill": this._defaultNodeColor,
-                "r": this._defaultNodeSize,
-                "stroke": this._defaultNodeBorderColor,
-                "stroke-width": this._defaultNodeBorderWidth
+            const styleMap = {
+                "fill": this._network._settings.nodeColor,
+                "r": this._network._settings.nodeSize,
+                "stroke": this._network._settings.nodeBorderColor,
+                "stroke-width": this._network._settings.nodeBorderWidth
             }
             this.addStyle(styleMap);
         }
-
-        labels(labeler) {
-            this._selection.select("text").text(labeler);
-        }
     }
 
-    class LinkGroup {
+    class LinkGroup extends Group {
         // Creates a link group based on attributes or a passed in selection
         constructor(network, label, filterer, val) {
-
-            this.network = network;
-
-            if (typeof filterer === "string") {
-                if (val == undefined) {
-                    filtered = this.network._linkContainers;
-                }
-                var filtered = this.network._linkContainers.filter(d => d[filterer] == val);
-            }
-            else if (typeof filterer === "function") {
-                var filtered = this.network._linkContainers.filter(d => filterer(d));
-            }
-
-            this._selection = filtered;
-
-            return this;
+            super(network, label, filterer, val)
         }
 
-        // Applies a style map to a node group
+        // Applies a style map to a link group
         addStyle(styleMap) {
-            for (var attr in styleMap) {
-                this._selection.style(attr, styleMap[attr]);
-            }
+            super.addStyle(styleMap, "line")
         }
 
         // Removes all styles from a group
         unstyle() {
-            var styleMap = {
-                "fill": this._defaultNodeColor,
-                "r": this._defaultNodeSize,
-                "stroke": this._defaultNodeBorderColor,
-                "stroke-width": this._defaultNodeBorderWidth
+            const styleMap = {
+                "stroke-dasharray": this._network._settings.linkStroke,
+                "fill": this._network._settings.linkColor,
+                "stroke": this._network._settings.linkColor,
+                "stroke-width": this._network._settings.linkWidth
             }
             this.addStyle(styleMap);
         }
+    }
 
-        labels(labeler) {
-            this._selection.select("text").text(labeler);
+    class Morph {
+        // Creates a morph
+        constructor(network, label, type, change) {
+            this._network = network;
+            this.label = label;
+            this._type = type;
+            this._change = change;
+
+            // Phase the morph is associated with
+            this.phase;
+
+            return this;
         }
     }
 
-    var phase = {
+    class Phase {
+        // Creates a phase
+        constructor(network, label) {
+            this._network = network;
+            this.label = label;
+
+            this._root = null;
+
+            // Settings
+            // TODO: Consider moving into state or exposing
+            this._timeStep = 500; // Time between execution tree layer applications
+
+            // Internal state
+            // TODO: Consider moving into state or exposing
+            this._curLayer = 0; // Current layer of the phase's execution
+            this._interval = null; // Interval ID for the phase
+            this._layerNodes = []; // Array of MorphNodes present in each layer of the execution tree
+
+            // External state
+            this._state = {}; // State variables belonging to state
+
+            // Morphs and groups associated with the phase
+            this._morphs = {};
+            this._nodeGroups = {};
+            this._linkGroups = {};
+
+            // Function called on when phase is initialized
+            this._initial;
+            // Function called on each timestep to compute phase's next state
+            this._transition;
+            // Function called to determine whether the phase is finished
+            this._terminal;
+
+            return this;
+        }
+
+        // Updates or returns the current state
+        state(updatedState) {
+            if (updatedState == undefined) return this._state;
+            for (const key in updatedState) {
+                this._state[key] = updatedState[key];
+            }
+        }
+
+        initial(initial) {
+            this._initial = initial;
+        }
+
+        next(transition) {
+            this._transition = transition;
+        }
+
+        end(terminal) {
+            this._terminal = terminal;
+        }
+
+        _calculateNextState() {
+            this._transition(this.state(), this._network.state())
+        }
+
+        _evaluateTermination() {
+            if(this._terminal(this.state(), this._network.state())){
+                return true;
+            }
+            return false;
+        }
+
+        // Stop the phase's application but don't clear settings/state
+        stop() {
+            clearInterval(this._interval);
+        }
+
+        // Reset the phase to its initial settings/state
+        reset() {
+            // TODO: Move settings to own object (state?) and reset
+            this._state = {};
+        }
+
+        // Teardown the phase along with its associated groups/morphs and remove from viz
+        destroy() {
+            this._morphs = {};
+            this._nodeGroups = {};
+            this._linkGroups = {};
+
+            delete this._network._phases[this.label];
+        }
+
+        // Begins the simulation
+        start() {
+
+            // TODO: Only initialize if the simulation has not been started yet or has been reset
+            this._initial(this.state(), this._network.state());
+
+            if (this._transition) {
+                function step() {
+                    this._calculateNextState();
+                    if (this._evaluateTermination()) this.stop();
+                }
+                this._interval = setInterval(step.bind(this), this._timeStep);
+                return;
+            }
+        }
+
+        // Morphs and Groups instantiated and stored within a phase
+
+        // Creates a new node group
+        nodeGroup(label, filterer, val) {
+            let nodeGroup = this._network.nodeGroup.call(this, label, filterer, val);
+            nodeGroup.phase = this.label;
+            return nodeGroup;
+        }
+
+        getNodeGroup(label) {
+            return this._nodeGroups[label];
+        }
+
+        getAllNodeGroups() {
+            return this._nodeGroups;
+        }
+
+        // Creates a new node group
+        linkGroup(label, filterer, val) {
+            let linkGroup = this._network.linkGroup.call(this, label, filterer, val);
+            linkGroup.phase = this.label;
+            return linkGroup;
+        }
+
+        getLinkGroup(label) {
+            return this._linkGroups[label];
+        }
+
+        getAllLinkGroups() {
+            return this._linkGroups;
+        }
+
+        morph(label, type, change) {
+            let morph = this._network.morph.call(this, label, type, change);
+            morph.phase = this.label;
+            return morph;
+        }
+
+        getMorph(label) {
+            return this._morphs[label];
+        }
+
+        getAllMorphs() {
+            return this._morphs;
+        }
+    }
+
+    const phase = {
         Network: function(query) {
             return new Network(query);
         }

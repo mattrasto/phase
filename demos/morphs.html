@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>Morph Demo - Phase</title>
+
+		<link rel="stylesheet" type="text/css" href="static/base.css">
+
+		<script src="static/d3.v4.min.js"></script>
+		<script src="../phase.js"></script>
+
+		<script src="static/morphs.js"></script>
+
+		<script type="text/javascript" src="data/lesMiserables.json"></script>
+	</head>
+	<body>
+		<div id="viz-container">
+		</div>
+		<div id="sidebar">
+			<h1>Settings</h1>
+			<input type="button" value="Create Morphs" onClick="createMorphs()">
+			<input type="button" value="Apply Morphs" onClick="applyMorphs()">
+		</div>
+	</body>
+</html>
