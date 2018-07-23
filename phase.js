@@ -40,8 +40,9 @@ window.phase = (function () {
         }
 
         // Binds data to the viz
+        // TODO: Fix this (see data update demo)
         data(data) {
-            if (this._data != null) {
+            if (this._data != null && !this._dataBound) {
                 this._bindData(data);
                 this._dataLoaded = true;
                 this._dataBound = true;
@@ -49,9 +50,11 @@ window.phase = (function () {
             else {
                 this._data = data;
                 this._dataLoaded = true;
+                this._dataBound = false;
             }
 
             // Update "all" groups
+            // QUESTION: Should duplicate constructor calls cause group reevaluation?
             this.nodeGroup("all", "");
             this.linkGroup("all", "");
 
