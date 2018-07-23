@@ -75,6 +75,7 @@ window.phase = (function () {
         }
 
         initSettings(settings) {
+            // Default settings
             this._settings = {
                 // Strength of links (how easily they can be compressed) between nodes [0, INF]
                 link_strength: 1,
@@ -91,8 +92,20 @@ window.phase = (function () {
                 // Determines the style of links based on their "type" attribute
                 // Values should be an even-length array for alternating black / white segments in px
                 link_style: {"derivative": "", "related": "10,8"},
-                // Base node size
+                // Node size
                 node_size: 10,
+                // Node fill color
+                node_color: "#333",
+                // Node border color
+                node_border_color: "#F7F6F2",
+                // Node border width
+                node_border_width: ".8px",
+                // Link type (solid, dash array, etc.)
+                link_stroke: "",
+                // Link color
+                link_color: "#666",
+                // Link width
+                link_width: "1.5px",
                 // Whether the user can zoom
                 zoom: true,
             };
@@ -456,44 +469,39 @@ window.phase = (function () {
 
         // Sizes nodes
         _defaultNodeSize(d) {
-            // Default: _settings.node_size
             return this._settings.node_size;
         }
 
-        // Colors nodes depending on COLOR_MODE
+        // Colors nodes
         _defaultNodeColor(d) {
-            // Default: dark grey
-            return "#333";
+            return this._settings.node_color;
         }
 
         // Colors node borders depending on if they are leaf nodes or not
         _defaultNodeBorderColor(d) {
-            // Default: white
-            return "#F7F6F2";
+            return this._settings.node_border_color;
         }
 
         // Draws node borders depending on if they are leaf nodes or not
         _defaultNodeBorderWidth(d) {
-            // Default: .8px
-            return ".8px";
+            return this._settings.node_border_width;
         }
 
         // Draws links as dash arrays based on their type
         _defaultLinkType(d) {
-            // Default: solid
-            return "";
+            return this._settings.link_stroke;
         }
 
         // Draws links as dash arrays based on their type
         _defaultLinkColor(d) {
             // Default: medium grey
-            return "#666";
+            return this._settings.link_color;
         }
 
         // Draws links as dash arrays based on their type
         _defaultLinkWidth(d) {
             // Default: 1.5px
-            return "1.5px";
+            return this._settings.link_width;
         }
 
 
