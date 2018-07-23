@@ -10,7 +10,9 @@ document.addEventListener("DOMContentLoaded", function(event) {
 // Constructs phase for BFS
 function bfsPhase(startNode) {
 
+    // Reset
     viz.resetGraph();
+    viz.destroyPhase("bfs");
 
     // Initialize phase
     let searchPhase = viz.phase("bfs");
@@ -31,8 +33,8 @@ function bfsPhase(startNode) {
         const childDict = viz.getGraph();
 
         // Morph the next layer in the BFS
-        const ng = viz.nodeGroup("depth_" + phaseState.depth, phaseState.validNeighbors);
-        const morph = createMorph(phaseState.depth++);
+        const ng = searchPhase.nodeGroup("depth_" + phaseState.depth, phaseState.validNeighbors);
+        const morph = createMorph(searchPhase, phaseState.depth++);
         ng.morph(morph.label);
 
         // Classic BFS
@@ -63,9 +65,9 @@ function createPhase() {
 }
 
 // Changes the color of the node based on its distance from the start
-function createMorph(depth) {
+function createMorph(searchPhase, depth) {
     const colors = ["#AE63D4", "#63B2D4", "#63D467", "#E5EB7A", "#ED9A55", "#D46363"];
-    return viz.morph("style_nodes_" + depth, "style", {"fill": colors[depth % colors.length]});
+    return searchPhase.morph("style_nodes_" + depth, "style", {"fill": colors[depth % colors.length]});
 }
 
 // Starts the phase
