@@ -153,7 +153,9 @@ input:-webkit-autofill {
 	border-radius: 10px;
 	background-color: inherit;
 	vertical-align: middle;
+	margin: auto;
 	margin-bottom: 20px;
+	display: block;
 }
 
 #sidebar input[type=button]:hover {
