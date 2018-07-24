@@ -92,13 +92,6 @@ window.phase = (function () {
                 friction: .8,
                 // Gravity force strength [0, 1]
                 gravity: .25,
-                // Node coloring scheme
-                colorMode: "",
-                // Default node color palette
-                colorKey: ["#63D467", "#63B2D4", "#AE63D4", "#D46363", "#ED9A55", "#E5EB7A"],
-                // Determines the style of links based on their "type" attribute
-                // Values should be an even-length array for alternating black / white segments in px
-                linkStyle: {"derivative": "", "related": "10,8"},
                 // Node size
                 nodeSize: 10,
                 // Node fill color
