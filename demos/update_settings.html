@@ -19,6 +19,16 @@
 		<div id="sidebar">
 			<h1>Settings</h1>
 			<input type="button" value="Toggle Zoom" onClick="toggleZoom()">
+			<div class="slider-container">
+				<p>Gravity</p>
+				<input type="range" min="0" max="1" value=".25" step=".01" onChange="changeGravity(this.value)">
+				<span class="range-value">.25</span>
+			</div>
+			<div class="slider-container">
+				<p>Charge</p>
+				<input type="range" min="-1000" max="1000" value="-800" step="1" onChange="changeCharge(this.value)">
+				<span class="range-value">-800</span>
+			</div>
 		</div>
 	</body>
 </html>

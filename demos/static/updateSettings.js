@@ -5,6 +5,12 @@ document.addEventListener("DOMContentLoaded", function(event) {
     viz.data(lesMiserablesData);
 
     console.log("Visualization Loaded");
+
+    for (const elem of document.querySelectorAll("input[type=range]")) {
+        elem.addEventListener("input", function(e) {
+            elem.nextElementSibling.innerHTML = e.target.value;
+        });
+    }
 });
 
 function toggleZoom() {
@@ -14,4 +20,12 @@ function toggleZoom() {
     else {
         viz.settings({zoom: true});
     }
+}
+
+function changeGravity(newVal) {
+    viz.settings({gravity: newVal});
+}
+
+function changeCharge(newVal) {
+    viz.settings({charge: newVal});
 }

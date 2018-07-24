@@ -1,3 +1,5 @@
+/* Base */
+
 html {
 	margin: 0;
 	padding: 0;
@@ -64,6 +66,11 @@ li {
 input:-webkit-autofill {
 	-webkit-box-shadow: 0 0 0 1000px #F7F6F2 inset;
 }
+
+
+
+/* Sidebar */
+
 
 
 #sidebar {
@@ -178,6 +185,44 @@ input:-webkit-autofill {
 #sidebar input[type=text]:focus {
 	outline: none;
 }
+
+#sidebar input[type=range] {
+    -webkit-appearance: none;
+    width: 100%;
+    height: 15px;
+    border-radius: 5px;
+    background: #d3d3d3;
+    outline: none;
+    opacity: 0.7;
+    -webkit-transition: .2s;
+    transition: opacity .2s;
+	margin-bottom: 15px;
+}
+
+#sidebar input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 25px;
+    height: 25px;
+    border-radius: 50%;
+    background: #4CAF50;
+    cursor: pointer;
+}
+
+#sidebar .slider-container {
+	margin-bottom: 20px;
+}
+
+#sidebar .slider-container p {
+	text-align: center;
+	margin-bottom: 0;
+	padding-bottom: 0;
+}
+
+
+/* Visualization */
+
+
 
 #viz-container {
 	width: calc(80% - 102px);
