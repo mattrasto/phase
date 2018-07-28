@@ -365,23 +365,26 @@ window.phase = (function () {
         // Binds new data to the nodes
         _bindNodes() {
             // Rejoin node data
-            this._nodeContainers = this._nodeContainers.data(this._data.nodes);
-
-            // Update existing nodes
-            this._bindNodesUpdate();
+            this._nodeContainers = this._nodeContainers.data(this._data.nodes, function(d) {
+                return d.id;
+            });
 
             // Remove old nodes
             if (this._nodeContainers.exit()._groups[0].length > 0) {
                 this._bindNodesRemove();
             }
 
-            // Add new node
+            // Add new nodes
             let newNodes = this._nodeContainers;
             if (this._nodeContainers.enter()._groups[0].length > 0) {
                 newNodes = this._bindNodesAdd();
             }
 
+            // Merge enter and update selections
             this._nodeContainers = newNodes.merge(this._nodeContainers);
+
+            // Update existing nodes
+            this._bindNodesUpdate();
         }
 
         _bindNodesRemove() {
@@ -394,8 +397,20 @@ window.phase = (function () {
             let newNodes = this._nodeContainers
               .enter().append("g");
 
-            // Add new node containers
+            // Add new circles
             newNodes
+                .append("circle")
+
+            // Add new labels
+            newNodes
+                .append("text")
+
+            return newNodes;
+        }
+
+        _bindNodesUpdate() {
+            // Update containers
+            this._nodeContainers
                 .attr("class", "node")
                 .on("mouseover", this._nodeMouseover)
                 .on("mouseout", this._nodeMouseout)
@@ -409,34 +424,13 @@ window.phase = (function () {
                     .on("end", this._nodeDragEnd.bind(this))
                 );
 
-            // Add new circles
-            newNodes
-                .append("circle")
+            // Update circles
+            this._nodeContainers
+                .select("circle")
                     .style("r", this._settings.nodeSize)
                     .style("fill", this._settings.nodeColor)
                     .style("stroke", this._settings.nodeBorderColor)
                     .style("stroke-width", this._settings.nodeBorderWidth);
-
-            // Add new labels
-            newNodes
-                .append("text")
-                    .attr("dx", 12)
-                    .attr("dy", ".35em")
-                    .style("fill", "#333")
-                    .style("stroke", "#333")
-                    .text(function(d) { return d.id; });
-
-            return newNodes;
-        }
-
-        _bindNodesUpdate() {
-            // Update circles
-            this._nodeContainers
-                .select("circle")
-                .style("r", this._settings.nodeSize)
-                .style("fill", this._settings.nodeColor)
-                .style("stroke", this._settings.nodeBorderColor)
-                .style("stroke-width", this._settings.nodeBorderWidth);
 
             // Update labels
             this._nodeContainers
@@ -451,13 +445,26 @@ window.phase = (function () {
         // Binds new data to the links
         _bindLinks() {
             // Rejoin link data
-            this._linkContainers = this._linkContainers.data(this._data.links);
+            this._linkContainers = this._linkContainers.data(this._data.links, function(d) {
+                return d.source.id + d.target.id;
+            });
 
-            this._bindLinksRemove();
-            let newLinks = this._bindLinksAdd();
-            this._bindLinksUpdate();
+            // Remove old links
+            if (this._linkContainers.exit()._groups[0].length > 0) {
+                this._bindLinksRemove();
+            }
 
+            // Add new links
+            let newLinks = this._linkContainers;
+            if (this._linkContainers.enter()._groups[0].length > 0) {
+                newLinks = this._bindLinksAdd();
+            }
+
+            // Merge enter and update selections
             this._linkContainers = newLinks.merge(this._linkContainers);
+
+            // Update existing links
+            this._bindLinksUpdate();
         }
 
         _bindLinksRemove() {
@@ -477,20 +484,10 @@ window.phase = (function () {
             // Add new lines
             newLinks
                 .append("line")
-                    .style("stroke", this._settings.linkColor)
-                    .style("stroke-width", this._settings.linkWidth)
-                    .style("stroke-dasharray", this._settings.linkStroke)
 
             // Add new labels
             newLinks
                 .append("text")
-                    .attr("dx", 5)
-                    .attr("dy", 0)
-                    .style("fill", "#333")
-                    .style("stroke", "#333")
-                    .style("stroke-width", 0)
-                    .style("font-size", "12px")
-                    .text(function(d) { return d.value; });
 
             return newLinks;
         }
