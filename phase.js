@@ -367,9 +367,29 @@ window.phase = (function () {
             // Rejoin node data
             this._nodeContainers = this._nodeContainers.data(this._data.nodes);
 
+            // Update existing nodes
+            this._bindNodesUpdate();
+
+            // Remove old nodes
+            if (this._nodeContainers.exit()._groups[0].length > 0) {
+                this._bindNodesRemove();
+            }
+
+            // Add new node
+            let newNodes = this._nodeContainers;
+            if (this._nodeContainers.enter()._groups[0].length > 0) {
+                newNodes = this._bindNodesAdd();
+            }
+
+            this._nodeContainers = newNodes.merge(this._nodeContainers);
+        }
+
+        _bindNodesRemove() {
             // Remove old nodes
             this._nodeContainers.exit().remove();
+        }
 
+        _bindNodesAdd() {
             // Add new node containers to node g container
             let newNodes = this._nodeContainers
               .enter().append("g");
@@ -406,6 +426,10 @@ window.phase = (function () {
                     .style("stroke", "#333")
                     .text(function(d) { return d.id; });
 
+            return newNodes;
+        }
+
+        _bindNodesUpdate() {
             // Update circles
             this._nodeContainers
                 .select("circle")
@@ -422,8 +446,6 @@ window.phase = (function () {
                     .style("fill", "#333")
                     .style("stroke", "#333")
                     .text(function(d) { return d.id; });
-
-            this._nodeContainers = newNodes.merge(this._nodeContainers);
         }
 
         // Binds new data to the links
@@ -431,9 +453,19 @@ window.phase = (function () {
             // Rejoin link data
             this._linkContainers = this._linkContainers.data(this._data.links);
 
+            this._bindLinksRemove();
+            let newLinks = this._bindLinksAdd();
+            this._bindLinksUpdate();
+
+            this._linkContainers = newLinks.merge(this._linkContainers);
+        }
+
+        _bindLinksRemove() {
             // Remove old links
             this._linkContainers.exit().remove();
+        }
 
+        _bindLinksAdd() {
             // Add new links to link g container
             let newLinks = this._linkContainers
                 .enter().append("g");
@@ -460,6 +492,10 @@ window.phase = (function () {
                     .style("font-size", "12px")
                     .text(function(d) { return d.value; });
 
+            return newLinks;
+        }
+
+        _bindLinksUpdate() {
             // Update lines
             this._linkContainers
                 .select("line")
@@ -477,8 +513,6 @@ window.phase = (function () {
                     .style("stroke-width", 0)
                     .style("font-size", "12px")
                     .text(function(d) { return d.value; });
-
-            this._linkContainers = newLinks.merge(this._linkContainers);
         }
 
 
