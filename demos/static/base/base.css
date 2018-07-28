@@ -86,11 +86,6 @@ input:-webkit-autofill {
 	overflow-y: scroll;
 }
 
-/* resize handle on the left */
-.ui-resizable-w {
-    width: 20px;
-}
-
 #sidebar h1 {
 	font-size: 34px;
 	margin-top: 5vh;
@@ -143,7 +138,7 @@ input:-webkit-autofill {
 	margin-bottom: 10px;
 }
 
-#sidebar input[type=button] {
+#sidebar > input[type=button] {
 	width: 140px;
 	height: 40px;
 	border: 2px solid #A1D490;
@@ -158,13 +153,13 @@ input:-webkit-autofill {
 	display: block;
 }
 
-#sidebar input[type=button]:hover {
+#sidebar > input[type=button]:hover {
 	border-width: 3px;
 	border-radius: 10px;
 	cursor: pointer;
 }
 
-#sidebar input[type=button]:focus {
+#sidebar > input[type=button]:focus {
 	outline: none;
 }
 
@@ -219,6 +214,50 @@ input:-webkit-autofill {
 	text-align: center;
 	margin-bottom: 0;
 	padding-bottom: 0;
+}
+
+#sidebar .color-container {
+	margin-bottom: 20px;
+}
+
+#sidebar .color-container p {
+	text-align: center;
+	margin-bottom: 15px;
+	padding-bottom: 0;
+}
+
+#sidebar .color {
+	height: 30px;
+	width: 30px;
+	border-radius: 15px;
+	border: 2px solid transparent;
+	padding-top: 4px;
+}
+
+#sidebar .color:hover {
+	border: 2px solid #333;
+	cursor: pointer;
+}
+
+#sidebar .color:focus {
+	outline: none;
+}
+
+
+#sidebar .purple {
+	background-color: #AE63D4;
+}
+
+#sidebar .red {
+	background-color: #D46363;
+}
+
+#sidebar .orange {
+	background-color: #ED9A55;
+}
+
+#sidebar .yellow {
+	background-color: #E5EB7A;
 }
 
 

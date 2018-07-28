@@ -99,13 +99,13 @@ window.phase = (function () {
                 // Node border color
                 nodeBorderColor: "#F7F6F2",
                 // Node border width
-                nodeBorderWidth: ".8px",
+                nodeBorderWidth: .8,
                 // Link type (solid, dash array, etc.)
                 linkStroke: "",
                 // Link color
                 linkColor: "#666",
                 // Link width
-                linkWidth: "1.5px",
+                linkWidth: 1.5,
                 // Whether the user can zoom
                 zoom: true,
             };
