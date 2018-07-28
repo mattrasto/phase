@@ -19,57 +19,57 @@
 		</div>
 		<div id="sidebar">
 			<h1>Settings</h1>
-			<input type="button" value="Toggle Zoom" onClick="toggleZoom()">
+			<input type="button" value="Toggle Zoom" onClick="viz.settings({zoom: viz.settings().zoom ? false : true});">
 			<div class="slider-container">
 				<p>Gravity</p>
-				<input type="range" min="0" max="1" value=".25" step=".01" onChange="changeGravity(this.value)">
+				<input type="range" min="0" max="1" value=".25" step=".01" onChange="changeSettings('gravity', this.value)">
 				<span class="range-value">.25</span>
 			</div>
 			<div class="slider-container">
 				<p>Charge</p>
-				<input type="range" min="-1000" max="1000" value="-800" step="1" onChange="changeCharge(this.value)">
+				<input type="range" min="-1000" max="1000" value="-800" step="1" onChange="changeSettings('charge', this.value)">
 				<span class="range-value">-800</span>
 			</div>
 			<div class="slider-container">
 				<p>Link Strength</p>
-				<input type="range" min="-1" max="1" value="1" step=".01" onChange="changeLinkStrength(this.value)">
+				<input type="range" min="-1" max="1" value="1" step=".01" onChange="changeSettings('linkStrength', this.value)">
 				<span class="range-value">1</span>
 			</div>
 			<div class="slider-container">
 				<p>Link Distance</p>
-				<input type="range" min="0" max="1000" value="60" step="1" onChange="changeLinkDistance(this.value)">
+				<input type="range" min="0" max="1000" value="60" step="1" onChange="changeSettings('linkDistance', this.value)">
 				<span class="range-value">60</span>
 			</div>
 			<div class="slider-container">
 				<p>Node Size</p>
-				<input type="range" min="1" max="30" value="10" step="1" onChange="changeNodeSize(this.value)">
+				<input type="range" min="1" max="30" value="10" step="1" onChange="changeSettings('nodeSize', this.value)">
 				<span class="range-value">10</span>
 			</div>
 			<div class="slider-container">
 				<p>Link Width</p>
-				<input type="range" min=".5" max="10" value="1.5" step=".1" onChange="changeLinkWidth(this.value)">
+				<input type="range" min=".5" max="10" value="1.5" step=".1" onChange="changeSettings('linkWidth', this.value)">
 				<span class="range-value">1.5</span>
 			</div>
 			<div class="color-container">
 				<p>Node Color</p>
-				<input class="color purple" type="button" onClick="changeNodeColor('#AE63D4')">
-				<input class="color red" type="button" onClick="changeNodeColor('#D46363')">
-				<input class="color orange" type="button" onClick="changeNodeColor('#ED9A55')">
-				<input class="color yellow" type="button" onClick="changeNodeColor('#E5EB7A')">
+				<input class="color purple" type="button" onClick="changeSettings('nodeColor', '#AE63D4')">
+				<input class="color red" type="button" onClick="changeSettings('nodeColor', '#D46363')">
+				<input class="color orange" type="button" onClick="changeSettings('nodeColor', '#ED9A55')">
+				<input class="color yellow" type="button" onClick="changeSettings('nodeColor', '#E5EB7A')">
 			</div>
 			<div class="color-container">
 				<p>Node Border Color</p>
-				<input class="color purple" type="button" onClick="changeNodeBorderColor('#AE63D4')">
-				<input class="color red" type="button" onClick="changeNodeBorderColor('#D46363')">
-				<input class="color orange" type="button" onClick="changeNodeBorderColor('#ED9A55')">
-				<input class="color yellow" type="button" onClick="changeNodeBorderColor('#E5EB7A')">
+				<input class="color purple" type="button" onClick="changeSettings('nodeBorderColor', '#AE63D4')">
+				<input class="color red" type="button" onClick="changeSettings('nodeBorderColor', '#D46363')">
+				<input class="color orange" type="button" onClick="changeSettings('nodeBorderColor', '#ED9A55')">
+				<input class="color yellow" type="button" onClick="changeSettings('nodeBorderColor', '#E5EB7A')">
 			</div>
 			<div class="color-container">
 				<p>Link Color</p>
-				<input class="color purple" type="button" onClick="changeLinkColor('#AE63D4')">
-				<input class="color red" type="button" onClick="changeLinkColor('#D46363')">
-				<input class="color orange" type="button" onClick="changeLinkColor('#ED9A55')">
-				<input class="color yellow" type="button" onClick="changeLinkColor('#E5EB7A')">
+				<input class="color purple" type="button" onClick="changeSettings('linkColor', '#AE63D4')">
+				<input class="color red" type="button" onClick="changeSettings('linkColor', '#D46363')">
+				<input class="color orange" type="button" onClick="changeSettings('linkColor', '#ED9A55')">
+				<input class="color yellow" type="button" onClick="changeSettings('linkColor', '#E5EB7A')">
 			</div>
 			<br>
 		</div>
