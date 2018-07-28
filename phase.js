@@ -51,10 +51,11 @@ window.phase = (function () {
                 this._dataBound = true;
             }
             else {
-                this._data = data;
-                this._dataLoaded = true;
-                this._dataBound = false;
+                this._bindData(data);
+                this._dataBound = true;
             }
+
+            this._graph = this._generateAdjacencyList(data)
 
             // Update "all" groups
             // QUESTION: Should duplicate constructor calls cause group reevaluation?
@@ -348,8 +349,6 @@ window.phase = (function () {
 
         // Binds new data to the network
         _bindData(data) {
-            this._graph = this._generateAdjacencyList(data)
-
             // Assign new data
             this._data = data;
 
