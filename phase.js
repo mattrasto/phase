@@ -31,6 +31,9 @@ window.phase = (function () {
             // Settings (user-accessible)
             this.initSettings(settings);
 
+            // Settings that force a re-rendering of the entire simulation
+            this._forceRerender = new Set(["zoom", "gravity", "charge", "linkStrength", "linkDistance"]);
+
             // Viz state
             this._state = {};
 
@@ -72,11 +75,22 @@ window.phase = (function () {
         // Updates or returns the current viz settings
         settings(updatedSettings) {
             if (updatedSettings == undefined) return this._settings;
+
+            let changedSettings = new Set();
             for (const key in updatedSettings) {
-                this._settings[key] = updatedSettings[key];
+                if (this._settings[key] != updatedSettings[key]) {
+                    this._settings[key] = updatedSettings[key];
+                    changedSettings.add(key);
+                }
             }
-            // TODO: If entire viz doesn't need to be rerendered, don't call this
-            this.reset();
+
+            // If any changed settings require a rerender, call reset()
+            if ([...changedSettings].filter(x => this._forceRerender.has(x)).length > 0) {
+                this.reset();
+            }
+            else {
+                this._bindData(this._data);
+            }
         }
 
         initSettings(settings) {
@@ -147,7 +161,7 @@ window.phase = (function () {
                 )
                 .on("dblclick.zoom", null);  // Don't zoom on double left click
 
-            // TODO
+            // TODO: What is this TODO for?
             this._container.appendChild(this._svg.node());
 
             // Creates actual force graph container (this is what actually gets resized as needed)
@@ -393,8 +407,6 @@ window.phase = (function () {
                     .style("stroke", "#333")
                     .text(function(d) { return d.id; });
 
-            this._nodeContainers = newNodes.merge(this._nodeContainers);
-
             // Update circles
             this._nodeContainers
                 .select("circle")
@@ -411,6 +423,8 @@ window.phase = (function () {
                     .style("fill", "#333")
                     .style("stroke", "#333")
                     .text(function(d) { return d.id; });
+
+            this._nodeContainers = newNodes.merge(this._nodeContainers);
         }
 
         // Binds new data to the links
@@ -447,8 +461,6 @@ window.phase = (function () {
                     .style("font-size", "12px")
                     .text(function(d) { return d.value; });
 
-            this._linkContainers = newLinks.merge(this._linkContainers);
-
             // Update lines
             this._linkContainers
                 .select("line")
@@ -466,6 +478,8 @@ window.phase = (function () {
                     .style("stroke-width", 0)
                     .style("font-size", "12px")
                     .text(function(d) { return d.value; });
+
+            this._linkContainers = newLinks.merge(this._linkContainers);
         }
 
 
