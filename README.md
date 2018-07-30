@@ -14,6 +14,8 @@ Phase was built with a simple philosophy: enable the creation of dynamic graph v
 
 With these three features, Phase aims to tackle common visualization problems present in the study of networks and simulations. The goal is to reduce complex, dynamic systems to understandable representations.
 
+To jump right in, check out [Getting Started](#Getting-Started)
+
 ## Concepts
 
 ### Terminology
@@ -115,6 +117,135 @@ Phases don't need to applied just once. At any time, a phase can be reset to its
 #### Phase conflicts
 
 When a phase conflicts with another phase (which occurs when an element is accessed by more than one phase transition at once), regardless of whether the shared elements are currently being morphed, an event `phase_conflict` will be emitted containing the state of both phases. Each phase is able to handle what happens when this occurs, whether that means pausing one phase until the conflict is resolved, destroying one phase, or something else - it's entirely customizable.
+
+## Getting Started
+
+### Basic Visualization
+
+To initialize a visualization, you just need to specify a container that the network should be contained in:
+
+```Javascript
+viz = phase.Network("#viz-container");
+```
+
+This will initialize all of the variables needed for the visualization, but it won't attach any data yet. To add data (for sample datasets, see `demos/data/`) and render the elements, it's only one more line of code:
+
+```Javascript
+viz.data(lesMiserablesData);
+```
+
+Once this is done, you should have a basic network rendered in the container!
+
+### Working with Groups
+
+Node groups and link groups are very similar - in fact, the only difference is in the types of style attributes that can be applied (since they are different SVG elements).
+
+Creating an element group is easy:
+
+```Javascript
+viz.nodeGroup(groupName, filterer);
+viz.LinkGroup(groupName, filterer);
+```
+
+Example (`morphs` demo):
+
+```Javascript
+viz.nodeGroup("rand_node_group", function(d) { return d.group == randNum; });
+viz.linkGroup("rand_link_group", function(d) { return d.value == randNum; });
+```
+
+The `groupLabel` parameter specifies a label that you can use later to retrieve the group from the `Network` object using the `getNodeGroup()` or `getLinkGroup()` methods. The `filterer` function specifies what conditions must be met by a node or link to include it in the group. In this case, if the node has a `group` value equal to `randNum` or the link has a `value` value equal to `randNum`, then they will be placed into their respective groups.
+
+Once the groups are created, they can be modified together via morphs. Also, using a filterer function isn't the only way (nor the simplest) to create a group - take a look at the `styling` and `array_grouping` demos!
+
+### Working with Morphs
+
+To create a morph, it's also a single line of code:
+
+```Javascript
+viz.morph(morphName, morphType, change);
+```
+
+Example (`morphs` demo):
+
+```Javascript
+viz.morph("style_nodes", "style", {"fill": "#7DABFF"});
+```
+
+`morphLabel` is a name you can use to refer to the morph - you can retrieve this morph at any time using the `getMorph()` function on the `Network` object. `morphType` specifies whether you're operating on the element or group's data or style. The `change` parameter specifies the changes applied to that element or group when the morph is applied. in the example above, we're making a morph named "style_nodes" that operates on the style of the elements by changing their `fill` property to `#7DABFF` (light blue).
+
+To apply a morph, it's also one line of code:
+
+```Javascript
+group.morph(morphLabel);
+```
+
+Example (`morphs` demo):
+
+```Javascript
+viz.getNodeGroup("node_group").morph("style_nodes");
+```
+
+In this example, we're retrieving a node group object by passing in its label to the `getNodeGroup()` function provided by the `Network` object and applying the morph we just made. All of the nodes contained within that node group should have the morph applied to them, coloring them light blue!
+
+### Working with Phases
+
+Unfortunately, creating a phase takes more than one line of code. Initializing it, however, isn't so bad:
+
+```Javascript
+viz.phase(phaseLabel);
+```
+
+This creates a phase with the label you specify, which can be retrieved via the `getPhase()` method on the `Network` object.
+
+To set up the phase's state and perform other initialization work, we can specify an `initial()` function that is executed immediately before the phase runs:
+
+```Javascript
+phaseObject.initial(initFunc);
+```
+
+Example (`phase_basic` demo):
+
+```Javascript
+basicPhase.initial(function(vizState) {
+    basicPhase.state({"val": 0});
+});
+```
+
+Here we set the initial state of the phase by specifying `phaseObject.state(newState)` - this state will be used throughout the phase to perform our BFS, so it would be handy to keep it within the phase's state.
+
+Whenever the phase calculates its next state (called a phase transition), it will execute the `next()` function:
+
+```Javascript
+phaseObject.next(nextFunc);
+```
+
+Example (`phase_basic` demo):
+
+```Javascript
+basicPhase.next(function(phaseState, vizState) {
+    viz.nodeGroup("group_" + phaseState.val, "group", phaseState.val).morph(morph.label);
+    phaseState.val++;
+});
+```
+
+This function will both calculate the next state and apply morphs wherever necessary. In this case, we apply a morph to a specific node group and increment the `val` attribute within the phase state.
+
+Finally, we need to let the phase know when to stop. We do this by specifying an `end()` function:
+
+```Javascript
+basicPhase.end(endFunc);
+```
+
+Example (`phase_basic` demo):
+
+```Javascript
+basicPhase.end(function(phaseState) {
+    return phaseState.val >= 11;
+});
+```
+
+In this example, we tell the phase to stop when the `val` attribute in the phase state reaches 11 or more. You may specify as many conditions as you'd like, but as long as the function returns `false` the phase will continue.
 
 ## Demos
 

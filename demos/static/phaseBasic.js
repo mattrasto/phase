@@ -26,7 +26,7 @@ function createPhase() {
 
     basicPhase.end(function(phaseState) {
         return phaseState.val >= 11;
-    })
+    });
 
     return phase;
 }
