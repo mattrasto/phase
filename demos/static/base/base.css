@@ -178,6 +178,9 @@ input:-webkit-autofill {
 	color: #333;
 	padding-left: 10px;
 	box-sizing: border-box;
+	margin: auto;
+	margin-bottom: 20px;
+	display: block;
 }
 
 #sidebar input[type=text]:focus {
