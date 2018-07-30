@@ -136,9 +136,31 @@ viz.data(lesMiserablesData);
 
 Once this is done, you should have a basic network rendered in the container!
 
+### Working with Groups
+
+Node groups and link groups are very similar - in fact, the only difference is in the types of style attributes that can be applied (since they are different SVG elements).
+
+Creating an element group is easy:
+
+```Javascript
+viz.nodeGroup(groupName, filterer);
+viz.LinkGroup(groupName, filterer);
+```
+
+Example (`morphs` demo):
+
+```Javascript
+viz.nodeGroup("rand_node_group", function(d) { return d.group == randNum; });
+viz.linkGroup("rand_link_group", function(d) { return d.value == randNum; });
+```
+
+The `groupLabel` parameter specifies a label that you can use later to retrieve the group from the `Network` object using the `getNodeGroup()` or `getLinkGroup()` methods. The `filterer` function specifies what conditions must be met by a node or link to include it in the group. In this case, if the node has a `group` value equal to `randNum` or the link has a `value` value equal to `randNum`, then they will be placed into their respective groups.
+
+Once the groups are created, they can be modified together via morphs. Also, using a filterer function isn't the only way (nor the simplest) to create a group - take a look at the `styling` and `array_grouping` demos!
+
 ### Working with Morphs
 
-To apply a morph, it's also a single line of code:
+To create a morph, it's also a single line of code:
 
 ```Javascript
 viz.morph(morphName, morphType, change);
@@ -164,7 +186,7 @@ Example (`morphs` demo):
 viz.getNodeGroup("node_group").morph("style_nodes");
 ```
 
-In this example, we're getting a node group by passing in its label to the `getNodeGroup()` function provided by the `Network` object and applying the morph we just made. All of the nodes contained within that node group should have the morph applied to them, coloring them light blue!
+In this example, we're retrieving a node group object by passing in its label to the `getNodeGroup()` function provided by the `Network` object and applying the morph we just made. All of the nodes contained within that node group should have the morph applied to them, coloring them light blue!
 
 ### Working with Phases
 
