@@ -97,6 +97,7 @@ input:-webkit-autofill {
 	font-size: 20px;
 	line-height: 30px;
 	padding-bottom: 10px;
+	text-align: center;
 }
 
 #sidebar h2 {
@@ -285,8 +286,4 @@ input:-webkit-autofill {
 .link {
 	stroke: #666;
 	stroke-linecap: round;
-}
-
-#sidebar .group-module p {
-	text-align: center;
 }

@@ -4,6 +4,8 @@ document.addEventListener("DOMContentLoaded", function(event) {
     // Attach some initial data
     viz.data(lesMiserablesData);
 
+    viz.settings({"linkWidth": 4})
+
     changeGroups();
 
     console.log("Visualization Loaded");
