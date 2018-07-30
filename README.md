@@ -136,7 +136,7 @@ viz.data(lesMiserablesData);
 
 Once this is done, you should have a basic network rendered in the container!
 
-### Creating a Morph
+### Working with Morphs
 
 To apply a morph, it's also a single line of code:
 
@@ -144,15 +144,86 @@ To apply a morph, it's also a single line of code:
 viz.morph(morphName, morphType, change);
 ```
 
-Example:
+Example (`morphs` demo):
 
 ```Javascript
 viz.morph("style_nodes", "style", {"fill": "#7DABFF"});
 ```
 
-`morphName` is a label you can use to refer to the morph. `morphType` specifies whether you're operating on the element or group's data or style. The `change` parameter specifies the changes applied to that element or group when the morph is applied. in the example above, we're making a morph named "style_nodes" that operates on the style of the elements by changing their `fill` property to `#7DABFF` (light blue).
+`morphLabel` is a name you can use to refer to the morph - you can retrieve this morph at any time using the `getMorph()` function on the `Network` object. `morphType` specifies whether you're operating on the element or group's data or style. The `change` parameter specifies the changes applied to that element or group when the morph is applied. in the example above, we're making a morph named "style_nodes" that operates on the style of the elements by changing their `fill` property to `#7DABFF` (light blue).
 
-### Creating a phase
+To apply a morph, it's also one line of code:
+
+```Javascript
+group.morph(morphLabel);
+```
+
+Example (`morphs` demo):
+
+```Javascript
+viz.getNodeGroup("node_group").morph("style_nodes");
+```
+
+In this example, we're getting a node group by passing in its label to the `getNodeGroup()` function provided by the `Network` object and applying the morph we just made. All of the nodes contained within that node group should have the morph applied to them, coloring them light blue!
+
+### Working with Phases
+
+Unfortunately, creating a phase takes more than one line of code. Initializing it, however, isn't so bad:
+
+```Javascript
+viz.phase(phaseLabel);
+```
+
+This creates a phase with the label you specify, which can be retrieved via the `getPhase()` method on the `Network` object.
+
+To set up the phase's state and perform other initialization work, we can specify an `initial()` function that is executed immediately before the phase runs:
+
+```Javascript
+phaseObject.initial(initFunc);
+```
+
+Example (`phase_basic` demo):
+
+```Javascript
+basicPhase.initial(function(vizState) {
+    basicPhase.state({"val": 0});
+});
+```
+
+Here we set the initial state of the phase by specifying `phaseObject.state(newState)` - this state will be used throughout the phase to perform our BFS, so it would be handy to keep it within the phase's state.
+
+Whenever the phase calculates its next state (called a phase transition), it will execute the `next()` function:
+
+```Javascript
+phaseObject.next(nextFunc);
+```
+
+Example (`phase_basic` demo):
+
+```Javascript
+basicPhase.next(function(phaseState, vizState) {
+    viz.nodeGroup("group_" + phaseState.val, "group", phaseState.val).morph(morph.label);
+    phaseState.val++;
+});
+```
+
+This function will both calculate the next state and apply morphs wherever necessary. In this case, we apply a morph to a specific node group and increment the `val` attribute within the phase state.
+
+Finally, we need to let the phase know when to stop. We do this by specifying an `end()` function:
+
+```Javascript
+basicPhase.end(endFunc);
+```
+
+Example (`phase_basic` demo):
+
+```Javascript
+basicPhase.end(function(phaseState) {
+    return phaseState.val >= 11;
+});
+```
+
+In this example, we tell the phase to stop when the `val` attribute in the phase state reaches 11 or more. You may specify as many conditions as you'd like, but as long as the function returns `false` the phase will continue.
 
 ## Demos
 
