@@ -14,6 +14,8 @@ Phase was built with a simple philosophy: enable the creation of dynamic graph v
 
 With these three features, Phase aims to tackle common visualization problems present in the study of networks and simulations. The goal is to reduce complex, dynamic systems to understandable representations.
 
+To jump right in, check out [Getting Started](#Getting-Started)
+
 ## Concepts
 
 ### Terminology
@@ -115,6 +117,42 @@ Phases don't need to applied just once. At any time, a phase can be reset to its
 #### Phase conflicts
 
 When a phase conflicts with another phase (which occurs when an element is accessed by more than one phase transition at once), regardless of whether the shared elements are currently being morphed, an event `phase_conflict` will be emitted containing the state of both phases. Each phase is able to handle what happens when this occurs, whether that means pausing one phase until the conflict is resolved, destroying one phase, or something else - it's entirely customizable.
+
+## Getting Started
+
+### Basic Visualization
+
+To initialize a visualization, you just need to specify a container that the network should be contained in:
+
+```Javascript
+viz = phase.Network("#viz-container");
+```
+
+This will initialize all of the variables needed for the visualization, but it won't attach any data yet. To add data (for sample datasets, see `demos/data/`) and render the elements, it's only one more line of code:
+
+```Javascript
+viz.data(lesMiserablesData);
+```
+
+Once this is done, you should have a basic network rendered in the container!
+
+### Creating a Morph
+
+To apply a morph, it's also a single line of code:
+
+```Javascript
+viz.morph(morphName, morphType, change);
+```
+
+Example:
+
+```Javascript
+viz.morph("style_nodes", "style", {"fill": "#7DABFF"});
+```
+
+`morphName` is a label you can use to refer to the morph. `morphType` specifies whether you're operating on the element or group's data or style. The `change` parameter specifies the changes applied to that element or group when the morph is applied. in the example above, we're making a morph named "style_nodes" that operates on the style of the elements by changing their `fill` property to `#7DABFF` (light blue).
+
+### Creating a phase
 
 ## Demos
 
