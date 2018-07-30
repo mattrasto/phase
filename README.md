@@ -4,7 +4,7 @@ Current Version: 0.8.0 (Stable Beta)
 
 Phase is a graph visualization network built on top of D3 to allow quicker and more interactive network prototyping.
 
-![Alt Text](https://media.giphy.com/media/3E2Pk59lFflh1WWt0t/giphy.gif)
+![Phase of BFS with multiple start nodes](https://imgur.com/4dVAg09.gif)
 
 Phase was built with a simple philosophy: enable the creation of dynamic graph visualizations that support real-time events and responsive designs with as little extra code as possible. To do this, Phase introduces a few features:
 
@@ -68,6 +68,8 @@ If you're still not convinced on phases and morphs, check out the section on the
 
 ### Element Grouping
 
+![Colored node groups](https://imgur.com/CyrFFIf.jpg)
+
 Element grouping allows you to combine elements together in collections that operate as a single unit. After creating a group of nodes or links, you can call the same functions as you would on a D3 object to modify that object.
 
 Groups can overlap, in which case modifications are applied sequentially if they modify the same attributes of an element.
@@ -75,112 +77,6 @@ Groups can overlap, in which case modifications are applied sequentially if they
 Groups can be used in morphs as well. If a morph needs to mutate many elements in the same way, it makes sense to group them together and perform one operation on the entire set! This also helps for when the graph structure changes. If an element is added or removed from the group, that's no problem for the morph - it just keeps working on whichever elements are in that group whenever it's applied.
 
 Combining groups with events and morphs allow you to do one more thing: you can have two separate flows that simultaneously interact with the viz. You can modify the group whenever you want, and you can apply the morph whenever you want. So if you decided to apply the morph when the group changes (or vice versa), you can visualize a graph that adapts when its structure is changed!
-
-### Events (In Development)
-
-In this section, "events" refers to Javascript events. Phase uses events as one way to manage phases using groups and to modify groups during the operation of a phase. Groups, phases, and morphs emit lifecycle events that any other operation can listen for and handle.
-
-#### Provided Events
-
-Here are the lifecycle events we provide by default:
-
-##### Graph
-
-`tick`
-
-The elements in the visualization are repositioned in the graph. This occurs very often (every few milliseconds), so it's *highly* discouraged to have computationally expensive operations listen to this event.
-
-`data`
-
-Any data-modifying operation is performed on the graph object. If data was added, removed, or updated, this event will be emitted. However, if the methods are called but the data is not changed in any way, the event will not be emitted.
-
-`data_add`
-
-New data is introduced to the visualization. This event will be emitted if, when joined with new data, the data's `.enter()` set is not empty.
-
-`data_remove`
-
-Data is removed from the visualization. This event will be emitted if, when joined with new data, the data's `.exit()` set is not empty.
-
-`data_update`
-
-Any datum is updated in any capacity. This event will be emitted if the new data contains a datum with the same ID as an existing datum.
-
-##### Element Group
-
-`group_member`
-
-Any member of the group has been added, removed, or had its style or data modified.
-
-`group_member_add`
-
-The group received a new member element.
-
-`group_member_remove`
-
-A member element was removed from the group.
-
-`group_update`
-
-A member element was updated by having its style or data changed.
-
-`group_update_style`
-
-A member element was updated by having its style changed.
-
-`group_update_data`
-
-A member element was updated by having its data changed.
-
-##### Morph
-
-`morph_start`
-
-The morph is beginning to apply its operations.
-
-`morph_end`
-
-The morph's operations are finished.
-
-`morph_error`
-
-The morph failed to apply its operations.
-
-##### Phase
-
-`phase_start`
-
-The phase's first morph is ready to be executed.
-
-`phase_next`
-
-The phase finished applying its current round of morphs in the execution tree and is ready to execute the next.
-
-`phase_end`
-
-The phase finished the last morph in its execution tree.
-
-#### Example
-
-Let's say you have a social network graph that contains two types of edges: "friends" and "friends of friends". When a person friends another, you want the following to happen in order:
-
-1. The link between the newly friended nodes changes to a "friends" link.
-2. A glowing effect travels from the source node to the target node, then divides and travels along the links of new friends of friends.
-3. When the glowing effect reaches the nodes representing new friends of friends, you want the links to change and be added to the "friends of friends" links group.
-
-Sounds like a lot, but it's not too bad. Let's break down how we could do this, assuming we've already created groups for "friends" and "friends of friends":
-
-1. When a new friendship is formed, find the link between the nodes and switch it from the "friends of friends" group to the "friends" group.
-2. Create a phase with a single morph: the glowing effect traveling from one node to another.
-3. Queue the morph from source node to target node, then queue parallel morphs over all other links connected to each node but not shared between them.
-4. Add all new "friends of friends" links to the right group.
-
-If we didn't use events, this could get tricky and needlessly complex. But we know we have some lifecycle methods that we can use:
-
-1. When the "friends" group receives a new member, it will emit the `data` and `data_add` events. We can attach the glowing effect phase to run when the `data_add` event is emitted.
-2. When the phase is finished, it will emit the `phase_end` event. We can attach a listener to the "friends of friends" group so that when the phase ends and emits the event we can add all new links to the group.
-
-With just two element groups, one single-morph phase, and two event listeners, we can create highly dynamic graph changes _and see them happen in realtime_. These can easily be extended to support more complex interactions, all with the same pattern.
 
 ### Phases and Morphs
 
@@ -192,7 +88,7 @@ I want to build large-scale social simulations. But social networks are complex,
 
 #### What is a Morph?
 
-![Alt Text](https://media.giphy.com/media/8vvW3kBTCJjp8rjrz7/giphy.gif)
+![Basic morphs](https://imgur.com/y3b2MLj.gif)
 
 Before we can fully understand phases, we have to understand morphs. Morphs are single-element mutations on the graph. A morph can edit data or styling of an element as well as add or remove data from the graph. That's it - four things. If you want to add a node, remove an edge, highlight a node, or change the style of a link, all you need is a morph.
 
@@ -202,7 +98,7 @@ Morphs are the building blocks of phases. For multi-step visualization events, y
 
 #### What is a Phase?
 
-![Alt Text](https://media.giphy.com/media/KVVfxA3I8cnw5tHnyd/giphy.gif)
+![Basic serial phase](https://imgur.com/l736R5u.gif)
 
 A phase represent an event's effect on the graph - it encapsulates multiple morphs and applies them in a specific order dictated by the user. It also maintains properties that affect the application of the morphs as well as the state of the graph during the process. This allows phases to communicate with each other by sharing their settings and state.
 
