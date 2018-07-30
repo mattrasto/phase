@@ -8,7 +8,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
 });
 
 // Constructs phase for BFS
-function bfsPhase(startNode) {
+function bfsPhase(startNodes) {
 
     // Reset
     viz.unstyleGraph();
@@ -20,8 +20,8 @@ function bfsPhase(startNode) {
     // Set the phase's initial state
     searchPhase.initial(function(vizState) {
         searchPhase.state({
-            'visited': new Set([startNode, "Boulatruelle"]), // Nodes we've visited
-            'validNeighbors': new Set([startNode, "Boulatruelle"]), // Neighbors that haven't been visited
+            'visited': new Set(startNodes), // Nodes we've visited
+            'validNeighbors': new Set(startNodes), // Neighbors that haven't been visited
             'depth': 0, // Distance from start node
         });
     });
@@ -56,14 +56,13 @@ function bfsPhase(startNode) {
         return phaseState.validNeighbors.size <= 0;
     });
 
-    console.log(viz._data);
-
     return searchPhase;
 }
 
 function createPhase() {
-    const startNode = document.getElementById("startNode").value;
-    bfsPhase(startNode);
+    const startNode1 = document.getElementById("startNode1").value;
+    const startNode2 = document.getElementById("startNode2").value;
+    bfsPhase([startNode1, startNode2]);
 }
 
 // Changes the color of the node based on its distance from the start

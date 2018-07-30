@@ -31,6 +31,9 @@ window.phase = (function () {
             // Settings (user-accessible)
             this.initSettings(settings);
 
+            // Settings that force a re-rendering of the entire simulation
+            this._forceRerender = new Set(["zoom", "gravity", "charge", "linkStrength", "linkDistance"]);
+
             // Viz state
             this._state = {};
 
@@ -48,10 +51,11 @@ window.phase = (function () {
                 this._dataBound = true;
             }
             else {
-                this._data = data;
-                this._dataLoaded = true;
-                this._dataBound = false;
+                this._bindData(data);
+                this._dataBound = true;
             }
+
+            this._graph = this._generateAdjacencyList(data)
 
             // Update "all" groups
             // QUESTION: Should duplicate constructor calls cause group reevaluation?
@@ -72,11 +76,22 @@ window.phase = (function () {
         // Updates or returns the current viz settings
         settings(updatedSettings) {
             if (updatedSettings == undefined) return this._settings;
+
+            let changedSettings = new Set();
             for (const key in updatedSettings) {
-                this._settings[key] = updatedSettings[key];
+                if (this._settings[key] != updatedSettings[key]) {
+                    this._settings[key] = updatedSettings[key];
+                    changedSettings.add(key);
+                }
             }
-            // TODO: If entire viz doesn't need to be rerendered, don't call this
-            this.reset();
+
+            // If any changed settings require a rerender, call reset()
+            if ([...changedSettings].filter(x => this._forceRerender.has(x)).length > 0) {
+                this.reset();
+            }
+            else {
+                this._bindData(this._data);
+            }
         }
 
         initSettings(settings) {
@@ -92,13 +107,6 @@ window.phase = (function () {
                 friction: .8,
                 // Gravity force strength [0, 1]
                 gravity: .25,
-                // Node coloring scheme
-                colorMode: "",
-                // Default node color palette
-                colorKey: ["#63D467", "#63B2D4", "#AE63D4", "#D46363", "#ED9A55", "#E5EB7A"],
-                // Determines the style of links based on their "type" attribute
-                // Values should be an even-length array for alternating black / white segments in px
-                linkStyle: {"derivative": "", "related": "10,8"},
                 // Node size
                 nodeSize: 10,
                 // Node fill color
@@ -106,13 +114,13 @@ window.phase = (function () {
                 // Node border color
                 nodeBorderColor: "#F7F6F2",
                 // Node border width
-                nodeBorderWidth: ".8px",
+                nodeBorderWidth: .8,
                 // Link type (solid, dash array, etc.)
                 linkStroke: "",
                 // Link color
                 linkColor: "#666",
                 // Link width
-                linkWidth: "1.5px",
+                linkWidth: 1.5,
                 // Whether the user can zoom
                 zoom: true,
             };
@@ -154,7 +162,7 @@ window.phase = (function () {
                 )
                 .on("dblclick.zoom", null);  // Don't zoom on double left click
 
-            // TODO
+            // TODO: What is this TODO for?
             this._container.appendChild(this._svg.node());
 
             // Creates actual force graph container (this is what actually gets resized as needed)
@@ -341,8 +349,6 @@ window.phase = (function () {
 
         // Binds new data to the network
         _bindData(data) {
-            this._graph = this._generateAdjacencyList(data)
-
             // Assign new data
             this._data = data;
 
@@ -359,17 +365,52 @@ window.phase = (function () {
         // Binds new data to the nodes
         _bindNodes() {
             // Rejoin node data
-            this._nodeContainers = this._nodeContainers.data(this._data.nodes);
+            this._nodeContainers = this._nodeContainers.data(this._data.nodes, function(d) {
+                return d.id;
+            });
 
             // Remove old nodes
-            this._nodeContainers.exit().remove();
+            if (this._nodeContainers.exit()._groups[0].length > 0) {
+                this._bindNodesRemove();
+            }
 
+            // Add new nodes
+            let newNodes = this._nodeContainers;
+            if (this._nodeContainers.enter()._groups[0].length > 0) {
+                newNodes = this._bindNodesAdd();
+            }
+
+            // Merge enter and update selections
+            this._nodeContainers = newNodes.merge(this._nodeContainers);
+
+            // Update existing nodes
+            this._bindNodesUpdate();
+        }
+
+        _bindNodesRemove() {
+            // Remove old nodes
+            this._nodeContainers.exit().remove();
+        }
+
+        _bindNodesAdd() {
             // Add new node containers to node g container
             let newNodes = this._nodeContainers
               .enter().append("g");
 
-            // Add new node containers
+            // Add new circles
             newNodes
+                .append("circle")
+
+            // Add new labels
+            newNodes
+                .append("text")
+
+            return newNodes;
+        }
+
+        _bindNodesUpdate() {
+            // Update containers
+            this._nodeContainers
                 .attr("class", "node")
                 .on("mouseover", this._nodeMouseover)
                 .on("mouseout", this._nodeMouseout)
@@ -383,32 +424,13 @@ window.phase = (function () {
                     .on("end", this._nodeDragEnd.bind(this))
                 );
 
-            // Add new circles
-            newNodes
-                .append("circle")
+            // Update circles
+            this._nodeContainers
+                .select("circle")
                     .style("r", this._settings.nodeSize)
                     .style("fill", this._settings.nodeColor)
                     .style("stroke", this._settings.nodeBorderColor)
                     .style("stroke-width", this._settings.nodeBorderWidth);
-
-            // Add new labels
-            newNodes
-                .append("text")
-                    .attr("dx", 12)
-                    .attr("dy", ".35em")
-                    .style("fill", "#333")
-                    .style("stroke", "#333")
-                    .text(function(d) { return d.id; });
-
-            this._nodeContainers = newNodes.merge(this._nodeContainers);
-
-            // Update circles
-            this._nodeContainers
-                .select("circle")
-                .style("r", this._settings.nodeSize)
-                .style("fill", this._settings.nodeColor)
-                .style("stroke", this._settings.nodeBorderColor)
-                .style("stroke-width", this._settings.nodeBorderWidth);
 
             // Update labels
             this._nodeContainers
@@ -423,11 +445,34 @@ window.phase = (function () {
         // Binds new data to the links
         _bindLinks() {
             // Rejoin link data
-            this._linkContainers = this._linkContainers.data(this._data.links);
+            this._linkContainers = this._linkContainers.data(this._data.links, function(d) {
+                return d.source.id + d.target.id;
+            });
 
             // Remove old links
-            this._linkContainers.exit().remove();
+            if (this._linkContainers.exit()._groups[0].length > 0) {
+                this._bindLinksRemove();
+            }
 
+            // Add new links
+            let newLinks = this._linkContainers;
+            if (this._linkContainers.enter()._groups[0].length > 0) {
+                newLinks = this._bindLinksAdd();
+            }
+
+            // Merge enter and update selections
+            this._linkContainers = newLinks.merge(this._linkContainers);
+
+            // Update existing links
+            this._bindLinksUpdate();
+        }
+
+        _bindLinksRemove() {
+            // Remove old links
+            this._linkContainers.exit().remove();
+        }
+
+        _bindLinksAdd() {
             // Add new links to link g container
             let newLinks = this._linkContainers
                 .enter().append("g");
@@ -439,23 +484,15 @@ window.phase = (function () {
             // Add new lines
             newLinks
                 .append("line")
-                    .style("stroke", this._settings.linkColor)
-                    .style("stroke-width", this._settings.linkWidth)
-                    .style("stroke-dasharray", this._settings.linkStroke)
 
             // Add new labels
             newLinks
                 .append("text")
-                    .attr("dx", 5)
-                    .attr("dy", 0)
-                    .style("fill", "#333")
-                    .style("stroke", "#333")
-                    .style("stroke-width", 0)
-                    .style("font-size", "12px")
-                    .text(function(d) { return d.value; });
 
-            this._linkContainers = newLinks.merge(this._linkContainers);
+            return newLinks;
+        }
 
+        _bindLinksUpdate() {
             // Update lines
             this._linkContainers
                 .select("line")
