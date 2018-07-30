@@ -4,6 +4,8 @@ Current Version: 0.8.0 (Stable Beta)
 
 Phase is a graph visualization network built on top of D3 to allow quicker and more interactive network prototyping.
 
+![Alt Text](https://media.giphy.com/media/65KbzWllFF9kBElMBS/giphy.gif)
+
 Phase was built with a simple philosophy: enable the creation of dynamic graph visualizations that support real-time events and responsive designs with as little extra code as possible. To do this, Phase introduces a few features:
 
 1. Create groups of nodes or links that can be easily modified or styled together
