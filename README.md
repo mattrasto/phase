@@ -4,7 +4,7 @@ Current Version: 0.8.0 (Stable Beta)
 
 Phase is a graph visualization network built on top of D3 to allow quicker and more interactive network prototyping.
 
-![Alt Text](https://media.giphy.com/media/3E2Pk59lFflh1WWt0t/giphy.gif)
+![Phase of BFS with multiple start nodes](https://imgur.com/4dVAg09.gif)
 
 Phase was built with a simple philosophy: enable the creation of dynamic graph visualizations that support real-time events and responsive designs with as little extra code as possible. To do this, Phase introduces a few features:
 
@@ -68,6 +68,8 @@ If you're still not convinced on phases and morphs, check out the section on the
 
 ### Element Grouping
 
+![Colored node groups](https://imgur.com/CyrFFIf.jpg)
+
 Element grouping allows you to combine elements together in collections that operate as a single unit. After creating a group of nodes or links, you can call the same functions as you would on a D3 object to modify that object.
 
 Groups can overlap, in which case modifications are applied sequentially if they modify the same attributes of an element.
@@ -86,7 +88,7 @@ I want to build large-scale social simulations. But social networks are complex,
 
 #### What is a Morph?
 
-![Alt Text](https://media.giphy.com/media/8vvW3kBTCJjp8rjrz7/giphy.gif)
+![Basic morphs](https://imgur.com/y3b2MLj.gif)
 
 Before we can fully understand phases, we have to understand morphs. Morphs are single-element mutations on the graph. A morph can edit data or styling of an element as well as add or remove data from the graph. That's it - four things. If you want to add a node, remove an edge, highlight a node, or change the style of a link, all you need is a morph.
 
@@ -96,7 +98,7 @@ Morphs are the building blocks of phases. For multi-step visualization events, y
 
 #### What is a Phase?
 
-![Alt Text](https://media.giphy.com/media/KVVfxA3I8cnw5tHnyd/giphy.gif)
+![Basic serial phase](https://imgur.com/l736R5u.gif)
 
 A phase represent an event's effect on the graph - it encapsulates multiple morphs and applies them in a specific order dictated by the user. It also maintains properties that affect the application of the morphs as well as the state of the graph during the process. This allows phases to communicate with each other by sharing their settings and state.
 
