@@ -4,7 +4,7 @@ Current Version: 0.8.0 (Stable Beta)
 
 Phase is a graph visualization network built on top of D3 to allow quicker and more interactive network prototyping.
 
-![Alt Text](https://media.giphy.com/media/65KbzWllFF9kBElMBS/giphy.gif)
+![Alt Text](https://media.giphy.com/media/3E2Pk59lFflh1WWt0t/giphy.gif)
 
 Phase was built with a simple philosophy: enable the creation of dynamic graph visualizations that support real-time events and responsive designs with as little extra code as possible. To do this, Phase introduces a few features:
 
@@ -192,6 +192,8 @@ I want to build large-scale social simulations. But social networks are complex,
 
 #### What is a Morph?
 
+![Alt Text](https://media.giphy.com/media/8vvW3kBTCJjp8rjrz7/giphy.gif)
+
 Before we can fully understand phases, we have to understand morphs. Morphs are single-element mutations on the graph. A morph can edit data or styling of an element as well as add or remove data from the graph. That's it - four things. If you want to add a node, remove an edge, highlight a node, or change the style of a link, all you need is a morph.
 
 Morphs can also act on element groups. Yes, the point of a morph is that it modifies _only one_ element, but element groups act as a single element anyway. You can modify every node in the graph with a single morph. You can also delete an entire element group with a morph. However, you can't add a group of nodes, since it won't exist before you add it to the graph.
@@ -199,6 +201,8 @@ Morphs can also act on element groups. Yes, the point of a morph is that it modi
 Morphs are the building blocks of phases. For multi-step visualization events, you can intelligently chain together morphs in a phase.
 
 #### What is a Phase?
+
+![Alt Text](https://media.giphy.com/media/KVVfxA3I8cnw5tHnyd/giphy.gif)
 
 A phase represent an event's effect on the graph - it encapsulates multiple morphs and applies them in a specific order dictated by the user. It also maintains properties that affect the application of the morphs as well as the state of the graph during the process. This allows phases to communicate with each other by sharing their settings and state.
 
