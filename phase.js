@@ -100,6 +100,7 @@ window.phase = (function () {
             }
         }
 
+        // Create settings, styles, and event handler dictionaries
         initSettings(settings) {
             // Default settings
             this._settings = {
@@ -116,6 +117,7 @@ window.phase = (function () {
                 // Whether the user can zoom
                 zoom: true,
             };
+            // Default styles
             this._styles = {
                 // Node size
                 nodeSize: 10,
@@ -131,6 +133,66 @@ window.phase = (function () {
                 linkColor: "#666",
                 // Link width
                 linkWidth: 1.5,
+            }
+            // Default event handlers
+            this._eventHandlers = {
+                // Node mouseover handler
+                nodeMouseover(d) {
+                    // Default: add blue border
+                    d3.select(this.childNodes[0]).style("stroke", "#7DABFF").style("stroke-width", "3px");
+                },
+                // Node mouseout handler
+                nodeMouseout(d) {
+                    // Default: remove blue border
+                    d3.select(this.childNodes[0]).style("stroke", "").style("stroke-width", "0");
+                },
+                // Node mousedown handler
+                nodeMousedown(d) {
+                    // Unpin node if middle click
+                    if (d3.event.which == 2) {
+                        d3.select(this).classed("fixed", d.fixed = false);
+                        d.fx = null;
+                        d.fy = null;
+                    }
+                },
+                // Node left click handler
+                nodeClick(d) {
+                    const currentColor = d3.select(this.childNodes[0]).style("fill");
+                    const defaultColor = 'rgb(51, 51, 51)';
+                    const newColor = currentColor === defaultColor ? "#63B2D4" : defaultColor;
+                    d3.select(this.childNodes[0]).style("fill", newColor);
+                },
+                // Node double left click handler
+                nodeDblclick(d) {
+                    console.log("Double click");
+                },
+                // Node right click handler
+                nodeContextmenu(d) {
+                    console.log("Right click");
+                },
+                // Container drag start handler
+                nodeDragStart(d) {
+                    if (!d3.event.active) this._simulation.alphaTarget(.3).restart();
+                    d.fx = d.x;
+                    d.fy = d.y;
+                },
+                // Container drag handler
+                nodeDrag(d) {
+                    d.fx = d3.event.x;
+                    d.fy = d3.event.y;
+                },
+                // Container dragend handler
+                nodeDragEnd(d) {
+                    if (!d3.event.active) this._simulation.alphaTarget(0);
+                },
+                // Container right click handler (outside nodes)
+                containerContextmenu(d) {
+                    d3.event.preventDefault(); // Prevent context menu from appearing
+                },
+                // Container zoom handler
+                containerZoom() {
+                    this._g.node().setAttribute("transform", d3.event.transform);
+                },
             }
             this.settings(settings);
         }
@@ -148,8 +210,6 @@ window.phase = (function () {
             this.getLinkGroup("all").unstyle();
         }
 
-
-
         // Renders viz element in container
         _render() {
 
@@ -163,10 +223,10 @@ window.phase = (function () {
                 .attr("height", "100%")
                 .attr("viewBox","0 0 " + Math.min(this._containerWidth, this._containerHeight) + " " + Math.min(this._containerWidth, this._containerHeight))
                 .attr("preserveAspectRatio", "xMinYMin")
-                .on("contextmenu", this._containerContextmenu)
+                .on("contextmenu", this._eventHandlers.containerContextmenu)
                 .call(d3.zoom()
                     .scaleExtent(this._settings.zoom ? [.1, 10] : [1, 1])
-                    .on("zoom", this._containerZoom.bind(this))
+                    .on("zoom", this._eventHandlers.containerZoom.bind(this))
                 )
                 .on("dblclick.zoom", null);  // Don't zoom on double left click
 
@@ -228,9 +288,7 @@ window.phase = (function () {
         }
 
 
-
         // GRAPH STORE
-
 
 
         // Creates a dict containing children of each node
@@ -420,16 +478,16 @@ window.phase = (function () {
             // Update containers
             this._nodeContainers
                 .attr("class", "node")
-                .on("mouseover", this._nodeMouseover)
-                .on("mouseout", this._nodeMouseout)
-                .on("mousedown", this._nodeMousedown)
-                .on("click", this._nodeClick)
-                .on("dblclick", this._nodeDblclick)
-                .on("contextmenu", this._nodeContextmenu)
+                .on("mouseover", this._eventHandlers.nodeMouseover)
+                .on("mouseout", this._eventHandlers.nodeMouseout)
+                .on("mousedown", this._eventHandlers.nodeMousedown)
+                .on("click", this._eventHandlers.nodeClick)
+                .on("dblclick", this._eventHandlers.nodeDblclick)
+                .on("contextmenu", this._eventHandlers.nodeContextmenu)
                 .call(d3.drag()
-                    .on("start", this._nodeDragStart.bind(this))
-                    .on("drag", this._nodeDrag.bind(this))
-                    .on("end", this._nodeDragEnd.bind(this))
+                    .on("start", this._eventHandlers.nodeDragStart.bind(this))
+                    .on("drag", this._eventHandlers.nodeDrag.bind(this))
+                    .on("end", this._eventHandlers.nodeDragEnd.bind(this))
                 );
 
             // Update circles
@@ -520,80 +578,7 @@ window.phase = (function () {
                     .text(function(d) { return d.value; });
         }
 
-
-
-        // EVENT HANDLERS
-
-
-
-        // Node mouseover handler
-        _nodeMouseover(d) {
-            // Default: add blue border
-            d3.select(this.childNodes[0]).style("stroke", "#7DABFF").style("stroke-width", "3px");
-        }
-
-        // Node mouseout handler
-        _nodeMouseout(d) {
-            // Default: remove blue border
-            d3.select(this.childNodes[0]).style("stroke", "").style("stroke-width", "0");
-        }
-
-        // Node mousedown handler
-        _nodeMousedown(d) {
-            // Unpin node if middle click
-            if (d3.event.which == 2) {
-                d3.select(this).classed("fixed", d.fixed = false);
-                d.fx = null;
-                d.fy = null;
-            }
-        }
-
-        // Node left click handler
-        _nodeClick(d) {
-            const currentColor = d3.select(this.childNodes[0]).style("fill");
-            const defaultColor = 'rgb(51, 51, 51)';
-            const newColor = currentColor === defaultColor ? "#63B2D4" : defaultColor;
-            d3.select(this.childNodes[0]).style("fill", newColor);
-        }
-
-        // Node double left click handler
-        _nodeDblclick(d) {
-            console.log("Double click");
-        }
-
-        // Node right click handler
-        _nodeContextmenu(d) {
-            console.log("Right click");
-        }
-
-        // Container drag start handler
-        _nodeDragStart(d) {
-            if (!d3.event.active) this._simulation.alphaTarget(.3).restart();
-            d.fx = d.x;
-            d.fy = d.y;
-        }
-
-        // Container drag handler
-        _nodeDrag(d) {
-            d.fx = d3.event.x;
-            d.fy = d3.event.y;
-        }
-
-        // Container dragend handler
-        _nodeDragEnd(d) {
-            if (!d3.event.active) this._simulation.alphaTarget(0);
-        }
-
-        // Container right click handler (outside nodes)
-        _containerContextmenu(d) {
-            d3.event.preventDefault(); // Prevent context menu from appearing
-        }
-
-        // Container zoom handler
-        _containerZoom() {
-            this._g.node().setAttribute("transform", d3.event.transform);
-        }
-    }
+    } // End Network Class
 
     class Group {
         constructor(network, label, filterer, val) {
@@ -659,7 +644,7 @@ window.phase = (function () {
                 this._selection.data(newData);
             }
         }
-    }
+    } // End Group Class
 
     class NodeGroup extends Group {
         // Creates a node group based on attributes or a passed in selection
@@ -682,7 +667,7 @@ window.phase = (function () {
             }
             this.addStyle(styleMap);
         }
-    }
+    } // End NodeGroup Class
 
     class LinkGroup extends Group {
         // Creates a link group based on attributes or a passed in selection
@@ -705,7 +690,7 @@ window.phase = (function () {
             }
             this.addStyle(styleMap);
         }
-    }
+    } // End LinkGroup Class
 
     class Morph {
         // Creates a morph
@@ -720,7 +705,7 @@ window.phase = (function () {
 
             return this;
         }
-    }
+    } // End Morph Class
 
     class Phase {
         // Creates a phase
@@ -870,7 +855,7 @@ window.phase = (function () {
         getAllMorphs() {
             return this._morphs;
         }
-    }
+    } // End Phase Class
 
     const phase = {
         Network: function(query) {
