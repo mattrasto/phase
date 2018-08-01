@@ -79,8 +79,14 @@ window.phase = (function () {
 
             let changedSettings = new Set();
             for (const key in updatedSettings) {
-                if (this._settings[key] != updatedSettings[key]) {
+                // Check for update in settings dict
+                if (key in this._settings && this._settings[key] != updatedSettings[key]) {
                     this._settings[key] = updatedSettings[key];
+                    changedSettings.add(key);
+                }
+                // Check for update in styles dict
+                if (key in this._styles && this._styles[key] != updatedSettings[key]) {
+                    this._styles[key] = updatedSettings[key]
                     changedSettings.add(key);
                 }
             }
@@ -107,6 +113,10 @@ window.phase = (function () {
                 friction: .8,
                 // Gravity force strength [0, 1]
                 gravity: .25,
+                // Whether the user can zoom
+                zoom: true,
+            };
+            this._styles = {
                 // Node size
                 nodeSize: 10,
                 // Node fill color
@@ -121,9 +131,7 @@ window.phase = (function () {
                 linkColor: "#666",
                 // Link width
                 linkWidth: 1.5,
-                // Whether the user can zoom
-                zoom: true,
-            };
+            }
             this.settings(settings);
         }
 
@@ -427,10 +435,10 @@ window.phase = (function () {
             // Update circles
             this._nodeContainers
                 .select("circle")
-                    .style("r", this._settings.nodeSize)
-                    .style("fill", this._settings.nodeColor)
-                    .style("stroke", this._settings.nodeBorderColor)
-                    .style("stroke-width", this._settings.nodeBorderWidth);
+                    .style("r", this._styles.nodeSize)
+                    .style("fill", this._styles.nodeColor)
+                    .style("stroke", this._styles.nodeBorderColor)
+                    .style("stroke-width", this._styles.nodeBorderWidth);
 
             // Update labels
             this._nodeContainers
@@ -496,9 +504,9 @@ window.phase = (function () {
             // Update lines
             this._linkContainers
                 .select("line")
-                .style("stroke", this._settings.linkColor)
-                .style("stroke-width", this._settings.linkWidth)
-                .style("stroke-dasharray", this._settings.linkStroke)
+                .style("stroke", this._styles.linkColor)
+                .style("stroke-width", this._styles.linkWidth)
+                .style("stroke-dasharray", this._styles.linkStroke)
 
             // Update labels
             this._linkContainers
@@ -667,10 +675,10 @@ window.phase = (function () {
         // Removes all styles from a group
         unstyle() {
             const styleMap = {
-                "fill": this._network._settings.nodeColor,
-                "r": this._network._settings.nodeSize,
-                "stroke": this._network._settings.nodeBorderColor,
-                "stroke-width": this._network._settings.nodeBorderWidth
+                "fill": this._network._styles.nodeColor,
+                "r": this._network._styles.nodeSize,
+                "stroke": this._network._styles.nodeBorderColor,
+                "stroke-width": this._network._styles.nodeBorderWidth
             }
             this.addStyle(styleMap);
         }
@@ -690,10 +698,10 @@ window.phase = (function () {
         // Removes all styles from a group
         unstyle() {
             const styleMap = {
-                "stroke-dasharray": this._network._settings.linkStroke,
-                "fill": this._network._settings.linkColor,
-                "stroke": this._network._settings.linkColor,
-                "stroke-width": this._network._settings.linkWidth
+                "stroke-dasharray": this._network._styles.linkStroke,
+                "fill": this._network._styles.linkColor,
+                "stroke": this._network._styles.linkColor,
+                "stroke-width": this._network._styles.linkWidth
             }
             this.addStyle(styleMap);
         }
