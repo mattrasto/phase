@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>DFS Transition Demo - Phase</title>
+
+		<link rel="stylesheet" type="text/css" href="static/base/base.css">
+
+		<script src="static/base/base.js"></script>
+		<script src="static/base/d3.v4.min.js"></script>
+		<script src="../phase.js"></script>
+
+		<script src="static/phaseDFS.js"></script>
+
+		<script type="text/javascript" src="data/lesMiserables.json"></script>
+	</head>
+	<body>
+		<div id="viz-container">
+		</div>
+		<div id="sidebar">
+			<h1>Settings</h1>
+			<h5>Start Nodes</h5>
+			<input id="startNode" type="text" value="Count">
+			<h5>Phase</h5>
+			<input type="button" value="Create Phase" onClick="createPhase()">
+			<input type="button" value="Run DFS" onClick="startPhase()">
+		</div>
+	</body>
+</html>
