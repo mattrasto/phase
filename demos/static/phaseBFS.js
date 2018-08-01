@@ -62,7 +62,9 @@ function bfsPhase(startNodes) {
 function createPhase() {
     const startNode1 = document.getElementById("startNode1").value;
     const startNode2 = document.getElementById("startNode2").value;
-    bfsPhase([startNode1, startNode2]);
+    // Optional second node
+    const startNodes = startNode2 ? [startNode1, startNode2] : [startNode1]
+    bfsPhase(startNodes);
 }
 
 // Changes the color of the node based on its distance from the start
