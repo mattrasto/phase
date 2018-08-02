@@ -29,6 +29,10 @@ window.phase = (function () {
             this._adjList = {};
 
             // Settings (user-accessible)
+            this._settings = {};
+            this._styles = {};
+            this._eventHandlers = {};
+
             this.initSettings(settings);
 
             // Settings that force a re-rendering of the entire simulation
@@ -45,17 +49,13 @@ window.phase = (function () {
         // Binds data to the viz
         // TODO: Fix this (see data update demo)
         data(data) {
+            this._bindData(data);
             if (this._data != null && !this._dataBound) {
-                this._bindData(data);
                 this._dataLoaded = true;
-                this._dataBound = true;
             }
-            else {
-                this._bindData(data);
-                this._dataBound = true;
-            }
+            this._dataBound = true;
 
-            this._graph = this._generateAdjacencyList(data)
+            this._generateAdjacencyList(data);
 
             // Update "all" groups
             // QUESTION: Should duplicate constructor calls cause group reevaluation?
@@ -300,16 +300,11 @@ window.phase = (function () {
             nodes.forEach(node => {
                 this._adjList[node.id] = [];
             });
-            // Bidirectional
             links.forEach(link => {
-                if (this._dataBound) {
-                    this._adjList[link.source.id].push(link.target.id);
-                    this._adjList[link.target.id].push(link.source.id);
-                }
-                else {
-                    this._adjList[link.source].push(link.target);
-                    this._adjList[link.target].push(link.source);
-                }
+                const source = this._dataBound ? link.source.id : link.source;
+                const target = this._dataBound ? link.target.id : link.target;
+                this._adjList[source].push(target);
+                this._adjList[target].push(source);
             });
         }
 
