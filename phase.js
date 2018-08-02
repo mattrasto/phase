@@ -758,6 +758,10 @@ window.phase = (function () {
             this._terminal = terminal;
         }
 
+        updateTimestep(newValue){
+            this._timeStep = newValue;
+        }
+
         _calculateNextState() {
             this._transition(this.state(), this._network.state())
         }

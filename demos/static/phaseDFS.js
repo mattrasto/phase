@@ -8,7 +8,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
 });
 
 // Constructs phase for DFS
-function dfsPhase(startNode) {
+function dfsPhase(startNode, timeStep) {
     // Reset
     viz.unstyleGraph();
     viz.destroyPhase("dfs");
@@ -16,6 +16,10 @@ function dfsPhase(startNode) {
     // Initialize phase and stack
     let searchPhase = viz.phase("dfs");
     let stack = [startNode];
+
+    if(typeof timeStep === "number"){
+        searchPhase.updateTimestep(timeStep);
+    }
 
     // Adjacency list for quick access to neighbors
     const childDict = viz.getAdjacencyList();
@@ -76,7 +80,8 @@ function dfsPhase(startNode) {
 
 function createPhase() {
     const startNode = document.getElementById("startNode").value;
-    dfsPhase(startNode);
+    const timeStep = document.getElementById("timeStep").value;
+    dfsPhase(startNode, Number(timeStep));
 }
 
 // Changes the color of the node based on its distance from the start
