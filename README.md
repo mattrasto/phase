@@ -8,8 +8,8 @@ Phase is a graph visualization network built on top of D3 to allow quicker and m
 
 Phase was built with a simple philosophy: enable the creation of dynamic graph visualizations that support real-time events and responsive designs with as little extra code as possible. To do this, Phase introduces a few features:
 
-1. Create groups of nodes or links that can be easily modified or styled together
-2. Attach functions to events on the graph that modify the graph structure or display
+1. Create groups of nodes or links that can be modified or styled together and adapt to the graph structure
+2. Apply morphs to the graph that modify the graph structure or display
 3. Create phases, which simulate network events, that can be applied to multiple sets of elements simultaneously and adapt to the graph structure over time
 
 With these three features, Phase aims to tackle common visualization problems present in the study of networks and simulations. The goal is to reduce complex, dynamic systems to understandable representations.
@@ -46,7 +46,7 @@ A mutation is any change to the graph. This could be adding, deleting, or modify
 
 Not to be confused with Javascript events, these are a series of actions applied to a network. For example, in a social network simulation, an event might be the transmission of a message between friends - it travels from one node to other nodes across links, and it can further travel to friends of friends.
 
-Context is important when discussing events, as we will need to refer to Javascript events alongside simulation events. Javascript events are a programming construct, but graph/network events are an abstract concept. I will try my best to disambiguate this in the documentation.
+Context is important when discussing events, as we will need to refer to Javascript events alongside simulation events. Javascript events are a programming construct, but graph/network events are an abstract concept.
 
 **Agent**
 
@@ -64,7 +64,7 @@ Well, that's almost true. Element groups can also be accessed in morphs and modi
 
 A phase is another concept specific to this library. It represents a series of morphs in the graph that are executed in a specific order. Phases contain a whole simulation event - they chain together morphs to show the progression of a simulated network event as it happens.
 
-Let's take the previous example we used to explain morphs. Now, instead of just highlighting the link, let's say we want to also highlight the nodes. We would create two morphs: one for highlighting a node, and one for highlighting a link. Then we create a phase that uses these morphs to highlight them all at once. That's cool, but we could write that ourselves. What's cool about phases is that you can specify when and how these morphs are applied. Maybe we want to highlight the source node first, then highlight the link a second later, then highlight the target node another second later. This is easy with phases, and it's not much harder for more complex interactions.
+Let's take the previous example we used to explain morphs. Now, instead of just highlighting the link, let's say we want to also highlight the nodes. We would create two morphs: one for highlighting a node, and one for highlighting a link. Then we create a phase that uses these morphs to highlight them all at once. That's cool, but we could write that ourselves. What's nice about phases is that you can specify when and how these morphs are applied. Maybe we want to highlight the source node first, then highlight the link a second later, then highlight the target node another second later. This is easy with phases, and it's not much harder for more complex interactions.
 
 If you're still not convinced on phases and morphs, check out the section on them below.
 
@@ -76,13 +76,13 @@ Element grouping allows you to combine elements together in collections that ope
 
 Groups can overlap, in which case modifications are applied sequentially if they modify the same attributes of an element.
 
-Groups can be used in morphs as well. If a morph needs to mutate many elements in the same way, it makes sense to group them together and perform one operation on the entire set! This also helps for when the graph structure changes. If an element is added or removed from the group, that's no problem for the morph - it just keeps working on whichever elements are in that group whenever it's applied.
+Groups can be used in morphs as well. If a morph needs to mutate many elements in the same way, it makes sense to group them together and perform one operation on the entire set. This also helps for when the graph structure changes. If an element is added or removed from the group, that's no problem for the morph - it just keeps working on whichever elements are in that group whenever it's applied.
 
-Combining groups with events and morphs allow you to do one more thing: you can have two separate flows that simultaneously interact with the viz. You can modify the group whenever you want, and you can apply the morph whenever you want. So if you decided to apply the morph when the group changes (or vice versa), you can visualize a graph that adapts when its structure is changed!
+Combining groups with events and morphs allow you to do another thing: you can have two separate flows that simultaneously interact with the viz. You can modify the group whenever you want, and you can apply the morph whenever you want. So if you decided to apply the morph when the group changes (or vice versa), you can visualize a graph that adapts when its structure is changed!
 
 ### Phases and Morphs
 
-Phases and morphs are probably the hardest concepts to grasp. I'll explain the motivation behind phases and morphs before we dive into how they work.
+I'll explain the motivation behind phases and morphs before we dive into how they work.
 
 #### Motivation
 
@@ -122,13 +122,13 @@ When a phase conflicts with another phase (which occurs when an element is acces
 
 ### Basic Visualization
 
-To initialize a visualization, you just need to specify a container that the network should be contained in:
+To initialize a visualization, you need to specify a container that the network should be contained in:
 
 ```Javascript
 viz = phase.Network("#viz-container");
 ```
 
-This will initialize all of the variables needed for the visualization, but it won't attach any data yet. To add data (for sample datasets, see `demos/data/`) and render the elements, it's only one more line of code:
+This will initialize all of the variables needed for the visualization, but it won't attach any data yet. To add data (for sample datasets, see `demos/data/`) and render the elements, you'll use:
 
 ```Javascript
 viz.data(lesMiserablesData);
@@ -140,7 +140,7 @@ Once this is done, you should have a basic network rendered in the container!
 
 Node groups and link groups are very similar - in fact, the only difference is in the types of style attributes that can be applied (since they are different SVG elements).
 
-Creating an element group is easy:
+To create an element group:
 
 ```Javascript
 viz.nodeGroup(groupName, filterer);
@@ -156,11 +156,11 @@ viz.linkGroup("rand_link_group", function(d) { return d.value == randNum; });
 
 The `groupLabel` parameter specifies a label that you can use later to retrieve the group from the `Network` object using the `getNodeGroup()` or `getLinkGroup()` methods. The `filterer` function specifies what conditions must be met by a node or link to include it in the group. In this case, if the node has a `group` value equal to `randNum` or the link has a `value` value equal to `randNum`, then they will be placed into their respective groups.
 
-Once the groups are created, they can be modified together via morphs. Also, using a filterer function isn't the only way (nor the simplest) to create a group - take a look at the `styling` and `array_grouping` demos!
+Once the groups are created, they can be modified together via morphs. Also, using a filterer function isn't the only way to create a group - take a look at the `styling` and `array_grouping` demos for a few other approaches.
 
 ### Working with Morphs
 
-To create a morph, it's also a single line of code:
+To create a morph:
 
 ```Javascript
 viz.morph(morphName, morphType, change);
@@ -174,7 +174,7 @@ viz.morph("style_nodes", "style", {"fill": "#7DABFF"});
 
 `morphLabel` is a name you can use to refer to the morph - you can retrieve this morph at any time using the `getMorph()` function on the `Network` object. `morphType` specifies whether you're operating on the element or group's data or style. The `change` parameter specifies the changes applied to that element or group when the morph is applied. in the example above, we're making a morph named "style_nodes" that operates on the style of the elements by changing their `fill` property to `#7DABFF` (light blue).
 
-To apply a morph, it's also one line of code:
+To apply a morph:
 
 ```Javascript
 group.morph(morphLabel);
@@ -190,7 +190,7 @@ In this example, we're retrieving a node group object by passing in its label to
 
 ### Working with Phases
 
-Unfortunately, creating a phase takes more than one line of code. Initializing it, however, isn't so bad:
+Phases require a bit more setup, as they have multiple working parts. To initialize a phase:
 
 ```Javascript
 viz.phase(phaseLabel);
