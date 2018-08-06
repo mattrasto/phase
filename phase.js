@@ -30,10 +30,14 @@ window.phase = (function () {
 
             // Settings (user-accessible)
             this._settings = {};
+            // Styles associated with each element (TODO: rename to styles)
             this._defaultStyles = {};
+            // Default elements' event handlers
             this._defaultEventHandlers = {};
 
-            this.initSettings(settings);
+            this.initSettings();
+            this.initStyles();
+            this.initEventHandlers();
 
             // Settings that force a re-rendering of the entire simulation
             this._forceRerender = new Set(["zoom", "gravity", "charge", "linkStrength", "linkDistance"]);
@@ -102,7 +106,7 @@ window.phase = (function () {
         }
 
         // Create settings, styles, and event handler dictionaries
-        initSettings(settings) {
+        initSettings() {
             // Default settings
             this._settings = {
                 // Strength of links (how easily they can be compressed) between nodes [0, INF]
@@ -117,12 +121,10 @@ window.phase = (function () {
                 gravity: .25,
                 // Whether the user can zoom
                 zoom: true,
-            };
-
-            this.settings(settings);
+            }
         }
 
-        function initStyles() {
+        initStyles() {
             // Default element styles
             this._defaultStyles = {
                 // Node size
@@ -142,7 +144,7 @@ window.phase = (function () {
             }
         }
 
-        function initEventHandlers() {
+        initEventHandlers() {
             // Default event handlers
             this._defaultEventHandlers = {
                 // Node mouseover handler
@@ -596,6 +598,9 @@ window.phase = (function () {
 
             this._selection = this._filter(filterer, val)
 
+            // Event handlers associated with this group
+            this._eventHandlers = {}
+
             return this;
         }
 
@@ -649,10 +654,14 @@ window.phase = (function () {
         }
 
         event(eventName, func) {
-            this._selection.on(eventName, function(d) {
+            let wrapperFunc = function(d) {
                 // TODO: Modify stylemap
                 func.call(this, d);
-            });
+            }
+
+            this._selection.on(eventName, wrapperFunc);
+            // TODO: If an element is reevaluated into multiple groups after being added, which handler is it assigned?
+            this._eventHandlers[eventName] = wrapperFunc;
         }
     } // End Group Class
 
