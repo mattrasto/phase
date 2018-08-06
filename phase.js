@@ -30,8 +30,8 @@ window.phase = (function () {
 
             // Settings (user-accessible)
             this._settings = {};
-            this._styles = {};
-            this._eventHandlers = {};
+            this._defaultStyles = {};
+            this._defaultEventHandlers = {};
 
             this.initSettings(settings);
 
@@ -85,6 +85,7 @@ window.phase = (function () {
                     changedSettings.add(key);
                 }
                 // Check for update in styles dict
+                // TODO: Update to modify either defaultStyles or move into own styles() function
                 if (key in this._styles && this._styles[key] != updatedSettings[key]) {
                     this._styles[key] = updatedSettings[key]
                     changedSettings.add(key);
@@ -117,8 +118,13 @@ window.phase = (function () {
                 // Whether the user can zoom
                 zoom: true,
             };
-            // Default styles
-            this._styles = {
+
+            this.settings(settings);
+        }
+
+        function initStyles() {
+            // Default element styles
+            this._defaultStyles = {
                 // Node size
                 nodeSize: 10,
                 // Node fill color
@@ -134,12 +140,14 @@ window.phase = (function () {
                 // Link width
                 linkWidth: 1.5,
             }
+        }
+
+        function initEventHandlers() {
             // Default event handlers
-            this._eventHandlers = {
+            this._defaultEventHandlers = {
                 // Node mouseover handler
                 nodeMouseover(d) {
                     // Default: add blue border
-                    console.log("shit");
                     d3.select(this.childNodes[0]).style("stroke", "#7DABFF").style("stroke-width", "3px");
                 },
                 // Node mouseout handler
@@ -195,16 +203,6 @@ window.phase = (function () {
                     this._g.node().setAttribute("transform", d3.event.transform);
                 },
             }
-
-            this.settings(settings);
-        }
-
-        _addEventHandler(eventName, func) {
-            this._eventHandlers[eventName] = function(d) {
-                // TODO: Modify stylemap
-                func.call(this, d);
-            }
-            this._nodeContainers.on("mouseover", this._eventHandlers[eventName]);
         }
 
         // Resets the network to initial rendered state
@@ -233,10 +231,10 @@ window.phase = (function () {
                 .attr("height", "100%")
                 .attr("viewBox","0 0 " + Math.min(this._containerWidth, this._containerHeight) + " " + Math.min(this._containerWidth, this._containerHeight))
                 .attr("preserveAspectRatio", "xMinYMin")
-                .on("contextmenu", this._eventHandlers.containerContextmenu)
+                .on("contextmenu", this._defaultEventHandlers.containerContextmenu)
                 .call(d3.zoom()
                     .scaleExtent(this._settings.zoom ? [.1, 10] : [1, 1])
-                    .on("zoom", this._eventHandlers.containerZoom.bind(this))
+                    .on("zoom", this._defaultEventHandlers.containerZoom.bind(this))
                 )
                 .on("dblclick.zoom", null);  // Don't zoom on double left click
 
@@ -483,25 +481,25 @@ window.phase = (function () {
             // Update containers
             this._nodeContainers
                 .attr("class", "node")
-                .on("mouseover", this._eventHandlers.nodeMouseover)
-                .on("mouseout", this._eventHandlers.nodeMouseout)
-                .on("mousedown", this._eventHandlers.nodeMousedown)
-                .on("click", this._eventHandlers.nodeClick)
-                .on("dblclick", this._eventHandlers.nodeDblclick)
-                .on("contextmenu", this._eventHandlers.nodeContextmenu)
+                .on("mouseover", this._defaultEventHandlers.nodeMouseover)
+                .on("mouseout", this._defaultEventHandlers.nodeMouseout)
+                .on("mousedown", this._defaultEventHandlers.nodeMousedown)
+                .on("click", this._defaultEventHandlers.nodeClick)
+                .on("dblclick", this._defaultEventHandlers.nodeDblclick)
+                .on("contextmenu", this._defaultEventHandlers.nodeContextmenu)
                 .call(d3.drag()
-                    .on("start", this._eventHandlers.nodeDragStart.bind(this))
-                    .on("drag", this._eventHandlers.nodeDrag.bind(this))
-                    .on("end", this._eventHandlers.nodeDragEnd.bind(this))
+                    .on("start", this._defaultEventHandlers.nodeDragStart.bind(this))
+                    .on("drag", this._defaultEventHandlers.nodeDrag.bind(this))
+                    .on("end", this._defaultEventHandlers.nodeDragEnd.bind(this))
                 );
 
             // Update circles
             this._nodeContainers
                 .select("circle")
-                    .style("r", this._styles.nodeSize)
-                    .style("fill", this._styles.nodeColor)
-                    .style("stroke", this._styles.nodeBorderColor)
-                    .style("stroke-width", this._styles.nodeBorderWidth);
+                    .style("r", this._defaultStyles.nodeSize)
+                    .style("fill", this._defaultStyles.nodeColor)
+                    .style("stroke", this._defaultStyles.nodeBorderColor)
+                    .style("stroke-width", this._defaultStyles.nodeBorderWidth);
 
             // Update labels
             this._nodeContainers
@@ -567,9 +565,9 @@ window.phase = (function () {
             // Update lines
             this._linkContainers
                 .select("line")
-                .style("stroke", this._styles.linkColor)
-                .style("stroke-width", this._styles.linkWidth)
-                .style("stroke-dasharray", this._styles.linkStroke)
+                .style("stroke", this._defaultStyles.linkColor)
+                .style("stroke-width", this._defaultStyles.linkWidth)
+                .style("stroke-dasharray", this._defaultStyles.linkStroke)
 
             // Update labels
             this._linkContainers
@@ -649,6 +647,13 @@ window.phase = (function () {
                 this._selection.data(newData);
             }
         }
+
+        event(eventName, func) {
+            this._selection.on(eventName, function(d) {
+                // TODO: Modify stylemap
+                func.call(this, d);
+            });
+        }
     } // End Group Class
 
     class NodeGroup extends Group {
@@ -665,10 +670,10 @@ window.phase = (function () {
         // Removes all styles from a group
         unstyle() {
             const styleMap = {
-                "fill": this._network._styles.nodeColor,
-                "r": this._network._styles.nodeSize,
-                "stroke": this._network._styles.nodeBorderColor,
-                "stroke-width": this._network._styles.nodeBorderWidth
+                "fill": this._network._defaultStyles.nodeColor,
+                "r": this._network._defaultStyles.nodeSize,
+                "stroke": this._network._defaultStyles.nodeBorderColor,
+                "stroke-width": this._network._defaultStyles.nodeBorderWidth
             }
             this.addStyle(styleMap);
         }
@@ -688,10 +693,10 @@ window.phase = (function () {
         // Removes all styles from a group
         unstyle() {
             const styleMap = {
-                "stroke-dasharray": this._network._styles.linkStroke,
-                "fill": this._network._styles.linkColor,
-                "stroke": this._network._styles.linkColor,
-                "stroke-width": this._network._styles.linkWidth
+                "stroke-dasharray": this._network._defaultStyles.linkStroke,
+                "fill": this._network._defaultStyles.linkColor,
+                "stroke": this._network._defaultStyles.linkColor,
+                "stroke-width": this._network._defaultStyles.linkWidth
             }
             this.addStyle(styleMap);
         }

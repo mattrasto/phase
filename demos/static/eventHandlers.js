@@ -5,13 +5,10 @@ document.addEventListener("DOMContentLoaded", function(event) {
     viz.data(lesMiserablesData);
 
     console.log("Visualization Loaded");
-
-    console.log(viz._eventHandlers["nodeMouseover"]);
 });
 
 function changeMouseover() {
-    viz._addEventHandler("nodeMouseover", function(d) {
+    viz.getNodeGroup("all").event("mouseover", function(d) {
         d3.select(this.childNodes[0]).style("stroke", "red").style("stroke-width", "3px");
     });
-    console.log(viz._eventHandlers["nodeMouseover"]);
 }
