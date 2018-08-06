@@ -30,8 +30,10 @@ window.phase = (function () {
 
             // Settings (user-accessible)
             this._settings = {};
-            // Styles associated with each element (TODO: rename to styles)
-            this._defaultStyles = {};
+            // Default styles for each element (TODO: use first entry in styles instead)
+            this._defaultStyles = {}
+            // Styles associated with each element
+            this._styles = {"nodes": {}, "links": {}};
             // Default elements' event handlers
             this._defaultEventHandlers = {};
 
@@ -66,6 +68,9 @@ window.phase = (function () {
             this.nodeGroup("all", "");
             this.linkGroup("all", "");
 
+            // Update default styles for all elements
+            this.initStyles();
+
             console.log("Bound data to viz");
         }
 
@@ -86,12 +91,6 @@ window.phase = (function () {
                 // Check for update in settings dict
                 if (key in this._settings && this._settings[key] != updatedSettings[key]) {
                     this._settings[key] = updatedSettings[key];
-                    changedSettings.add(key);
-                }
-                // Check for update in styles dict
-                // TODO: Update to modify either defaultStyles or move into own styles() function
-                if (key in this._styles && this._styles[key] != updatedSettings[key]) {
-                    this._styles[key] = updatedSettings[key]
                     changedSettings.add(key);
                 }
             }
@@ -141,6 +140,22 @@ window.phase = (function () {
                 linkColor: "#666",
                 // Link width
                 linkWidth: 1.5,
+            }
+
+            // Update default styles for nodes
+            for (const node in this._data.nodes) {
+                this._styles["nodes"][this._data.nodes[node].id] = {}
+                for (const style in this._defaultStyles) {
+                    this._styles["nodes"][this._data.nodes[node].id][style] = this._defaultStyles[style];
+                }
+            }
+
+            // Update default styles for links
+            for (const link in this._data.links) {
+                this._styles["links"][this._data.links[link].id] = {}
+                for (const style in this._defaultStyles) {
+                    this._styles["links"][this._data.links[link].id][style] = this._defaultStyles[style];
+                }
             }
         }
 

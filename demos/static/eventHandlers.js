@@ -5,6 +5,8 @@ document.addEventListener("DOMContentLoaded", function(event) {
     viz.data(lesMiserablesData);
 
     console.log("Visualization Loaded");
+
+    console.log(viz._styles);
 });
 
 function changeMouseover() {
