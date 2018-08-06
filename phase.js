@@ -139,6 +139,7 @@ window.phase = (function () {
                 // Node mouseover handler
                 nodeMouseover(d) {
                     // Default: add blue border
+                    console.log("shit");
                     d3.select(this.childNodes[0]).style("stroke", "#7DABFF").style("stroke-width", "3px");
                 },
                 // Node mouseout handler
@@ -194,7 +195,16 @@ window.phase = (function () {
                     this._g.node().setAttribute("transform", d3.event.transform);
                 },
             }
+
             this.settings(settings);
+        }
+
+        _addEventHandler(eventName, func) {
+            this._eventHandlers[eventName] = function(d) {
+                // TODO: Modify stylemap
+                func.call(this, d);
+            }
+            this._nodeContainers.on("mouseover", this._eventHandlers[eventName]);
         }
 
         // Resets the network to initial rendered state

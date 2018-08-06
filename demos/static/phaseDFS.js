@@ -5,6 +5,8 @@ document.addEventListener("DOMContentLoaded", function(event) {
     viz.data(lesMiserablesData);
 
     console.log("Visualization Loaded");
+
+    console.log(viz._eventHandlers);
 });
 
 // Constructs phase for DFS
