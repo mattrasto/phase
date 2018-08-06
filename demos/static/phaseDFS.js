@@ -5,8 +5,6 @@ document.addEventListener("DOMContentLoaded", function(event) {
     viz.data(lesMiserablesData);
 
     console.log("Visualization Loaded");
-
-    console.log(viz._eventHandlers);
 });
 
 // Constructs phase for DFS
@@ -42,7 +40,7 @@ function dfsPhase(startNode, timeStep) {
     })
 
     searchPhase.next(function(phaseState, vizState) {
-        const currNode = phaseState.currNode;
+        let currNode = phaseState.currNode;
 
         if(!phaseState.visited.has(currNode)){
             // Mark visited
@@ -54,21 +52,24 @@ function dfsPhase(startNode, timeStep) {
         }
 
         // Iterate through remaining children
-        const adjacent = childDict[currNode];
         let visitedChild = false;
 
-        for(const node of adjacent){
-            if(!phaseState.visited.has(node)){
-                // Add to stack and update current node
-                stack.push(node);
-                phaseState.depth++;
-                phaseState.currNode = node;
-                visitedChild = true;
-                break;
+        while(!visitedChild && stack.length){
+            const adjacent = childDict[currNode];
+            for(const node of adjacent){
+                if(!phaseState.visited.has(node)){
+                    // Add to stack and update current node
+                    stack.push(node);
+                    phaseState.depth++;
+                    phaseState.currNode = node;
+                    visitedChild = true;
+                    break;
+                }
             }
-        }
-        if(!visitedChild){ // No more unvisited children
-            backtrack(phaseState, stack);
+            if(!visitedChild){ // Keep backtracking until a node has valid children
+                backtrack(phaseState, stack);
+                currNode = phaseState.currNode;
+            }
         }
     });
 
