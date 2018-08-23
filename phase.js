@@ -642,7 +642,7 @@ window.phase = (function () {
             }
         }
 
-        addStyle(styleMap, selector) {
+        style(styleMap, selector) {
             for (const attr in styleMap) {
                 this._selection.select(selector).style(attr, styleMap[attr]);
             }
@@ -655,7 +655,7 @@ window.phase = (function () {
         morph(label) {
             const morph = this.phase ? this._network.getPhase(this.phase).getMorph(label) : this._network.getMorph(label);
             if (morph._type == "style") {
-                this.addStyle(morph._change);
+                this.style(morph._change);
             }
             if (morph._type == "data") {
                 let newData = this._selection.data();
@@ -687,8 +687,8 @@ window.phase = (function () {
         }
 
         // Applies a style map to a node group
-        addStyle(styleMap) {
-            super.addStyle(styleMap, "circle")
+        style(styleMap) {
+            super.style(styleMap, "circle")
         }
 
         // Removes all styles from a group
@@ -699,7 +699,7 @@ window.phase = (function () {
                 "stroke": this._network._defaultStyles.nodeBorderColor,
                 "stroke-width": this._network._defaultStyles.nodeBorderWidth
             }
-            this.addStyle(styleMap);
+            this.style(styleMap);
         }
     } // End NodeGroup Class
 
@@ -710,8 +710,8 @@ window.phase = (function () {
         }
 
         // Applies a style map to a link group
-        addStyle(styleMap) {
-            super.addStyle(styleMap, "line")
+        style(styleMap) {
+            super.style(styleMap, "line")
         }
 
         // Removes all styles from a group
@@ -722,7 +722,7 @@ window.phase = (function () {
                 "stroke": this._network._defaultStyles.linkColor,
                 "stroke-width": this._network._defaultStyles.linkWidth
             }
-            this.addStyle(styleMap);
+            this.style(styleMap);
         }
     } // End LinkGroup Class
 

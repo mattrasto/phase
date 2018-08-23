@@ -40,5 +40,5 @@ function changeGroups() {
 
 // Style a group with a specific value
 function styleGroup(groupNum) {
-    viz.getNodeGroup("rand_group_" + groupNum).addStyle({"fill": randomColor()});
+    viz.getNodeGroup("rand_group_" + groupNum).style({"fill": randomColor()});
 }

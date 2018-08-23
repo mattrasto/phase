@@ -31,9 +31,9 @@ function changeNodeColor() {
     }
 
     // Style this group with a specific value
-    idGribier.addStyle({"fill": "blue"});
+    idGribier.style({"fill": "blue"});
     // Style this group with a random color for each node
-    group1.addStyle({"fill": randomGroupColor});
+    group1.style({"fill": randomGroupColor});
     // Style this group with the same color by evaluating then applying the result
-    viz.getNodeGroup("group_2").addStyle({"fill": randomGroupColor()});
+    viz.getNodeGroup("group_2").style({"fill": randomGroupColor()});
 }

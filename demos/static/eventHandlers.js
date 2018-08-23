@@ -4,7 +4,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
     // Attach some initial data
     viz.data(lesMiserablesData);
 
-    viz.getLinkGroup("all").addStyle({"stroke-width": "5px"});
+    viz.getLinkGroup("all").style({"stroke-width": "5px"});
 
     console.log("Visualization Loaded");
 });

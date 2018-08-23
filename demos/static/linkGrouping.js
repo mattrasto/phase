@@ -42,5 +42,5 @@ function changeGroups() {
 
 // Style a group with a specific value
 function styleGroup(groupNum) {
-    viz.getLinkGroup("rand_group_" + groupNum).addStyle({"stroke": randomColor()});
+    viz.getLinkGroup("rand_group_" + groupNum).style({"stroke": randomColor()});
 }
