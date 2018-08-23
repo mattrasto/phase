@@ -671,7 +671,7 @@ window.phase = (function () {
         event(eventName, func) {
             let wrapperFunc = function(d) {
                 // TODO: Modify stylemap
-                func.call(this, d);
+                func.call(this, d, d3.select(this.childNodes[0]), d3.select(this.childNodes[1]));
             }
 
             this._selection.on(eventName, wrapperFunc);

@@ -4,25 +4,25 @@ document.addEventListener("DOMContentLoaded", function(event) {
     // Attach some initial data
     viz.data(lesMiserablesData);
 
-    console.log("Visualization Loaded");
+    viz.getLinkGroup("all").addStyle({"stroke-width": "5px"});
 
-    console.log(viz._styles);
+    console.log("Visualization Loaded");
 });
 
 function changeMouseover() {
-    viz.getNodeGroup("all").event("mouseover", function(d) {
-        d3.select(this.childNodes[0]).style("stroke", "red").style("stroke-width", "3px");
+    viz.getNodeGroup("all").event("mouseover", function(d, node, label) {
+        node.style("stroke", "red").style("stroke-width", "3px");
     });
 
-    viz.getNodeGroup("all").event("mouseover", function(d) {
-        d3.select(this.childNodes[0]).style("stroke", "green").style("stroke-width", "3px");
+    viz.getNodeGroup("all").event("mouseover", function(d, node, label) {
+        node.style("stroke", "green").style("stroke-width", "3px");
     });
 
-    viz.getLinkGroup("all").event("mouseover", function(d) {
-        d3.select(this.childNodes[0]).style("stroke", "red");
+    viz.getLinkGroup("all").event("mouseover", function(d, link, label) {
+        link.style("stroke", "red").style("stroke-width", "10px");
     });
 
-    viz.getLinkGroup("all").event("mouseout", function(d) {
-        d3.select(this.childNodes[0]).style("stroke", "#333");
+    viz.getLinkGroup("all").event("mouseout", function(d, link, label) {
+        link.style("stroke", "#333");
     });
 }
