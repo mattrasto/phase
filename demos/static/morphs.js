@@ -9,6 +9,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
     console.log("Visualization Loaded");
 
     console.log(viz._styles);
+    console.log(viz._defaultEventHandlers);
 });
 
 // Create random groups of nodes and links
@@ -33,10 +34,15 @@ function createMorphs() {
 }
 
 function applyMorphs() {
+    // Apply morphs
     viz.getNodeGroup("rand_node_group").morph("style_nodes");
     viz.getNodeGroup("rand_node_group").morph("update_nodes");
     viz.getLinkGroup("rand_link_group").morph("style_links");
     viz.getLinkGroup("rand_link_group").morph("update_links");
+
+    // Prevent hover from removing styles
+    viz.getNodeGroup("rand_node_group").event("mouseover", null);
+    viz.getNodeGroup("rand_node_group").event("mouseout", null);
 
     console.log(viz._styles);
 }

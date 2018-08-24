@@ -174,7 +174,7 @@ window.phase = (function () {
                 // Node mouseout handler
                 nodeMouseout(d) {
                     // Default: remove blue border
-                    d3.select(this.childNodes[0]).style("stroke", "").style("stroke-width", "0");
+                    d3.select(this.childNodes[0]).style("stroke", "#F7F6F2").style("stroke-width", ".8");
                 },
                 // Node mousedown handler
                 nodeMousedown(d) {
@@ -698,6 +698,9 @@ window.phase = (function () {
         }
 
         event(eventName, func) {
+            if (func == null) {
+                func = () => {};
+            }
             let wrapperFunc = function(d) {
                 // TODO: Modify stylemap
                 func.call(this, d, d3.select(this.childNodes[0]), d3.select(this.childNodes[1]));
