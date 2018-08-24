@@ -6,9 +6,9 @@ document.addEventListener("DOMContentLoaded", function(event) {
 
     createRandGroups();
 
-    console.log("Visualization Loaded");
+    createMorphs();
 
-    console.log(viz._styles);
+    console.log("Visualization Loaded");
 });
 
 // Create random groups of nodes and links
@@ -19,7 +19,6 @@ function createRandGroups() {
 }
 
 function createMorphs() {
-    viz.unstyleGraph();
     // Node styling morph
     viz.morph("style_nodes", "style", {"fill": "#7DABFF", "stroke": "#AE63D4", "stroke-width": "3px"});
     // Node data morph
@@ -28,8 +27,6 @@ function createMorphs() {
     viz.morph("style_links", "style", {"stroke": "#D46363", "stroke-width": "3px"});
     // Link data morph
     viz.morph("update_links", "data", {"value": "200"});
-
-    console.log(viz._styles);
 }
 
 function applyMorphs() {
@@ -42,6 +39,15 @@ function applyMorphs() {
     // Prevent hover from removing styles
     viz.getNodeGroup("rand_node_group").event("mouseover", null);
     viz.getNodeGroup("rand_node_group").event("mouseout", null);
+}
 
-    console.log(viz._styles);
+function resetStyles() {
+    viz.unstyleGraph();
+    // Restore hover events on node
+    viz.getNodeGroup("rand_node_group").event("mouseover", function(d, node) {
+        node.style("stroke", "#7DABFF").style("stroke-width", "3px");
+    });
+    viz.getNodeGroup("rand_node_group").event("mouseout", function(d, node) {
+        node.style("stroke", "#F7F6F2").style("stroke-width", ".8");
+    });
 }
