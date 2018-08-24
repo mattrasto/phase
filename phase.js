@@ -383,7 +383,7 @@ window.phase = (function () {
                 console.warn("Morph '" + label + "' already exists", this._morphs[label]);
                 return this._morphs[label];
             }
-            const morph = new Morph(this._network, label, type, change);
+            const morph = new Morph(this, label, type, change);
             this._morphs[label] = morph;
             return morph;
         }
@@ -408,12 +408,6 @@ window.phase = (function () {
 
         getPhase(label) {
             return this._phases[label];
-        }
-
-        destroyPhase(label){
-            if(label in this._phases){
-                this.getPhase(label).destroy();
-            }
         }
 
         getAllPhases() {
@@ -675,6 +669,15 @@ window.phase = (function () {
             // TODO: If an element is reevaluated into multiple groups after being added, which handler is it assigned?
             this._eventHandlers[eventName] = wrapperFunc;
         }
+
+        destroy() {
+            if (this.label in this._network._nodeGroups) {
+                delete this._network._nodeGroups[this.label];
+            }
+            else if (this.label in this._network._linkGroups) {
+                delete this._network._linkGroups[this.label];
+            }
+        }
     } // End Group Class
 
     class NodeGroup extends Group {
@@ -691,6 +694,10 @@ window.phase = (function () {
         // Removes all styles from a group
         unstyle() {
             super.style(this._network._defaultNodeStyles, "circle");
+        }
+
+        destroy() {
+            super.destroy();
         }
     } // End NodeGroup Class
 
@@ -709,6 +716,10 @@ window.phase = (function () {
         unstyle() {
             super.style(this._network._defaultLinkStyles, "line");
         }
+
+        destroy() {
+            super.destroy();
+        }
     } // End LinkGroup Class
 
     class Morph {
@@ -720,9 +731,15 @@ window.phase = (function () {
             this._change = change;
 
             // Phase the morph is associated with
-            this.phase;
+            this.phase = null;
 
             return this;
+        }
+
+        destroy() {
+            if (this.label in this._network._morphs) {
+                delete this._network._morphs[this.label];
+            }
         }
     } // End Morph Class
 
@@ -804,14 +821,35 @@ window.phase = (function () {
 
         // Reset the phase to its initial settings/state
         reset() {
-            // TODO: Move settings to own object (state?) and reset
             this._state = {};
+
+            for (const morph in this._morphs) {
+                this._morphs[morph].destroy();
+            }
+            this._morphs = {};
+            for (const nodeGroup in this._nodeGroups) {
+                this._nodeGroups[nodeGroup].destroy();
+            }
+            this._nodeGroups = {};
+            for (const linkGroup in this._linkGroups) {
+                this._linkGroups[linkGroup].destroy();
+            }
+            this._linkGroups = {};
         }
 
         // Teardown the phase along with its associated groups/morphs and remove from viz
         destroy() {
+            for (const morph in this._morphs) {
+                this._morphs[morph].destroy();
+            }
             this._morphs = {};
+            for (const nodeGroup in this._nodeGroups) {
+                this._nodeGroups[nodeGroup].destroy();
+            }
             this._nodeGroups = {};
+            for (const linkGroup in this._linkGroups) {
+                this._linkGroups[linkGroup].destroy();
+            }
             this._linkGroups = {};
 
             delete this._network._phases[this.label];
@@ -839,6 +877,7 @@ window.phase = (function () {
         nodeGroup(label, filterer, val) {
             let nodeGroup = this._network.nodeGroup.call(this, label, filterer, val);
             nodeGroup.phase = this.label;
+            this._nodeGroups[label] = nodeGroup;
             return nodeGroup;
         }
 
@@ -854,6 +893,7 @@ window.phase = (function () {
         linkGroup(label, filterer, val) {
             let linkGroup = this._network.linkGroup.call(this, label, filterer, val);
             linkGroup.phase = this.label;
+            this._linkGroups[label] = linkGroup;
             return linkGroup;
         }
 
@@ -868,6 +908,7 @@ window.phase = (function () {
         morph(label, type, change) {
             let morph = this._network.morph.call(this, label, type, change);
             morph.phase = this.label;
+            this._morphs[label] = morph;
             return morph;
         }
 
