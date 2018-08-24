@@ -36,7 +36,7 @@ function applyMorphs() {
     viz.getLinkGroup("rand_link_group").morph("style_links");
     viz.getLinkGroup("rand_link_group").morph("update_links");
 
-    // Prevent hover from removing styles
+    // Prevent hover from removing node styles
     viz.getNodeGroup("rand_node_group").event("mouseover", null);
     viz.getNodeGroup("rand_node_group").event("mouseout", null);
 }
