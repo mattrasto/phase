@@ -30,12 +30,13 @@ window.phase = (function () {
 
             // Settings (user-accessible)
             this._settings = {};
-            // Default styles for each element (TODO: use first entry in styles instead)
-            this._defaultStyles = {}
-            // Styles associated with each element
-            this._styles = {"nodes": {}, "links": {}};
+            // Default styles for each element
+            this._defaultNodeStyles = {};
+            this._defaultLinkStyles = {};
             // Default elements' event handlers
-            this._defaultEventHandlers = {};
+            this._defaultVizEventHandlers = {};
+            this._defaultNodeEventHandlers = {};
+            this._defaultNodeEventHandlers = {};
 
             this.initSettings();
             this.initStyles();
@@ -125,43 +126,41 @@ window.phase = (function () {
 
         initStyles() {
             // Default element styles
-            this._defaultStyles = {
+            this._defaultNodeStyles = {
                 // Node size
-                nodeSize: 10,
+                "r": 10,
                 // Node fill color
-                nodeColor: "#333",
+                "fill": "#333",
                 // Node border color
-                nodeBorderColor: "#F7F6F2",
+                "stroke": "#F7F6F2",
                 // Node border width
-                nodeBorderWidth: .8,
+                "stroke-width": .8,
+            }
+
+            this._defaultLinkStyles = {
                 // Link type (solid, dash array, etc.)
-                linkStroke: "",
+                "stroke-dasharray": "",
                 // Link color
-                linkColor: "#666",
+                "stroke": "#666",
                 // Link width
-                linkWidth: 1.5,
-            }
-
-            // Update default styles for nodes
-            for (const node in this._data.nodes) {
-                this._styles["nodes"][this._data.nodes[node].id] = {}
-                for (const style in this._defaultStyles) {
-                    this._styles["nodes"][this._data.nodes[node].id][style] = this._defaultStyles[style];
-                }
-            }
-
-            // Update default styles for links
-            for (const link in this._data.links) {
-                this._styles["links"][this._data.links[link].id] = {}
-                for (const style in this._defaultStyles) {
-                    this._styles["links"][this._data.links[link].id][style] = this._defaultStyles[style];
-                }
+                "stroke-width": 1.5,
             }
         }
 
         initEventHandlers() {
-            // Default event handlers
-            this._defaultEventHandlers = {
+            this._defaultVizEventHandlers = {
+                // Container right click handler (outside nodes)
+                containerContextmenu(d) {
+                    d3.event.preventDefault(); // Prevent context menu from appearing
+                },
+                // Container zoom handler
+                containerZoom() {
+                    this._g.node().setAttribute("transform", d3.event.transform);
+                },
+            }
+
+            // Default node element event handlers
+            this._defaultNodeEventHandlers = {
                 // Node mouseover handler
                 nodeMouseover(d) {
                     // Default: add blue border
@@ -170,7 +169,7 @@ window.phase = (function () {
                 // Node mouseout handler
                 nodeMouseout(d) {
                     // Default: remove blue border
-                    d3.select(this.childNodes[0]).style("stroke", "").style("stroke-width", "0");
+                    d3.select(this.childNodes[0]).style("stroke", "#F7F6F2").style("stroke-width", ".8");
                 },
                 // Node mousedown handler
                 nodeMousedown(d) {
@@ -211,15 +210,9 @@ window.phase = (function () {
                 nodeDragEnd(d) {
                     if (!d3.event.active) this._simulation.alphaTarget(0);
                 },
-                // Container right click handler (outside nodes)
-                containerContextmenu(d) {
-                    d3.event.preventDefault(); // Prevent context menu from appearing
-                },
-                // Container zoom handler
-                containerZoom() {
-                    this._g.node().setAttribute("transform", d3.event.transform);
-                },
             }
+
+            this._defaultLinkEventHandlers = {};
         }
 
         // Resets the network to initial rendered state
@@ -248,10 +241,10 @@ window.phase = (function () {
                 .attr("height", "100%")
                 .attr("viewBox","0 0 " + Math.min(this._containerWidth, this._containerHeight) + " " + Math.min(this._containerWidth, this._containerHeight))
                 .attr("preserveAspectRatio", "xMinYMin")
-                .on("contextmenu", this._defaultEventHandlers.containerContextmenu)
+                .on("contextmenu", this._defaultVizEventHandlers.containerContextmenu)
                 .call(d3.zoom()
                     .scaleExtent(this._settings.zoom ? [.1, 10] : [1, 1])
-                    .on("zoom", this._defaultEventHandlers.containerZoom.bind(this))
+                    .on("zoom", this._defaultVizEventHandlers.containerZoom.bind(this))
                 )
                 .on("dblclick.zoom", null);  // Don't zoom on double left click
 
@@ -390,7 +383,7 @@ window.phase = (function () {
                 console.warn("Morph '" + label + "' already exists", this._morphs[label]);
                 return this._morphs[label];
             }
-            const morph = new Morph(this._network, label, type, change);
+            const morph = new Morph(this, label, type, change);
             this._morphs[label] = morph;
             return morph;
         }
@@ -415,12 +408,6 @@ window.phase = (function () {
 
         getPhase(label) {
             return this._phases[label];
-        }
-
-        destroyPhase(label){
-            if(label in this._phases){
-                this.getPhase(label).destroy();
-            }
         }
 
         getAllPhases() {
@@ -498,25 +485,25 @@ window.phase = (function () {
             // Update containers
             this._nodeContainers
                 .attr("class", "node")
-                .on("mouseover", this._defaultEventHandlers.nodeMouseover)
-                .on("mouseout", this._defaultEventHandlers.nodeMouseout)
-                .on("mousedown", this._defaultEventHandlers.nodeMousedown)
-                .on("click", this._defaultEventHandlers.nodeClick)
-                .on("dblclick", this._defaultEventHandlers.nodeDblclick)
-                .on("contextmenu", this._defaultEventHandlers.nodeContextmenu)
+                .on("mouseover", this._defaultNodeEventHandlers.nodeMouseover)
+                .on("mouseout", this._defaultNodeEventHandlers.nodeMouseout)
+                .on("mousedown", this._defaultNodeEventHandlers.nodeMousedown)
+                .on("click", this._defaultNodeEventHandlers.nodeClick)
+                .on("dblclick", this._defaultNodeEventHandlers.nodeDblclick)
+                .on("contextmenu", this._defaultNodeEventHandlers.nodeContextmenu)
                 .call(d3.drag()
-                    .on("start", this._defaultEventHandlers.nodeDragStart.bind(this))
-                    .on("drag", this._defaultEventHandlers.nodeDrag.bind(this))
-                    .on("end", this._defaultEventHandlers.nodeDragEnd.bind(this))
+                    .on("start", this._defaultNodeEventHandlers.nodeDragStart.bind(this))
+                    .on("drag", this._defaultNodeEventHandlers.nodeDrag.bind(this))
+                    .on("end", this._defaultNodeEventHandlers.nodeDragEnd.bind(this))
                 );
 
             // Update circles
             this._nodeContainers
                 .select("circle")
-                    .style("r", this._defaultStyles.nodeSize)
-                    .style("fill", this._defaultStyles.nodeColor)
-                    .style("stroke", this._defaultStyles.nodeBorderColor)
-                    .style("stroke-width", this._defaultStyles.nodeBorderWidth);
+                    .style("r", this._defaultNodeStyles["r"])
+                    .style("fill", this._defaultNodeStyles["fill"])
+                    .style("stroke", this._defaultNodeStyles["stroke"])
+                    .style("stroke-width", this._defaultNodeStyles["stroke-width"]);
 
             // Update labels
             this._nodeContainers
@@ -582,9 +569,9 @@ window.phase = (function () {
             // Update lines
             this._linkContainers
                 .select("line")
-                .style("stroke", this._defaultStyles.linkColor)
-                .style("stroke-width", this._defaultStyles.linkWidth)
-                .style("stroke-dasharray", this._defaultStyles.linkStroke)
+                .style("stroke", this._defaultLinkStyles["stroke"])
+                .style("stroke-width", this._defaultLinkStyles["stroke-width"])
+                .style("stroke-dasharray", this._defaultLinkStyles["stroke-dasharray"])
 
             // Update labels
             this._linkContainers
@@ -642,7 +629,8 @@ window.phase = (function () {
             }
         }
 
-        addStyle(styleMap, selector) {
+        // Applies styles from the stylemap to the selection
+        style(styleMap, selector) {
             for (const attr in styleMap) {
                 this._selection.select(selector).style(attr, styleMap[attr]);
             }
@@ -655,7 +643,7 @@ window.phase = (function () {
         morph(label) {
             const morph = this.phase ? this._network.getPhase(this.phase).getMorph(label) : this._network.getMorph(label);
             if (morph._type == "style") {
-                this.addStyle(morph._change);
+                this.style(morph._change);
             }
             if (morph._type == "data") {
                 let newData = this._selection.data();
@@ -669,37 +657,47 @@ window.phase = (function () {
         }
 
         event(eventName, func) {
+            if (func == null) {
+                func = () => {};
+            }
             let wrapperFunc = function(d) {
                 // TODO: Modify stylemap
-                func.call(this, d);
+                func.call(this, d, d3.select(this.childNodes[0]), d3.select(this.childNodes[1]));
             }
 
             this._selection.on(eventName, wrapperFunc);
             // TODO: If an element is reevaluated into multiple groups after being added, which handler is it assigned?
             this._eventHandlers[eventName] = wrapperFunc;
         }
+
+        destroy() {
+            if (this.label in this._network._nodeGroups) {
+                delete this._network._nodeGroups[this.label];
+            }
+            else if (this.label in this._network._linkGroups) {
+                delete this._network._linkGroups[this.label];
+            }
+        }
     } // End Group Class
 
     class NodeGroup extends Group {
         // Creates a node group based on attributes or a passed in selection
         constructor(network, label, filterer, val) {
-            super(network, label, filterer, val)
+            super(network, label, filterer, val);
         }
 
         // Applies a style map to a node group
-        addStyle(styleMap) {
-            super.addStyle(styleMap, "circle")
+        style(styleMap) {
+            super.style(styleMap, "circle");
         }
 
         // Removes all styles from a group
         unstyle() {
-            const styleMap = {
-                "fill": this._network._defaultStyles.nodeColor,
-                "r": this._network._defaultStyles.nodeSize,
-                "stroke": this._network._defaultStyles.nodeBorderColor,
-                "stroke-width": this._network._defaultStyles.nodeBorderWidth
-            }
-            this.addStyle(styleMap);
+            super.style(this._network._defaultNodeStyles, "circle");
+        }
+
+        destroy() {
+            super.destroy();
         }
     } // End NodeGroup Class
 
@@ -710,19 +708,17 @@ window.phase = (function () {
         }
 
         // Applies a style map to a link group
-        addStyle(styleMap) {
-            super.addStyle(styleMap, "line")
+        style(styleMap) {
+            super.style(styleMap, "line")
         }
 
         // Removes all styles from a group
         unstyle() {
-            const styleMap = {
-                "stroke-dasharray": this._network._defaultStyles.linkStroke,
-                "fill": this._network._defaultStyles.linkColor,
-                "stroke": this._network._defaultStyles.linkColor,
-                "stroke-width": this._network._defaultStyles.linkWidth
-            }
-            this.addStyle(styleMap);
+            super.style(this._network._defaultLinkStyles, "line");
+        }
+
+        destroy() {
+            super.destroy();
         }
     } // End LinkGroup Class
 
@@ -735,9 +731,15 @@ window.phase = (function () {
             this._change = change;
 
             // Phase the morph is associated with
-            this.phase;
+            this.phase = null;
 
             return this;
+        }
+
+        destroy() {
+            if (this.label in this._network._morphs) {
+                delete this._network._morphs[this.label];
+            }
         }
     } // End Morph Class
 
@@ -819,14 +821,35 @@ window.phase = (function () {
 
         // Reset the phase to its initial settings/state
         reset() {
-            // TODO: Move settings to own object (state?) and reset
             this._state = {};
+
+            for (const morph in this._morphs) {
+                this._morphs[morph].destroy();
+            }
+            this._morphs = {};
+            for (const nodeGroup in this._nodeGroups) {
+                this._nodeGroups[nodeGroup].destroy();
+            }
+            this._nodeGroups = {};
+            for (const linkGroup in this._linkGroups) {
+                this._linkGroups[linkGroup].destroy();
+            }
+            this._linkGroups = {};
         }
 
         // Teardown the phase along with its associated groups/morphs and remove from viz
         destroy() {
+            for (const morph in this._morphs) {
+                this._morphs[morph].destroy();
+            }
             this._morphs = {};
+            for (const nodeGroup in this._nodeGroups) {
+                this._nodeGroups[nodeGroup].destroy();
+            }
             this._nodeGroups = {};
+            for (const linkGroup in this._linkGroups) {
+                this._linkGroups[linkGroup].destroy();
+            }
             this._linkGroups = {};
 
             delete this._network._phases[this.label];
@@ -854,6 +877,7 @@ window.phase = (function () {
         nodeGroup(label, filterer, val) {
             let nodeGroup = this._network.nodeGroup.call(this, label, filterer, val);
             nodeGroup.phase = this.label;
+            this._nodeGroups[label] = nodeGroup;
             return nodeGroup;
         }
 
@@ -869,6 +893,7 @@ window.phase = (function () {
         linkGroup(label, filterer, val) {
             let linkGroup = this._network.linkGroup.call(this, label, filterer, val);
             linkGroup.phase = this.label;
+            this._linkGroups[label] = linkGroup;
             return linkGroup;
         }
 
@@ -883,6 +908,7 @@ window.phase = (function () {
         morph(label, type, change) {
             let morph = this._network.morph.call(this, label, type, change);
             morph.phase = this.label;
+            this._morphs[label] = morph;
             return morph;
         }
 

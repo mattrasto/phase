@@ -4,7 +4,9 @@ document.addEventListener("DOMContentLoaded", function(event) {
     // Attach some initial data
     viz.data(lesMiserablesData);
 
-    createGroups()
+    createGroups();
+
+    createMorphs();
 
     console.log("Visualization Loaded");
 });
@@ -16,7 +18,6 @@ function createGroups() {
 }
 
 function createMorphs() {
-    viz.unstyleGraph()
     // Node styling morph
     viz.morph("style_nodes", "style", {"fill": "#7DABFF", "stroke": "#AE63D4", "stroke-width": "3px"});
     // Node data morph
@@ -32,4 +33,19 @@ function applyMorphs() {
     viz.getNodeGroup("node_group").morph("update_nodes");
     viz.getLinkGroup("link_group").morph("style_links");
     viz.getLinkGroup("link_group").morph("update_links");
+
+    // Prevent hover from removing node styles
+    viz.getNodeGroup("node_group").event("mouseover", null);
+    viz.getNodeGroup("node_group").event("mouseout", null);
+}
+
+function resetStyles() {
+    viz.unstyleGraph();
+    // Restore hover events on node
+    viz.getNodeGroup("node_group").event("mouseover", function(d, node) {
+        node.style("stroke", "#7DABFF").style("stroke-width", "3px");
+    });
+    viz.getNodeGroup("node_group").event("mouseout", function(d, node) {
+        node.style("stroke", "#F7F6F2").style("stroke-width", ".8");
+    });
 }
