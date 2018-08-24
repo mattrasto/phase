@@ -30,11 +30,9 @@ window.phase = (function () {
 
             // Settings (user-accessible)
             this._settings = {};
-            // Default styles for each element (TODO: use first entry in styles instead)
+            // Default styles for each element
             this._defaultNodeStyles = {};
             this._defaultLinkStyles = {};
-            // Styles associated with each element
-            this._styles = {"nodes": {}, "links": {}};
             // Default elements' event handlers
             this._defaultVizEventHandlers = {};
             this._defaultNodeEventHandlers = {};
@@ -146,23 +144,6 @@ window.phase = (function () {
                 "stroke": "#666",
                 // Link width
                 "stroke-width": 1.5,
-            }
-
-            // Update default styles for nodes
-            for (const node in this._data.nodes) {
-                this._styles["nodes"][this._data.nodes[node].id] = {}
-                for (const style in this._defaultNodeStyles) {
-                    this._styles["nodes"][this._data.nodes[node].id][style] = [this._defaultNodeStyles[style]];
-                }
-            }
-
-            // Update default styles for links
-            for (const link in this._data.links) {
-                const link_id = this._data.links[link].source.id + '-' + this._data.links[link].target.id;
-                this._styles["links"][link_id] = {}
-                for (const style in this._defaultLinkStyles) {
-                    this._styles["links"][link_id][style] = [this._defaultLinkStyles[style]];
-                }
             }
         }
 
@@ -654,35 +635,11 @@ window.phase = (function () {
             }
         }
 
-        // Appends style to style stack for each element and applies new style
+        // Applies styles from the stylemap to the selection
         style(styleMap, selector) {
-            const elems_data = this._selection.select(selector).data();
             for (const attr in styleMap) {
-                for (const elem_data of elems_data) {
-                    const elem_styles = elem_data.id ? this._network._styles["nodes"][elem_data.id] : this._network._styles["links"][elem_data.source.id + '-' + elem_data.target.id];
-                    elem_styles[attr].push(styleMap[attr]);
-                }
-                this._applyStyle(selector, attr, styleMap[attr]);
+                this._selection.select(selector).style(attr, styleMap[attr]);
             }
-        }
-
-        // Resets style stacks for each element and resets to default style
-        unstyle(selector) {
-            const elems_data = this._selection.select(selector).data();
-            let elem_styles;
-            for (const elem_data of elems_data) {
-                elem_styles = elem_data.id ? this._network._styles["nodes"][elem_data.id] : this._network._styles["links"][elem_data.source.id + '-' + elem_data.target.id];
-                for (const style_stack in elem_styles) {
-                    elem_styles[style_stack] = elem_styles[style_stack].slice(0, 1);
-                }
-            }
-            for (const style_stack in elem_styles) {
-                this._applyStyle(selector, style_stack, elem_styles[style_stack][0]);
-            }
-        }
-
-        _applyStyle(selector, attr, val) {
-            this._selection.select(selector).style(attr, val);
         }
 
         labels(labeler) {
@@ -732,9 +689,8 @@ window.phase = (function () {
         }
 
         // Removes all styles from a group
-        // TODO: Reset style stack of each element to just default
         unstyle() {
-            super.unstyle("circle");
+            super.style(this._network._defaultNodeStyles, "circle");
         }
     } // End NodeGroup Class
 
@@ -751,7 +707,7 @@ window.phase = (function () {
 
         // Removes all styles from a group
         unstyle() {
-            super.unstyle("line");
+            super.style(this._network._defaultLinkStyles, "line");
         }
     } // End LinkGroup Class
 
