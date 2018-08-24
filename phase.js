@@ -125,36 +125,40 @@ window.phase = (function () {
 
         initStyles() {
             // Default element styles
-            this._defaultStyles = {
+            this._defaultNodeStyles = {
                 // Node size
-                nodeSize: 10,
+                "r": 10,
                 // Node fill color
-                nodeColor: "#333",
+                "fill": "#333",
                 // Node border color
-                nodeBorderColor: "#F7F6F2",
+                "stroke": "#F7F6F2",
                 // Node border width
-                nodeBorderWidth: .8,
+                "stroke-width": .8,
+            }
+
+            this._defaultLinkStyles = {
                 // Link type (solid, dash array, etc.)
-                linkStroke: "",
+                "stroke-dasharray": "",
                 // Link color
-                linkColor: "#666",
+                "stroke": "#666",
                 // Link width
-                linkWidth: 1.5,
+                "stroke-width": 1.5,
             }
 
             // Update default styles for nodes
             for (const node in this._data.nodes) {
                 this._styles["nodes"][this._data.nodes[node].id] = {}
-                for (const style in this._defaultStyles) {
-                    this._styles["nodes"][this._data.nodes[node].id][style] = this._defaultStyles[style];
+                for (const style in this._defaultNodeStyles) {
+                    this._styles["nodes"][this._data.nodes[node].id][style] = [this._defaultNodeStyles[style]];
                 }
             }
 
             // Update default styles for links
             for (const link in this._data.links) {
-                this._styles["links"][this._data.links[link].id] = {}
-                for (const style in this._defaultStyles) {
-                    this._styles["links"][this._data.links[link].id][style] = this._defaultStyles[style];
+                const link_id = this._data.links[link].source.id + '-' + this._data.links[link].target.id;
+                this._styles["links"][link_id] = {}
+                for (const style in this._defaultLinkStyles) {
+                    this._styles["links"][link_id][style] = [this._defaultLinkStyles[style]];
                 }
             }
         }
@@ -513,10 +517,10 @@ window.phase = (function () {
             // Update circles
             this._nodeContainers
                 .select("circle")
-                    .style("r", this._defaultStyles.nodeSize)
-                    .style("fill", this._defaultStyles.nodeColor)
-                    .style("stroke", this._defaultStyles.nodeBorderColor)
-                    .style("stroke-width", this._defaultStyles.nodeBorderWidth);
+                    .style("r", this._defaultNodeStyles["r"])
+                    .style("fill", this._defaultNodeStyles["fill"])
+                    .style("stroke", this._defaultNodeStyles["stroke"])
+                    .style("stroke-width", this._defaultNodeStyles["stroke-width"]);
 
             // Update labels
             this._nodeContainers
@@ -582,9 +586,9 @@ window.phase = (function () {
             // Update lines
             this._linkContainers
                 .select("line")
-                .style("stroke", this._defaultStyles.linkColor)
-                .style("stroke-width", this._defaultStyles.linkWidth)
-                .style("stroke-dasharray", this._defaultStyles.linkStroke)
+                .style("stroke", this._defaultLinkStyles["stroke"])
+                .style("stroke-width", this._defaultLinkStyles["stroke-width"])
+                .style("stroke-dasharray", this._defaultLinkStyles["stroke-dasharray"])
 
             // Update labels
             this._linkContainers
@@ -642,10 +646,35 @@ window.phase = (function () {
             }
         }
 
+        // Appends style to style stack for each element and applies new style
         style(styleMap, selector) {
+            const elems_data = this._selection.select(selector).data();
             for (const attr in styleMap) {
-                this._selection.select(selector).style(attr, styleMap[attr]);
+                for (const elem_data of elems_data) {
+                    const elem_styles = elem_data.id ? this._network._styles["nodes"][elem_data.id] : this._network._styles["links"][elem_data.source.id + '-' + elem_data.target.id];
+                    elem_styles[attr].push(styleMap[attr]);
+                }
+                this._applyStyle(selector, attr, styleMap[attr]);
             }
+        }
+
+        // Resets style stacks for each element and resets to default style
+        unstyle(selector) {
+            const elems_data = this._selection.select(selector).data();
+            let elem_styles;
+            for (const elem_data of elems_data) {
+                elem_styles = elem_data.id ? this._network._styles["nodes"][elem_data.id] : this._network._styles["links"][elem_data.source.id + '-' + elem_data.target.id];
+                for (const style_stack in elem_styles) {
+                    elem_styles[style_stack] = elem_styles[style_stack].slice(0, 1);
+                }
+            }
+            for (const style_stack in elem_styles) {
+                this._applyStyle(selector, style_stack, elem_styles[style_stack][0]);
+            }
+        }
+
+        _applyStyle(selector, attr, val) {
+            this._selection.select(selector).style(attr, val);
         }
 
         labels(labeler) {
@@ -683,23 +712,18 @@ window.phase = (function () {
     class NodeGroup extends Group {
         // Creates a node group based on attributes or a passed in selection
         constructor(network, label, filterer, val) {
-            super(network, label, filterer, val)
+            super(network, label, filterer, val);
         }
 
         // Applies a style map to a node group
         style(styleMap) {
-            super.style(styleMap, "circle")
+            super.style(styleMap, "circle");
         }
 
         // Removes all styles from a group
+        // TODO: Reset style stack of each element to just default
         unstyle() {
-            const styleMap = {
-                "fill": this._network._defaultStyles.nodeColor,
-                "r": this._network._defaultStyles.nodeSize,
-                "stroke": this._network._defaultStyles.nodeBorderColor,
-                "stroke-width": this._network._defaultStyles.nodeBorderWidth
-            }
-            this.style(styleMap);
+            super.unstyle("circle");
         }
     } // End NodeGroup Class
 
@@ -716,13 +740,7 @@ window.phase = (function () {
 
         // Removes all styles from a group
         unstyle() {
-            const styleMap = {
-                "stroke-dasharray": this._network._defaultStyles.linkStroke,
-                "fill": this._network._defaultStyles.linkColor,
-                "stroke": this._network._defaultStyles.linkColor,
-                "stroke-width": this._network._defaultStyles.linkWidth
-            }
-            this.style(styleMap);
+            super.unstyle("line");
         }
     } // End LinkGroup Class
 

@@ -7,6 +7,8 @@ document.addEventListener("DOMContentLoaded", function(event) {
     createRandGroups();
 
     console.log("Visualization Loaded");
+
+    console.log(viz._styles);
 });
 
 // Create random groups of nodes and links
@@ -17,7 +19,7 @@ function createRandGroups() {
 }
 
 function createMorphs() {
-    viz.unstyleGraph()
+    viz.unstyleGraph();
     // Node styling morph
     viz.morph("style_nodes", "style", {"fill": "#7DABFF", "stroke": "#AE63D4", "stroke-width": "3px"});
     // Node data morph
@@ -26,6 +28,8 @@ function createMorphs() {
     viz.morph("style_links", "style", {"stroke": "#D46363", "stroke-width": "3px"});
     // Link data morph
     viz.morph("update_links", "data", {"value": "200"});
+
+    console.log(viz._styles);
 }
 
 function applyMorphs() {
@@ -33,4 +37,6 @@ function applyMorphs() {
     viz.getNodeGroup("rand_node_group").morph("update_nodes");
     viz.getLinkGroup("rand_link_group").morph("style_links");
     viz.getLinkGroup("rand_link_group").morph("update_links");
+
+    console.log(viz._styles);
 }
