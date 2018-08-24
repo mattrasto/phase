@@ -77,3 +77,7 @@ function createMorph(searchPhase, depth) {
 function startPhase() {
     viz.getPhase("bfs").start();
 }
+
+function resetStyles() {
+    viz.unstyleGraph();
+}
