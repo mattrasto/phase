@@ -31,11 +31,14 @@ window.phase = (function () {
             // Settings (user-accessible)
             this._settings = {};
             // Default styles for each element (TODO: use first entry in styles instead)
-            this._defaultStyles = {}
+            this._defaultNodeStyles = {};
+            this._defaultLinkStyles = {};
             // Styles associated with each element
             this._styles = {"nodes": {}, "links": {}};
             // Default elements' event handlers
-            this._defaultEventHandlers = {};
+            this._defaultVizEventHandlers = {};
+            this._defaultNodeEventHandlers = {};
+            this._defaultNodeEventHandlers = {};
 
             this.initSettings();
             this.initStyles();
@@ -164,8 +167,19 @@ window.phase = (function () {
         }
 
         initEventHandlers() {
-            // Default event handlers
-            this._defaultEventHandlers = {
+            this._defaultVizEventHandlers = {
+                // Container right click handler (outside nodes)
+                containerContextmenu(d) {
+                    d3.event.preventDefault(); // Prevent context menu from appearing
+                },
+                // Container zoom handler
+                containerZoom() {
+                    this._g.node().setAttribute("transform", d3.event.transform);
+                },
+            }
+
+            // Default node element event handlers
+            this._defaultNodeEventHandlers = {
                 // Node mouseover handler
                 nodeMouseover(d) {
                     // Default: add blue border
@@ -215,15 +229,9 @@ window.phase = (function () {
                 nodeDragEnd(d) {
                     if (!d3.event.active) this._simulation.alphaTarget(0);
                 },
-                // Container right click handler (outside nodes)
-                containerContextmenu(d) {
-                    d3.event.preventDefault(); // Prevent context menu from appearing
-                },
-                // Container zoom handler
-                containerZoom() {
-                    this._g.node().setAttribute("transform", d3.event.transform);
-                },
             }
+
+            this._defaultLinkEventHandlers = {};
         }
 
         // Resets the network to initial rendered state
@@ -252,10 +260,10 @@ window.phase = (function () {
                 .attr("height", "100%")
                 .attr("viewBox","0 0 " + Math.min(this._containerWidth, this._containerHeight) + " " + Math.min(this._containerWidth, this._containerHeight))
                 .attr("preserveAspectRatio", "xMinYMin")
-                .on("contextmenu", this._defaultEventHandlers.containerContextmenu)
+                .on("contextmenu", this._defaultVizEventHandlers.containerContextmenu)
                 .call(d3.zoom()
                     .scaleExtent(this._settings.zoom ? [.1, 10] : [1, 1])
-                    .on("zoom", this._defaultEventHandlers.containerZoom.bind(this))
+                    .on("zoom", this._defaultVizEventHandlers.containerZoom.bind(this))
                 )
                 .on("dblclick.zoom", null);  // Don't zoom on double left click
 
@@ -502,16 +510,16 @@ window.phase = (function () {
             // Update containers
             this._nodeContainers
                 .attr("class", "node")
-                .on("mouseover", this._defaultEventHandlers.nodeMouseover)
-                .on("mouseout", this._defaultEventHandlers.nodeMouseout)
-                .on("mousedown", this._defaultEventHandlers.nodeMousedown)
-                .on("click", this._defaultEventHandlers.nodeClick)
-                .on("dblclick", this._defaultEventHandlers.nodeDblclick)
-                .on("contextmenu", this._defaultEventHandlers.nodeContextmenu)
+                .on("mouseover", this._defaultNodeEventHandlers.nodeMouseover)
+                .on("mouseout", this._defaultNodeEventHandlers.nodeMouseout)
+                .on("mousedown", this._defaultNodeEventHandlers.nodeMousedown)
+                .on("click", this._defaultNodeEventHandlers.nodeClick)
+                .on("dblclick", this._defaultNodeEventHandlers.nodeDblclick)
+                .on("contextmenu", this._defaultNodeEventHandlers.nodeContextmenu)
                 .call(d3.drag()
-                    .on("start", this._defaultEventHandlers.nodeDragStart.bind(this))
-                    .on("drag", this._defaultEventHandlers.nodeDrag.bind(this))
-                    .on("end", this._defaultEventHandlers.nodeDragEnd.bind(this))
+                    .on("start", this._defaultNodeEventHandlers.nodeDragStart.bind(this))
+                    .on("drag", this._defaultNodeEventHandlers.nodeDrag.bind(this))
+                    .on("end", this._defaultNodeEventHandlers.nodeDragEnd.bind(this))
                 );
 
             // Update circles

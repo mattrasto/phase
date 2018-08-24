@@ -9,7 +9,6 @@ document.addEventListener("DOMContentLoaded", function(event) {
     console.log("Visualization Loaded");
 
     console.log(viz._styles);
-    console.log(viz._defaultEventHandlers);
 });
 
 // Create random groups of nodes and links
