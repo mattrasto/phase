@@ -38,12 +38,12 @@ window.phase = (function () {
             this._defaultNodeEventHandlers = {};
             this._defaultNodeEventHandlers = {};
 
-            this.initSettings();
+            this.initSettings(settings);
             this.initStyles();
             this.initEventHandlers();
 
             // Settings that force a re-rendering of the entire simulation
-            this._forceRerender = new Set(["zoom", "gravity", "charge", "linkStrength", "linkDistance"]);
+            this._forceRerender = new Set(["zoom", "gravity", "charge", "linkStrength", "linkDistance", "static"]);
 
             // Viz state
             this._state = {};
@@ -54,7 +54,7 @@ window.phase = (function () {
         }
 
         // Binds data to the viz
-        // TODO: Fix this (see data update demo)
+        // TODO: Fix this? (see issue #19)
         data(data) {
             this._bindData(data);
             if (this._data != null && !this._dataBound) {
@@ -63,6 +63,12 @@ window.phase = (function () {
             this._dataBound = true;
 
             this._generateAdjacencyList(data);
+
+            if (this._settings.static) {
+                for (let i = 0, n = Math.ceil(Math.log(this._simulation.alphaMin()) / Math.log(1 - this._simulation.alphaDecay())); i < n; ++i) {
+                    this._ticked(this._nodeContainers, this._linkContainers);
+                }
+            }
 
             // Update "all" groups
             // QUESTION: Should duplicate constructor calls cause group reevaluation?
@@ -106,7 +112,7 @@ window.phase = (function () {
         }
 
         // Create settings, styles, and event handler dictionaries
-        initSettings() {
+        initSettings(settings) {
             // Default settings
             this._settings = {
                 // Strength of links (how easily they can be compressed) between nodes [0, INF]
@@ -121,6 +127,13 @@ window.phase = (function () {
                 gravity: .25,
                 // Whether the user can zoom
                 zoom: true,
+                // Whether the network repositions elements every viz tick
+                // This mode provides a significant performance boost for large networks
+                static: false,
+            }
+
+            for (const attr in settings) {
+                this._settings[attr] = settings[attr];
             }
         }
 
@@ -197,16 +210,53 @@ window.phase = (function () {
                 },
                 // Container drag start handler
                 nodeDragStart(d) {
+                    console.log("Drag start");
                     if (!d3.event.active) this._simulation.alphaTarget(.3).restart();
                     d.fx = d.x;
                     d.fy = d.y;
                 },
                 // Container drag handler
                 nodeDrag(d) {
-                    d.fx = d3.event.x;
-                    d.fy = d3.event.y;
+                    console.log("Drag step");
+                    if (!this._settings.static) {
+                        d.fx = d3.event.x;
+                        d.fy = d3.event.y;
+                    }
+                    else {
+                        // TODO: This is abominable (yet performant enough)
+                        // The root of the problem is that d3.select(d).node() returns a selection of the data, not the elements
+                        // This means the only way to obtain the element associated with the data is to manually search for it
+                        // Is this due to how data is bound to elements in this._nodeContainers?
+                        // NOTE: Another stopgap solution is assigning ids to each element corresponding with data ids
+                        // let newX;
+                        // let newY;
+                        // for (const nodeContainer of this._nodeContainers._groups[0]) {
+                        //     if (d3.select(nodeContainer).data()[0].id == d.id) {
+                        //         newX = d3.event.x - d.x;
+                        //         newY = d3.event.y - d.y;
+                        //         d3.select(nodeContainer)
+                        //             .attr("transform", function(d) { return "translate(" + newX + "," + newY + ")"; });
+                        //         nodeContainer.x = newX;
+                        //         nodeContainer.y = newY;
+                        //         return;
+                        //     }
+                        // }
+                        // for (const linkContainer of this._linkContainers._groups[0]) {
+                        //     if (d3.select(linkContainer).data()[0].source.id == d.id ||
+                        //         d3.select(linkContainer).data()[0].target.id == d.id) {
+                        //         d3.select(linkContainer.childNodes[0])
+                        //             .attr("x1", function(d) { return 0; })
+                        //             .attr("y1", function(d) { return 0; })
+                        //             .attr("x2", function(d) { return 100; })
+                        //             .attr("y2", function(d) { return 100; });
+                        //         d3.select(linkContainer.childNodes[1]).attr('transform', function(d, i) {
+                        //             return "translate(" + ((d.source.x + d.target.x) / 2) + "," + ((d.source.y + d.target.y) / 2) + ")"
+                        //         });
+                        //     }
+                        // }
+                    }
                 },
-                // Container dragend handler
+                // Container drag end handler
                 nodeDragEnd(d) {
                     if (!d3.event.active) this._simulation.alphaTarget(0);
                 },
@@ -281,18 +331,27 @@ window.phase = (function () {
             // Initializes simulation
             this._simulation
                 .nodes(this._data.nodes)
-                .on("tick", () => this._ticked(this._nodeContainers, this._linkContainers))
                 .force("link")
                     .links(this._data.links);
 
-            console.log("Rendering on " + this._container.id)
+            // If the visualization is static, stop the simulation
+            if (this._settings.static) {
+                this._simulation.stop();
+            }
+            else {
+                this._simulation.on("tick", () => this._ticked(this._nodeContainers, this._linkContainers));
+            }
+
+            console.log("Rendered on " + this._container.id)
         }
 
         // Recalculates node and link positions every simulation tick
         _ticked(nodeContainer, linkContainer) {
 
             nodeContainer
-                .attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
+                .attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; })
+                .attr("x", (d) => d.x)
+                .attr("y", (d) => d.y);
 
             linkContainer.select("line")
                 .attr("x1", function(d) { return d.source.x; })
@@ -922,8 +981,8 @@ window.phase = (function () {
     } // End Phase Class
 
     const phase = {
-        Network: function(query) {
-            return new Network(query);
+        Network: function(query, settings) {
+            return new Network(query, settings);
         }
     };
 
