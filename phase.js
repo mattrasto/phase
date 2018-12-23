@@ -23,8 +23,6 @@ window.phase = (function () {
             this._morphs = {};
             this._phases = {};
 
-            this._network = this;
-
             // Internal store of graph structure as adjacency list
             this._adjList = {};
 
@@ -401,7 +399,7 @@ window.phase = (function () {
                 console.warn("Node group '" + label + "' already exists", this._nodeGroups[label]);
                 return this._nodeGroups[label];
             }
-            const group = new NodeGroup(this._network, label, filterer, val)
+            const group = new NodeGroup(this, label, filterer, val)
             this._nodeGroups[label] = group;
             return group;
         }
@@ -420,7 +418,7 @@ window.phase = (function () {
                 console.warn("Link group '" + label + "' already exists", this._linkGroups[label]);
                 return this._linkGroups[label];
             }
-            const group = new LinkGroup(this._network, label, filterer, val)
+            const group = new LinkGroup(this, label, filterer, val)
             this._linkGroups[label] = group;
             return group;
         }
@@ -657,10 +655,10 @@ window.phase = (function () {
             // Phase the group is associated with
             this.phase;
 
-            this._selection = this._filter(filterer, val)
+            this._selection = this._filter(filterer, val);
 
             // Event handlers associated with this group
-            this._eventHandlers = {}
+            this._eventHandlers = {};
 
             return this;
         }
@@ -934,7 +932,7 @@ window.phase = (function () {
 
         // Creates a new node group
         nodeGroup(label, filterer, val) {
-            let nodeGroup = this._network.nodeGroup.call(this, label, filterer, val);
+            let nodeGroup = this._network.nodeGroup.call(this._network, label, filterer, val);
             nodeGroup.phase = this.label;
             this._nodeGroups[label] = nodeGroup;
             return nodeGroup;
@@ -950,7 +948,7 @@ window.phase = (function () {
 
         // Creates a new node group
         linkGroup(label, filterer, val) {
-            let linkGroup = this._network.linkGroup.call(this, label, filterer, val);
+            let linkGroup = this._network.linkGroup.call(this._network, label, filterer, val);
             linkGroup.phase = this.label;
             this._linkGroups[label] = linkGroup;
             return linkGroup;
