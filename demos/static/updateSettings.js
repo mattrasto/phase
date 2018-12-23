@@ -16,3 +16,11 @@ document.addEventListener("DOMContentLoaded", function(event) {
 function changeSettings(prop, val) {
     viz.settings({[prop]: val});
 }
+
+function changeNodeStyles(prop, val) {
+    viz.getNodeGroup("all").style({[prop]: val});
+}
+
+function changeLinkStyles(prop, val) {
+    viz.getLinkGroup("all").style({[prop]: val});
+}

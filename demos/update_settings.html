@@ -42,39 +42,39 @@
 			</div>
 			<div class="slider-container">
 				<p>Node Size</p>
-				<input type="range" min="1" max="30" value="10" step="1" onChange="changeSettings('nodeSize', this.value)">
+				<input type="range" min="1" max="30" value="10" step="1" onChange="changeNodeStyles('r', this.value)">
 				<span class="range-value">10</span>
 			</div>
 			<div class="slider-container">
 				<p>Node Border Width</p>
-				<input type="range" min=".1" max="5" value=".8" step=".1" onChange="changeSettings('nodeBorderWidth', this.value)">
+				<input type="range" min=".1" max="5" value=".8" step=".1" onChange="changeNodeStyles('stroke-width', this.value)">
 				<span class="range-value">.8</span>
 			</div>
 			<div class="slider-container">
 				<p>Link Width</p>
-				<input type="range" min=".5" max="10" value="1.5" step=".1" onChange="changeSettings('linkWidth', this.value)">
+				<input type="range" min=".5" max="10" value="1.5" step=".1" onChange="changeLinkStyles('stroke-width', this.value)">
 				<span class="range-value">1.5</span>
 			</div>
 			<div class="color-container">
 				<p>Node Color</p>
-				<input class="color purple" type="button" onClick="changeSettings('nodeColor', '#AE63D4')">
-				<input class="color red" type="button" onClick="changeSettings('nodeColor', '#D46363')">
-				<input class="color orange" type="button" onClick="changeSettings('nodeColor', '#ED9A55')">
-				<input class="color yellow" type="button" onClick="changeSettings('nodeColor', '#E5EB7A')">
+				<input class="color purple" type="button" onClick="changeNodeStyles('fill', '#AE63D4')">
+				<input class="color red" type="button" onClick="changeNodeStyles('fill', '#D46363')">
+				<input class="color orange" type="button" onClick="changeNodeStyles('fill', '#ED9A55')">
+				<input class="color yellow" type="button" onClick="changeNodeStyles('fill', '#E5EB7A')">
 			</div>
 			<div class="color-container">
 				<p>Node Border Color</p>
-				<input class="color purple" type="button" onClick="changeSettings('nodeBorderColor', '#AE63D4')">
-				<input class="color red" type="button" onClick="changeSettings('nodeBorderColor', '#D46363')">
-				<input class="color orange" type="button" onClick="changeSettings('nodeBorderColor', '#ED9A55')">
-				<input class="color yellow" type="button" onClick="changeSettings('nodeBorderColor', '#E5EB7A')">
+				<input class="color purple" type="button" onClick="changeNodeStyles('stroke', '#AE63D4')">
+				<input class="color red" type="button" onClick="changeNodeStyles('stroke', '#D46363')">
+				<input class="color orange" type="button" onClick="changeNodeStyles('stroke', '#ED9A55')">
+				<input class="color yellow" type="button" onClick="changeNodeStyles('stroke', '#E5EB7A')">
 			</div>
 			<div class="color-container">
 				<p>Link Color</p>
-				<input class="color purple" type="button" onClick="changeSettings('linkColor', '#AE63D4')">
-				<input class="color red" type="button" onClick="changeSettings('linkColor', '#D46363')">
-				<input class="color orange" type="button" onClick="changeSettings('linkColor', '#ED9A55')">
-				<input class="color yellow" type="button" onClick="changeSettings('linkColor', '#E5EB7A')">
+				<input class="color purple" type="button" onClick="changeLinkStyles('stroke', '#AE63D4')">
+				<input class="color red" type="button" onClick="changeLinkStyles('stroke', '#D46363')">
+				<input class="color orange" type="button" onClick="changeLinkStyles('stroke', '#ED9A55')">
+				<input class="color yellow" type="button" onClick="changeLinkStyles('stroke', '#E5EB7A')">
 			</div>
 			<br>
 		</div>
