@@ -349,6 +349,16 @@ class Network {
             this._simulation.on("tick", () => this._ticked(this._nodeContainers, this._linkContainers));
         }
 
+        // Rebind all previous groups to new svg
+        for(const key in this._nodeGroups){
+            const ng = this._nodeGroups[key];
+            this.nodeGroup(ng.label, ng._filterer);
+        }
+        for(const key in this._linkGroups){
+            const lg = this._linkGroups[key];
+            this.linkGroup(lg.label, lg._filterer);
+        }
+
         console.log("Rendered on " + this._container.id)
     }
 
@@ -406,7 +416,7 @@ class Network {
     nodeGroup(label, filterer, val) {
         if (label in this._nodeGroups) {
             console.warn("Node group '" + label + "' already exists", this._nodeGroups[label]);
-            return this._nodeGroups[label];
+            // return this._nodeGroups[label];
         }
         const group = new NodeGroup(this, label, filterer, val)
         this._nodeGroups[label] = group;
@@ -425,7 +435,7 @@ class Network {
     linkGroup(label, filterer, val) {
         if (label in this._linkGroups) {
             console.warn("Link group '" + label + "' already exists", this._linkGroups[label]);
-            return this._linkGroups[label];
+            // return this._linkGroups[label];
         }
         const group = new LinkGroup(this, label, filterer, val)
         this._linkGroups[label] = group;
