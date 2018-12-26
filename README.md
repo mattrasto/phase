@@ -249,11 +249,17 @@ In this example, we tell the phase to stop when the `val` attribute in the phase
 
 ## Demos
 
-Check out one of the demos in the `demos/` folder. They're completely self-contained, so you can open the `.html` file in a browser and start playing around.
+Check out one of the demos in the `demos/` folder. They're completely self-contained, so you can open the `.html` file in a browser and start playing around after building the library:
 
-In order for the demos to render you must compile the library source code by running
 ```bash
+npm i
 npm run build
+```
+
+To run in development mode (with automatic rebuilding on file change):
+
+```bash
+npm run dev
 ```
 
 ## Contributing
