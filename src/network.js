@@ -1,6 +1,6 @@
 import Phase from './phase';
 import Morph from './morph';
-import {Group, NodeGroup, LinkGroup} from './group';
+import {NodeGroup, LinkGroup} from './group';
 
 window.phase = {
     Network: function(query, settings) {
@@ -51,6 +51,9 @@ class Network {
 
         // Settings that force a re-rendering of the entire simulation
         this._forceRerender = new Set(["zoom", "gravity", "charge", "linkStrength", "linkDistance", "static"]);
+
+        // Debug flag
+        this.debug = true;
 
         // Viz state
         this._state = {};
@@ -414,9 +417,8 @@ class Network {
 
     // Creates a new node group
     nodeGroup(label, filterer, val) {
-        if (label in this._nodeGroups) {
-            console.warn("Node group '" + label + "' already exists", this._nodeGroups[label]);
-            // return this._nodeGroups[label];
+        if (label in this._nodeGroups && this.debug) {
+            console.warn(`Node group ${label} is being overwritten`, this._nodeGroups[label]);
         }
         const group = new NodeGroup(this, label, filterer, val)
         this._nodeGroups[label] = group;
@@ -431,11 +433,10 @@ class Network {
         return this._nodeGroups;
     }
 
-    // Creates a new node group
+    // Creates a new link group
     linkGroup(label, filterer, val) {
-        if (label in this._linkGroups) {
-            console.warn("Link group '" + label + "' already exists", this._linkGroups[label]);
-            // return this._linkGroups[label];
+        if (label in this._linkGroups && this.debug) {
+            console.warn(`Link group ${label} is being overwritten`, this._linkGroups[label]);
         }
         const group = new LinkGroup(this, label, filterer, val)
         this._linkGroups[label] = group;
