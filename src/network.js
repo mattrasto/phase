@@ -352,14 +352,16 @@ class Network {
             this._simulation.on("tick", () => this._ticked(this._nodeContainers, this._linkContainers));
         }
 
-        // Rebind all previous groups to new svg
+        // Rebind all previous groups to new svg and save style
         for(const key in this._nodeGroups){
             const ng = this._nodeGroups[key];
-            this.nodeGroup(ng.label, ng._filterer);
+            const newGroup = this.nodeGroup(ng.label, ng._filterer);
+            newGroup.setStyle(ng.getStyle());
         }
         for(const key in this._linkGroups){
             const lg = this._linkGroups[key];
-            this.linkGroup(lg.label, lg._filterer);
+            const newGroup = this.linkGroup(lg.label, lg._filterer);
+            newGroup.setStyle(lg.getStyle());
         }
 
         console.log("Rendered on " + this._container.id)
@@ -420,7 +422,7 @@ class Network {
         if (label in this._nodeGroups && this.debug) {
             console.warn(`Node group ${label} is being overwritten`, this._nodeGroups[label]);
         }
-        const group = new NodeGroup(this, label, filterer, val)
+        const group = new NodeGroup(this, label, filterer, val);
         this._nodeGroups[label] = group;
         return group;
     }
@@ -438,7 +440,7 @@ class Network {
         if (label in this._linkGroups && this.debug) {
             console.warn(`Link group ${label} is being overwritten`, this._linkGroups[label]);
         }
-        const group = new LinkGroup(this, label, filterer, val)
+        const group = new LinkGroup(this, label, filterer, val);
         this._linkGroups[label] = group;
         return group;
     }

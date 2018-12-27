@@ -55,6 +55,15 @@ class Group {
         }
     }
 
+    // Sets style history to an existing map when rebinding to new svg
+    setStyle(styleMap){
+        this._styles = styleMap;
+    }
+
+    getStyle(){
+        return this._styles;
+    }
+
     restyle(){
         this.style(this._styles);
     }
