@@ -19,7 +19,7 @@
 		</div>
 		<div id="sidebar">
 			<h1>Settings</h1>
-			<input type="button" value="Toggle Zoom" onClick="viz.settings({zoom: viz.settings().zoom ? false : true});">
+			<input type="button" value="Toggle Zoom" onClick="changeSettings('zoom', !viz.settings().zoom);">
 			<div class="slider-container">
 				<p>Gravity</p>
 				<input type="range" min="0" max="1" value=".25" step=".01" onChange="changeSettings('gravity', this.value)">
