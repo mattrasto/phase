@@ -1,15 +1,22 @@
-export class Group {
-    constructor(network, label, filterer, val) {
+const NODE_SELECTOR = "circle";
+const LINK_SELECTOR = "line";
+
+class Group {
+    constructor(network, label, filterer, val, selector) {
 
         this._network = network;
         this.label = label;
         this._filterer = filterer;
         this._val = val;
+        this.selector = selector; // "circle" or "line"
 
         // Phase the group is associated with
         this.phase;
 
         this._selection = this._filter(filterer, val);
+
+        // Style history
+        this._styles = {};
 
         // Event handlers associated with this group
         this._eventHandlers = {};
@@ -18,7 +25,7 @@ export class Group {
     }
 
     _filter(filterer, val) {
-        const isNodeGroup = this instanceof NodeGroup;
+        const isNodeGroup = this.selector === NODE_SELECTOR;
         const containers = isNodeGroup ? this._network._nodeContainers : this._network._linkContainers;
 
         if (typeof filterer === "string") {
@@ -41,10 +48,15 @@ export class Group {
     }
 
     // Applies styles from the stylemap to the selection
-    style(styleMap, selector) {
+    style(styleMap) {
         for (const attr in styleMap) {
-            this._selection.select(selector).style(attr, styleMap[attr]);
+            this._styles[attr] = styleMap[attr];
+            this._selection.select(this.selector).style(attr, styleMap[attr]);
         }
+    }
+
+    restyle(){
+        this.style(this._styles);
     }
 
     labels(labeler) {
@@ -94,41 +106,21 @@ export class Group {
 export class NodeGroup extends Group {
     // Creates a node group based on attributes or a passed in selection
     constructor(network, label, filterer, val) {
-        super(network, label, filterer, val);
+        super(network, label, filterer, val, NODE_SELECTOR);
     }
 
-    // Applies a style map to a node group
-    style(styleMap) {
-        super.style(styleMap, "circle");
-    }
-
-    // Removes all styles from a group
     unstyle() {
-        super.style(this._network._defaultNodeStyles, "circle");
-    }
-
-    destroy() {
-        super.destroy();
+        super.style(this._network._defaultNodeStyles);
     }
 } // End NodeGroup Class
 
 export class LinkGroup extends Group {
     // Creates a link group based on attributes or a passed in selection
     constructor(network, label, filterer, val) {
-        super(network, label, filterer, val)
+        super(network, label, filterer, val, LINK_SELECTOR);
     }
 
-    // Applies a style map to a link group
-    style(styleMap) {
-        super.style(styleMap, "line")
-    }
-
-    // Removes all styles from a group
     unstyle() {
-        super.style(this._network._defaultLinkStyles, "line");
-    }
-
-    destroy() {
-        super.destroy();
+        super.style(this._network._defaultLinkStyles);
     }
 } // End LinkGroup Class
