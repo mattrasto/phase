@@ -458,9 +458,8 @@ class Network {
     // PHASES AND MORPHS
 
     morph(label, type, change) {
-        if (label in this._morphs) {
-            console.warn("Morph '" + label + "' already exists", this._morphs[label]);
-            return this._morphs[label];
+        if (label in this._morphs && this.debug) {
+            console.warn(`Morph ${label} is being overwritten`, this._morphs[label]);
         }
         const morph = new Morph(this, label, type, change);
         this._morphs[label] = morph;
@@ -476,9 +475,8 @@ class Network {
     }
 
     phase(label) {
-        if (label in this._phases) {
-            console.warn("Phase '" + label + "' already exists", this._phases[label]);
-            return this._phases[label];
+        if (label in this._phases && this.debug) {
+            console.warn(`Phase ${label} is being overwritten`, this._phases[label]);
         }
         const phase = new Phase(this, label);
         this._phases[label] = phase;
