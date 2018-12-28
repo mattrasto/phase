@@ -58,7 +58,7 @@ class Network {
         // Viz state
         this._state = {};
 
-        console.log("Network constructed");
+        this.log("Network Constructed");
 
         this._render();
     }
@@ -88,7 +88,7 @@ class Network {
         // Update default styles for all elements
         this.initStyles();
 
-        console.log("Bound data to viz");
+        this.log("Bound data to viz");
     }
 
     // Updates or returns the current viz state
@@ -212,22 +212,22 @@ class Network {
             },
             // Node double left click handler
             nodeDblclick(d) {
-                console.log("Double click");
+                this.log("Double click");
             },
             // Node right click handler
             nodeContextmenu(d) {
-                console.log("Right click");
+                this.log("Right click");
             },
             // Container drag start handler
             nodeDragStart(d) {
-                console.log("Drag start");
+                this.log("Drag start");
                 if (!d3.event.active) this._simulation.alphaTarget(.3).restart();
                 d.fx = d.x;
                 d.fy = d.y;
             },
             // Container drag handler
             nodeDrag(d) {
-                console.log("Drag step");
+                this.log("Drag step");
                 if (!this._settings.static) {
                     d.fx = d3.event.x;
                     d.fy = d3.event.y;
@@ -286,6 +286,18 @@ class Network {
     unstyleGraph() {
         this.getNodeGroup("all").unstyle();
         this.getLinkGroup("all").unstyle();
+    }
+
+    log(message){
+        if(this.debug){
+            console.log(message);
+        }
+    }
+
+    warn(message){
+        if(this.debug){
+            console.warn(message);
+        }
     }
 
     // Renders viz element in container
@@ -364,7 +376,7 @@ class Network {
             newGroup.setStyle(lg.getStyle());
         }
 
-        console.log("Rendered on " + this._container.id)
+        this.log(`Rendered on ${this._container.id}`);
     }
 
     // Recalculates node and link positions every simulation tick
@@ -419,8 +431,8 @@ class Network {
 
     // Creates a new node group
     nodeGroup(label, filterer, val) {
-        if (label in this._nodeGroups && this.debug) {
-            console.warn(`Node group ${label} is being overwritten`, this._nodeGroups[label]);
+        if (label in this._nodeGroups) {
+            this.warn(`Node group ${label} is being overwritten`, this._nodeGroups[label]);
         }
         const group = new NodeGroup(this, label, filterer, val);
         this._nodeGroups[label] = group;
@@ -437,8 +449,8 @@ class Network {
 
     // Creates a new link group
     linkGroup(label, filterer, val) {
-        if (label in this._linkGroups && this.debug) {
-            console.warn(`Link group ${label} is being overwritten`, this._linkGroups[label]);
+        if (label in this._linkGroups) {
+            this.warn(`Link group ${label} is being overwritten`, this._linkGroups[label]);
         }
         const group = new LinkGroup(this, label, filterer, val);
         this._linkGroups[label] = group;
@@ -458,8 +470,8 @@ class Network {
     // PHASES AND MORPHS
 
     morph(label, type, change) {
-        if (label in this._morphs && this.debug) {
-            console.warn(`Morph ${label} is being overwritten`, this._morphs[label]);
+        if (label in this._morphs) {
+            this.warn(`Morph ${label} is being overwritten`, this._morphs[label]);
         }
         const morph = new Morph(this, label, type, change);
         this._morphs[label] = morph;
@@ -475,8 +487,8 @@ class Network {
     }
 
     phase(label) {
-        if (label in this._phases && this.debug) {
-            console.warn(`Phase ${label} is being overwritten`, this._phases[label]);
+        if (label in this._phases) {
+            this.warn(`Phase ${label} is being overwritten`, this._phases[label]);
         }
         const phase = new Phase(this, label);
         this._phases[label] = phase;
@@ -566,8 +578,8 @@ class Network {
             .on("mouseout", this._defaultNodeEventHandlers.nodeMouseout)
             .on("mousedown", this._defaultNodeEventHandlers.nodeMousedown)
             .on("click", this._defaultNodeEventHandlers.nodeClick)
-            .on("dblclick", this._defaultNodeEventHandlers.nodeDblclick)
-            .on("contextmenu", this._defaultNodeEventHandlers.nodeContextmenu)
+            .on("dblclick", this._defaultNodeEventHandlers.nodeDblclick.bind(this))
+            .on("contextmenu", this._defaultNodeEventHandlers.nodeContextmenu.bind(this))
             .call(d3.drag()
                 .on("start", this._defaultNodeEventHandlers.nodeDragStart.bind(this))
                 .on("drag", this._defaultNodeEventHandlers.nodeDrag.bind(this))
