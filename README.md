@@ -256,6 +256,11 @@ In order for the demos to render you must compile the library source code by run
 npm run build
 ```
 
+If you wish to make changes to the source code and run webpack in watch mode to recompile every time you save you can use
+```bash
+npm run dev
+```
+
 ## Testing
 
 For our tests we use mocha and selenium webdriver. In order to use selenium, you must download and extract the Chrome driver executables from [here](https://github.com/SeleniumHQ/selenium/tree/master/javascript/node/selenium-webdriver#installation).
@@ -273,6 +278,11 @@ npm run serve
 From there you can run the tests found in the `test` directory using the command
 ```bash
 npm run test
+```
+
+Alternatively, if you want to just open up all the html files at once to play around with them instead of running the automated tests you can use
+```bash
+npm run open
 ```
 
 ## Contributing
