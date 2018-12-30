@@ -28,8 +28,6 @@ Returns:
         }
 '''
 
-# TODO: Prevent loops
-
 import sys, os
 import argparse
 import json
@@ -120,6 +118,7 @@ def generate_spanning_tree(network):
         if source_set_idx == target_set_idx:
             continue
         network['links'].append(link)
+        # Add new union set and remove combined sets
         forest.append(forest[source_set_idx].union(forest[target_set_idx]))
         if source_set_idx < target_set_idx:
             target_set_idx -= 1
