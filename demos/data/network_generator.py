@@ -85,6 +85,8 @@ def generate_random_link(nodes, used_ids):
     while True:
         source = random.choice(nodes)['id']
         target = random.choice(nodes)['id']
+        if source == target:
+            continue
         id = source + '-' + target
         if id in used_ids:
             continue
