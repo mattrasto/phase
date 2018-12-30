@@ -36,7 +36,6 @@ import math
 import ast
 from pprint import pprint
 
-
 args = None  # Global to store parsed CLI arguments
 
 # Parses CLI arguments
@@ -162,15 +161,16 @@ def export_network(args, network):
     filename = args.filename
     if filename == None:
         filename = '_'.join(str(arg) for arg in sys.argv[1:]).replace('-', '').replace('=', '-') + '.json'
-    file_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), filename)
+    target_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), '../demos/data/generated/')
+    if not os.path.exists(target_dir):
+        os.makedirs(target_dir)
+    file_path = os.path.join(target_dir, filename)
     var_name = args.variable
     if var_name == None:
         var_name = filename.replace('.json', '')
     with open(file_path, 'w') as f:
         f.write('const ' + var_name + ' = ')
         json.dump(network, f, indent=2)
-
-
 
 if __name__ == '__main__':
     parse_input()
