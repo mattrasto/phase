@@ -15,6 +15,9 @@ Args:
     --variable, -v: string
         Name of variable the JSON will be assigned to in output file.
         Defaults to filename.
+    --directed, -d: boolean (optional, default: False)
+        Whether the graph should have directed or undirected edges.
+        Defaults to false (undirected).
 
 Returns:
     filename: .json file
@@ -25,6 +28,8 @@ Returns:
         }
 '''
 
+# TODO: Prevent loops
+
 import sys, os
 import argparse
 import json
@@ -34,8 +39,9 @@ import ast
 from pprint import pprint
 
 
+args = None  # Global to store parsed CLI arguments
+
 # Parses CLI arguments
-# TODO: Add -d/--directed argument
 def parse_input():
     parser = argparse.ArgumentParser()
     parser.add_argument('-n', '--nodes', type=int, required=True,
@@ -44,13 +50,15 @@ def parse_input():
     parser.add_argument('-ed', '--edge-density', dest='edge_density', type=float, default=.5,
                         help='Density from [0, 1] of edges to create. 0 means no edges, 1 means fully-connected graph.')
     parser.add_argument('-c', '--connected', type=ast.literal_eval, default=False,
-                        help='Whether the graph should be connected or disconnected. If true and edge density is too low to create a connected graph, this argument will take precedent and a MST will be generated.')
+                        help='Whether the graph should be connected or disconnected. If true and edge density is too low to create a connected graph, this argument will take precedent and a spanning tree will be generated.')
     parser.add_argument('-f', '--filename', type=str,
                         help='Name of output file.')
     parser.add_argument('-v', '--variable', type=str,
                         help='Name of variable the JSON will be assigned to in output file. Defaults to filename.')
+    parser.add_argument('-d', '--directed', type=ast.literal_eval, default=False,
+                        help='Whether the graph should have directed or undirected edges. Defaults to false (undirected).')
+    global args
     args = parser.parse_args()
-    return args
 
 # Generator that returns a node with a random id and name
 # NOTE: Hardcoded to support up to i*j*k (10*10*10 = 1000 for now) names
@@ -78,11 +86,11 @@ def generate_random_link(nodes, used_ids):
         source = random.choice(nodes)['id']
         target = random.choice(nodes)['id']
         id = source + '-' + target
-        reverse_id = target + '-' + source
         if id in used_ids:
             continue
         used_ids.add(id)
-        used_ids.add(reverse_id)
+        if not args.directed:
+            used_ids.add(target + '-' + source)
         yield {'source': source, 'target': target}
 
 # Generates links that form a MST (basic connected graph) using a variation of Kruskal's algorithm
@@ -90,7 +98,6 @@ def generate_spanning_tree(network):
     forest = []  # List of sets representing trees within graph
     for node in network['nodes']:
         forest.append(set([node['id']]))
-    # print(forest)
 
     used_ids = set()
     random_link_gen = generate_random_link(network['nodes'], set())
@@ -118,13 +125,13 @@ def generate_spanning_tree(network):
         forest.pop(target_set_idx)
         # Add to used_ids to use in link generation after MST is formed
         id = link['source'] + '-' + link['target']
-        reverse_id = link['target'] + '-' + link['source']
         used_ids.add(id)
-        used_ids.add(reverse_id)
+        if not args.directed:
+            used_ids.add(link['target'] + '-' + link['source'])
     return used_ids
 
 # Creates the network object
-def create_network(args):
+def create_network():
     network = {'nodes': [], 'links': []}
 
     random_node_gen = generate_random_node()
@@ -139,7 +146,11 @@ def create_network(args):
         num_edges = 0
 
     random_link_gen = generate_random_link(network['nodes'], used_link_ids)
-    while num_edges < math.floor(args.nodes * (args.nodes - 1) / 2 * args.edge_density):
+    if args.directed:
+        max_edges = args.nodes * (args.nodes - 1)
+    else:
+        max_edges = args.nodes * (args.nodes - 1) / 2
+    while num_edges < math.floor(max_edges * args.edge_density):
         network['links'].append(next(random_link_gen))
         num_edges += 1
 
@@ -161,6 +172,6 @@ def export_network(args, network):
 
 
 if __name__ == '__main__':
-    args = parse_input()
-    network = create_network(args)
+    parse_input()
+    network = create_network()
     export_network(args, network)
