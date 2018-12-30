@@ -25,6 +25,7 @@ Returns:
 import sys, os
 import argparse
 import json
+import random
 from pprint import pprint
 
 
@@ -42,20 +43,38 @@ def parse_input():
     args = parser.parse_args()
     return args
 
-# Generates a random node with an id and name
+# Generator that returns a node with a random id and name
+# NOTE: Hardcoded to support up to 1000 names
+# TODO: Create a cartesian product of all sets and randomly sample for better performance
 def generate_random_node():
-    pass
+    used_names = set()
+    # Sets guarantee random ordering
+    first_names = {'Jack', 'John', 'Matt', 'Yath', 'Lee', 'David', 'Akshay', 'Amed', 'Sergei', 'Viktor'}
+    middle_initials = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'}
+    last_names = {'Smith', 'Johnson', 'Patel', 'Li', 'Cook', 'Tano', 'Yang', 'Hernandez', 'Bera', 'Sun'}
+    while True:
+        i = random.sample(first_names, 1)[0]
+        j = random.sample(middle_initials, 1)[0]
+        k = random.sample(last_names, 1)[0]
+        name = i + ' ' + j + '. ' + k
+        if name in used_names:
+            continue
+        id = name.lower().replace(' ', '_').replace('.', '')
+        used_names.add(name)
+        yield {'id': id, 'name': name}
+
 
 # Generates a random link with an id and name
-def generate_random_link():
+def generate_random_link(nodes):
     pass
 
 # Creates the network object
 def create_network(args):
     network = {'nodes': [], 'links': []}
 
+    random_node_gen = generate_random_node()
     for i in range(args.nodes):
-        network['nodes'].append({'id': '...', 'location': '...'})
+        network['nodes'].append(next(random_node_gen))
 
     return network
 
