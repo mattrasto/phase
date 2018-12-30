@@ -1,4 +1,4 @@
-'''Generates a network in d3-force-graph format based on user inputs
+'''Generates an undirected graph in d3-force-graph format based on user inputs
 
 Args:
     --nodes, -n: integer (required)
@@ -26,6 +26,7 @@ import sys, os
 import argparse
 import json
 import random
+import math
 from pprint import pprint
 
 
@@ -44,8 +45,8 @@ def parse_input():
     return args
 
 # Generator that returns a node with a random id and name
-# NOTE: Hardcoded to support up to 1000 names
-# TODO: Create a cartesian product of all sets and randomly sample for better performance
+# NOTE: Hardcoded to support up to i*j*k (10*10*10 = 1000 for now) names
+# TODO: Create a cartesian product of all sets and randomly sample when args.nodes !<< i*j*k for better performance
 def generate_random_node():
     used_names = set()
     # Sets guarantee random ordering
@@ -63,10 +64,19 @@ def generate_random_node():
         used_names.add(name)
         yield {'id': id, 'name': name}
 
-
-# Generates a random link with an id and name
+# Generates a random link with a source and target
 def generate_random_link(nodes):
-    pass
+    used_ids = set()
+    while True:
+        source = random.choice(nodes)['id']
+        target = random.choice(nodes)['id']
+        id = source + '-' + target
+        reverse_id = target + '-' + source
+        if id in used_ids:
+            continue
+        used_ids.add(id)
+        used_ids.add(reverse_id)
+        yield {'source': source, 'target': target}
 
 # Creates the network object
 def create_network(args):
@@ -76,6 +86,12 @@ def create_network(args):
     for i in range(args.nodes):
         network['nodes'].append(next(random_node_gen))
 
+    num_edges = 0
+    random_link_gen = generate_random_link(network['nodes'])
+    while num_edges < math.floor(args.nodes * (args.nodes - 1) / 2 * args.edge_density):
+        network['links'].append(next(random_link_gen))
+        num_edges += 1
+
     return network
 
 # Exports the network data to the specified filename or an argument-unique name
@@ -83,8 +99,11 @@ def export_network(args, network):
     filename = args.filename
     if filename == None:
         filename = '_'.join(str(arg) for arg in sys.argv[1:]).replace('-', '').replace('=', '-') + '.json'
-    with open(os.path.join(os.path.dirname(os.path.realpath(__file__)), filename), 'w') as f:
+    file_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), filename)
+    with open(file_path, 'w') as f:
+        f.write('const varName = ')
         json.dump(network, f, indent=2)
+
 
 
 if __name__ == '__main__':
