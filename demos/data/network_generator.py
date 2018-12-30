@@ -2,7 +2,7 @@
 
 Args:
     --nodes, -n: integer (required)
-        Number of nodes in network
+        Number of nodes in network.
     --edge-density, -ed: float [0, 1] (optional, default: .5)
         Density from [0, 1] of edges to create.
         0 means no edges, 1 means fully-connected graph.
@@ -11,7 +11,10 @@ Args:
         If true and edge density is too low to create a connected graph,
             this argument will take precedent and a MST will be generated.
     --filename, -f: string
-        Name of output file
+        Name of output file.
+    --variable, -v: string
+        Name of variable the JSON will be assigned to in output file.
+        Defaults to filename.
 
 Returns:
     filename: .json file
@@ -22,6 +25,8 @@ Returns:
         }
 '''
 
+# TODO: Implement -c/--connected argument
+
 import sys, os
 import argparse
 import json
@@ -31,16 +36,19 @@ from pprint import pprint
 
 
 # Parses CLI arguments
+# TODO: Add -d/--directed argument
 def parse_input():
     parser = argparse.ArgumentParser()
     parser.add_argument('-n', '--nodes', type=int, required=True,
-                        help='Number of nodes in network')
+                        help='Number of nodes in network.')
     parser.add_argument('-ed', '--edge-density', dest='edge_density', type=float, default=.5,
                         help='Density from [0, 1] of edges to create. 0 means no edges, 1 means fully-connected graph.')
     parser.add_argument('-c', '--connected', type=bool, default=False,
                         help='Whether the graph should be connected or disconnected. If true and edge density is too low to create a connected graph, this argument will take precedent and a MST will be generated.')
     parser.add_argument('-f', '--filename', type=str,
-                        help='Name of output file')
+                        help='Name of output file.')
+    parser.add_argument('-v', '--variable', type=str,
+                        help='Name of variable the JSON will be assigned to in output file. Defaults to filename.')
     args = parser.parse_args()
     return args
 
@@ -100,8 +108,11 @@ def export_network(args, network):
     if filename == None:
         filename = '_'.join(str(arg) for arg in sys.argv[1:]).replace('-', '').replace('=', '-') + '.json'
     file_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), filename)
+    var_name = args.variable
+    if var_name == None:
+        var_name = filename.replace('.json', '')
     with open(file_path, 'w') as f:
-        f.write('const varName = ')
+        f.write('const ' + var_name + ' = ')
         json.dump(network, f, indent=2)
 
 
