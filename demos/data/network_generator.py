@@ -25,13 +25,12 @@ Returns:
         }
 '''
 
-# TODO: Implement -c/--connected argument
-
 import sys, os
 import argparse
 import json
 import random
 import math
+import ast
 from pprint import pprint
 
 
@@ -41,9 +40,10 @@ def parse_input():
     parser = argparse.ArgumentParser()
     parser.add_argument('-n', '--nodes', type=int, required=True,
                         help='Number of nodes in network.')
+    # TODO: Automatically determine best default edge density
     parser.add_argument('-ed', '--edge-density', dest='edge_density', type=float, default=.5,
                         help='Density from [0, 1] of edges to create. 0 means no edges, 1 means fully-connected graph.')
-    parser.add_argument('-c', '--connected', type=bool, default=False,
+    parser.add_argument('-c', '--connected', type=ast.literal_eval, default=False,
                         help='Whether the graph should be connected or disconnected. If true and edge density is too low to create a connected graph, this argument will take precedent and a MST will be generated.')
     parser.add_argument('-f', '--filename', type=str,
                         help='Name of output file.')
@@ -73,8 +73,7 @@ def generate_random_node():
         yield {'id': id, 'name': name}
 
 # Generates a random link with a source and target
-def generate_random_link(nodes):
-    used_ids = set()
+def generate_random_link(nodes, used_ids):
     while True:
         source = random.choice(nodes)['id']
         target = random.choice(nodes)['id']
@@ -86,6 +85,44 @@ def generate_random_link(nodes):
         used_ids.add(reverse_id)
         yield {'source': source, 'target': target}
 
+# Generates links that form a MST (basic connected graph) using a variation of Kruskal's algorithm
+def generate_spanning_tree(network):
+    forest = []  # List of sets representing trees within graph
+    for node in network['nodes']:
+        forest.append(set([node['id']]))
+    # print(forest)
+
+    used_ids = set()
+    random_link_gen = generate_random_link(network['nodes'], set())
+    while len(forest) > 1:
+        link = next(random_link_gen)
+        # NOTE: This could be optimized using a dictionary with references to vertex sets
+        cycle = False
+        source_set_idx = -1
+        target_set_idx = -1
+        i = 0
+        while source_set_idx < 0 or target_set_idx < 0:
+            if link['source'] in forest[i]:
+                source_set_idx = i
+            if link['target'] in forest[i]:
+                target_set_idx = i
+            i += 1
+        # If source and target belong to same set, link creates a cycle
+        if source_set_idx == target_set_idx:
+            continue
+        network['links'].append(link)
+        forest.append(forest[source_set_idx].union(forest[target_set_idx]))
+        if source_set_idx < target_set_idx:
+            target_set_idx -= 1
+        forest.pop(source_set_idx)
+        forest.pop(target_set_idx)
+        # Add to used_ids to use in link generation after MST is formed
+        id = link['source'] + '-' + link['target']
+        reverse_id = link['target'] + '-' + link['source']
+        used_ids.add(id)
+        used_ids.add(reverse_id)
+    return used_ids
+
 # Creates the network object
 def create_network(args):
     network = {'nodes': [], 'links': []}
@@ -94,8 +131,14 @@ def create_network(args):
     for i in range(args.nodes):
         network['nodes'].append(next(random_node_gen))
 
-    num_edges = 0
-    random_link_gen = generate_random_link(network['nodes'])
+    if args.connected:
+        used_link_ids = generate_spanning_tree(network)
+        num_edges = args.nodes - 1
+    else:
+        used_link_ids = set()
+        num_edges = 0
+
+    random_link_gen = generate_random_link(network['nodes'], used_link_ids)
     while num_edges < math.floor(args.nodes * (args.nodes - 1) / 2 * args.edge_density):
         network['links'].append(next(random_link_gen))
         num_edges += 1
