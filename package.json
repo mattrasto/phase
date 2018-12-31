@@ -15,7 +15,7 @@
     "build": "npx webpack",
     "dev": "npx webpack --watch",
     "serve": "python3 -m http.server",
-    "test": "./node_modules/.bin/mocha",
+    "test": "./node_modules/.bin/mocha --timeout 10000",
     "open": "google-chrome demos/*.html"
   },
   "repository": {
