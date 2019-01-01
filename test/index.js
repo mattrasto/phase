@@ -5,10 +5,13 @@ const expect  = require('chai').expect;
 
 describe('Phase Google Chrome test suite', function() {
 
-    const driver = new Builder().forBrowser('chrome').build();
-    driver.manage().setTimeouts({implicit: 5000, pageLoad: 5000, script: 5000});
-
     const pathToFile = file => `localhost:8000/demos/${file}.html`;
+    
+    const driver = new Builder().forBrowser('chrome').build();
+
+    before(function() {
+        driver.manage().setTimeouts({implicit: 5000, pageLoad: 5000, script: 5000});
+    })
 
     after(function() {
         return driver.quit();  // Close all browser tabs
