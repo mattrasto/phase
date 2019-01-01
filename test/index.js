@@ -6,9 +6,14 @@ const expect  = require('chai').expect;
 describe('Phase Google Chrome test suite', function() {
 
     const driver = new Builder().forBrowser('chrome').build();
-    driver.manage().setTimeouts({implicit: 5000, pageLoad: 5000, script: 5000})
+    driver.manage().setTimeouts({implicit: 5000, pageLoad: 5000, script: 5000});
 
     const pathToFile = file => `localhost:8000/demos/${file}.html`;
+
+    after(function() {
+        return driver.quit();  // Close all browser tabs
+    });
+
 
     it('should open basic demo and check the title', async function() {
         // Basic demo should load within 3 seconds
