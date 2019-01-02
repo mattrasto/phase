@@ -1,6 +1,6 @@
 {
   "name": "phase",
-  "version": "1.0.0",
+  "version": "0.8.0",
   "description": "Network visualization framework for complex systems and simulations",
   "main": "src/network.js",
   "devDependencies": {
