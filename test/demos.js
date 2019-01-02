@@ -1,5 +1,4 @@
 import { Selector } from 'testcafe';
-import xPathToCss from 'xpath-to-css';
 
 
 const pathToFile = file => `localhost:8000/demos/${file}.html`;

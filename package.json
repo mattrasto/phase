@@ -3,16 +3,10 @@
   "version": "1.0.0",
   "description": "Network visualization framework for complex systems and simulations",
   "main": "src/network.js",
-  "dependencies": {
-    "testcafe": "^0.23.3"
-  },
   "devDependencies": {
-    "chromedriver": "^2.45.0",
-    "mocha": "^5.2.0",
-    "selenium-webdriver": "^4.0.0-alpha.1",
     "webpack": "^4.28.2",
     "webpack-cli": "^3.1.2",
-    "chai": "^4.2.0"
+    "testcafe": "^0.23.3"
   },
   "scripts": {
     "build": "npx webpack",
