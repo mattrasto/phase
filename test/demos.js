@@ -6,14 +6,21 @@ const pathToFile = file => `localhost:8000/demos/${file}.html`;
 
 // TODO: Initialize tests with random nodes to test for from sample data and pass to tests via context
 fixture('Basic')
-    .page(pathToFile('basic'));
+    .page(pathToFile('basic'))
+    .beforeEach(async t => {
+        t.ctx.startTime = (new Date).getTime();
+    });
 
 test('Test network rendering timeout', async t => {
-        // Basic demo should load within 3 seconds
-        await t.setPageLoadTimeout(3000);
+        // Basic demo page should load within 2 seconds
+        await t.setPageLoadTimeout(2000);
 
         // Wait for network to render
         await Selector('#phase-network', {visibilityCheck: true});
+
+        // Check that test took less than 2 seconds
+        let timeDiff = (new Date).getTime() - t.ctx.startTime;
+        await t.expect(timeDiff).lte(1000, `Network rendering took too long: ${timeDiff}`);
 });
 
 test('Test viz container exists', async t => {
