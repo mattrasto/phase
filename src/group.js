@@ -41,8 +41,7 @@ class Group {
       }
       return containers.filter(d => set.has(d.source.id) || set.has(d.target.id));
     }
-    // TODO: Need to implement
-    throw new InvalidFilterException('Invalid filterer type');
+    throw Error('Invalid filterer type');
   }
 
   // Applies styles from the stylemap to the selection
@@ -94,7 +93,7 @@ class Group {
     if (func == null) {
       func1 = () => {};
     }
-    const wrapperFunc = function (d) {
+    const wrapperFunc = (d) => {
       // TODO: Modify stylemap
       func1.call(this, d, d3.select(this.childNodes[0]), d3.select(this.childNodes[1]));
     };

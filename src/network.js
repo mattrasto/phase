@@ -309,13 +309,13 @@ class Network {
 
   log(message) {
     if (this.debug) {
-      console.log(message);
+      console.log(message); // eslint-disable-line no-console
     }
   }
 
   warn(message) {
     if (this.debug) {
-      console.warn(message);
+      console.warn(message); // eslint-disable-line no-console
     }
   }
 
