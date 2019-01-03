@@ -263,24 +263,19 @@ npm run dev
 
 ## Testing
 
-For our tests we use mocha and selenium webdriver. In order to use selenium, you must download and extract the Chrome driver executables from [here](https://github.com/SeleniumHQ/selenium/tree/master/javascript/node/selenium-webdriver#installation).
+For our tests we use [cafetest](https://devexpress.github.io/testcafe/).
 
-After you unzip and extract it, you must move it somewhere in your system PATH so that selenium can find it (such as `/usr/local/bin`). Alternatively, for temporary usage you can run
-```bash
-export PATH=$PATH:/path/to/executable/
-```
-
-Additionally, you must run a webserver at the top level directory so that selenium can make requests to demo html pages.You can use any server as long as it uses port 8000. I recommend Python3's `http.server` which you can start up using the command
+To run the tests, you must run a webserver at the top level directory so that testcafe can make requests to the demo HTML pages. You can use any server as long as it uses port 8000. We recommend Python3's `http.server` which you can start up using the command:
 ```bash
 npm run serve
 ```
 
-From there you can run the tests found in the `test` directory using the command
+From there you can run the tests found in the `test` directory:
 ```bash
 npm run test
 ```
 
-Alternatively, if you want to just open up all the html files at once to play around with them instead of running the automated tests you can use
+Alternatively, if you want to just open up all the html files at once to play around with them instead of running the automated tests you can use:
 ```bash
 npm run open
 ```
