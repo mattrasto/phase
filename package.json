@@ -15,6 +15,7 @@
   "scripts": {
     "build": "npx webpack",
     "dev": "npx webpack --watch",
+    "lint": "./node_modules/.bin/eslint ",
     "serve": "python3 -m http.server",
     "test": "./node_modules/.bin/testcafe chrome test/*",
     "open": "google-chrome demos/*.html"
