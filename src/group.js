@@ -89,6 +89,7 @@ class Group {
   }
 
   event(eventName, func) {
+    /* global d3 */
     let func1 = func;
     if (func == null) {
       func1 = () => {};

@@ -13,8 +13,8 @@ export default class Morph {
   }
 
   destroy() {
-    if (this.label in this.network._morphs) {
-      delete this.network._morphs[this.label];
+    if (this.label in this.network.morphs) {
+      delete this.network.morphs[this.label];
     }
   }
 } // End Morph Class

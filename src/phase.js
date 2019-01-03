@@ -17,10 +17,10 @@ export default class Phase {
     this._layerNodes = []; // Array of MorphNodes present in each layer of the execution tree
 
     // External state
-    this._state = {}; // State variables belonging to state
+    this.state = {}; // State variables belonging to state
 
     // Morphs and groups associated with the phase
-    this._morphs = {};
+    this.morphs = {};
     this.nodeGroups = {};
     this.linkGroups = {};
 
@@ -36,9 +36,9 @@ export default class Phase {
 
   // Updates or returns the current state
   state(updatedState) {
-    if (updatedState == undefined) return this._state;
+    if (updatedState == undefined) return this.state;
     for (const key in updatedState) {
-        this._state[key] = updatedState[key];
+        this.state[key] = updatedState[key];
     }
   }
 
@@ -76,12 +76,12 @@ export default class Phase {
 
   // Reset the phase to its initial settings/state
   reset() {
-    this._state = {};
+    this.state = {};
 
-    for (const morph in this._morphs) {
-      this._morphs[morph].destroy();
+    for (const morph in this.morphs) {
+      this.morphs[morph].destroy();
     }
-    this._morphs = {};
+    this.morphs = {};
     for (const nodeGroup in this.nodeGroups) {
       this.nodeGroups[nodeGroup].destroy();
     }
@@ -94,10 +94,10 @@ export default class Phase {
 
   // Teardown the phase along with its associated groups/morphs and remove from viz
   destroy() {
-    for (const morph in this._morphs) {
-      this._morphs[morph].destroy();
+    for (const morph in this.morphs) {
+      this.morphs[morph].destroy();
     }
-    this._morphs = {};
+    this.morphs = {};
     for (const nodeGroup in this.nodeGroups) {
       this.nodeGroups[nodeGroup].destroy();
     }
@@ -107,7 +107,7 @@ export default class Phase {
     }
     this.linkGroups = {};
 
-    delete this.network._phases[this.label];
+    delete this.network.phases[this.label];
   }
 
   // Begins the simulation
@@ -163,15 +163,15 @@ export default class Phase {
   morph(label, type, change) {
     let morph = this.network.morph.call(this, label, type, change);
     morph.phase = this.label;
-    this._morphs[label] = morph;
+    this.morphs[label] = morph;
     return morph;
   }
 
   getMorph(label) {
-    return this._morphs[label];
+    return this.morphs[label];
   }
 
   getAllMorphs() {
-    return this._morphs;
+    return this.morphs;
   }
 } // End Phase Class
