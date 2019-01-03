@@ -21,8 +21,8 @@ export default class Phase {
 
     // Morphs and groups associated with the phase
     this._morphs = {};
-    this._nodeGroups = {};
-    this._linkGroups = {};
+    this.nodeGroups = {};
+    this.linkGroups = {};
 
     // Function called on when phase is initialized
     this._initial;
@@ -82,14 +82,14 @@ export default class Phase {
       this._morphs[morph].destroy();
     }
     this._morphs = {};
-    for (const nodeGroup in this._nodeGroups) {
-      this._nodeGroups[nodeGroup].destroy();
+    for (const nodeGroup in this.nodeGroups) {
+      this.nodeGroups[nodeGroup].destroy();
     }
-    this._nodeGroups = {};
-    for (const linkGroup in this._linkGroups) {
-      this._linkGroups[linkGroup].destroy();
+    this.nodeGroups = {};
+    for (const linkGroup in this.linkGroups) {
+      this.linkGroups[linkGroup].destroy();
     }
-    this._linkGroups = {};
+    this.linkGroups = {};
   }
 
   // Teardown the phase along with its associated groups/morphs and remove from viz
@@ -98,14 +98,14 @@ export default class Phase {
       this._morphs[morph].destroy();
     }
     this._morphs = {};
-    for (const nodeGroup in this._nodeGroups) {
-      this._nodeGroups[nodeGroup].destroy();
+    for (const nodeGroup in this.nodeGroups) {
+      this.nodeGroups[nodeGroup].destroy();
     }
-    this._nodeGroups = {};
-    for (const linkGroup in this._linkGroups) {
-      this._linkGroups[linkGroup].destroy();
+    this.nodeGroups = {};
+    for (const linkGroup in this.linkGroups) {
+      this.linkGroups[linkGroup].destroy();
     }
-    this._linkGroups = {};
+    this.linkGroups = {};
 
     delete this.network._phases[this.label];
   }
@@ -132,32 +132,32 @@ export default class Phase {
   nodeGroup(label, filterer, val) {
     let nodeGroup = this.network.nodeGroup.call(this.network, label, filterer, val);
     nodeGroup.phase = this.label;
-    this._nodeGroups[label] = nodeGroup;
+    this.nodeGroups[label] = nodeGroup;
     return nodeGroup;
   }
 
   getNodeGroup(label) {
-    return this._nodeGroups[label];
+    return this.nodeGroups[label];
   }
 
   getAllNodeGroups() {
-    return this._nodeGroups;
+    return this.nodeGroups;
   }
 
   // Creates a new node group
   linkGroup(label, filterer, val) {
     let linkGroup = this.network.linkGroup.call(this.network, label, filterer, val);
     linkGroup.phase = this.label;
-    this._linkGroups[label] = linkGroup;
+    this.linkGroups[label] = linkGroup;
     return linkGroup;
   }
 
   getLinkGroup(label) {
-    return this._linkGroups[label];
+    return this.linkGroups[label];
   }
 
   getAllLinkGroups() {
-    return this._linkGroups;
+    return this.linkGroups;
   }
 
   morph(label, type, change) {

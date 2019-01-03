@@ -26,8 +26,8 @@ class Network {
     this._containerWidth = 0;
     this._containerHeight = 0;
 
-    this._nodeGroups = {};
-    this._linkGroups = {};
+    this.nodeGroups = {};
+    this.linkGroups = {};
 
     this._morphs = {};
     this._phases = {};
@@ -38,8 +38,8 @@ class Network {
     // Settings (user-accessible)
     this._settings = {};
     // Default styles for each element
-    this._defaultNodeStyles = {};
-    this._defaultLinkStyles = {};
+    this.defaultNodeStyles = {};
+    this.defaultLinkStyles = {};
     // Default elements' event handlers
     this._defaultVizEventHandlers = {};
     this._defaultNodeEventHandlers = {};
@@ -149,7 +149,7 @@ class Network {
 
   initStyles() {
     // Default element styles
-    this._defaultNodeStyles = {
+    this.defaultNodeStyles = {
         // Node size
         "r": 10,
         // Node fill color
@@ -160,7 +160,7 @@ class Network {
         "stroke-width": .8,
     }
 
-    this._defaultLinkStyles = {
+    this.defaultLinkStyles = {
         // Link type (solid, dash array, etc.)
         "stroke-dasharray": "",
         // Link color
@@ -365,13 +365,13 @@ class Network {
     }
 
     // Rebind all previous groups to new svg and save style
-    for(const key in this._nodeGroups){
-        const ng = this._nodeGroups[key];
+    for(const key in this.nodeGroups){
+        const ng = this.nodeGroups[key];
         const newGroup = this.nodeGroup(ng.label, ng.filterer);
         newGroup.setStyle(ng.getStyle());
     }
-    for(const key in this._linkGroups){
-        const lg = this._linkGroups[key];
+    for(const key in this.linkGroups){
+        const lg = this.linkGroups[key];
         const newGroup = this.linkGroup(lg.label, lg.filterer);
         newGroup.setStyle(lg.getStyle());
     }
@@ -431,38 +431,38 @@ class Network {
 
   // Creates a new node group
   nodeGroup(label, filterer, val) {
-    if (label in this._nodeGroups) {
-        this.warn(`Node group ${label} is being overwritten`, this._nodeGroups[label]);
+    if (label in this.nodeGroups) {
+        this.warn(`Node group ${label} is being overwritten`, this.nodeGroups[label]);
     }
     const group = new NodeGroup(this, label, filterer, val);
-    this._nodeGroups[label] = group;
+    this.nodeGroups[label] = group;
     return group;
   }
 
   getNodeGroup(label) {
-    return this._nodeGroups[label];
+    return this.nodeGroups[label];
   }
 
   getAllNodeGroups() {
-    return this._nodeGroups;
+    return this.nodeGroups;
   }
 
   // Creates a new link group
   linkGroup(label, filterer, val) {
-    if (label in this._linkGroups) {
-        this.warn(`Link group ${label} is being overwritten`, this._linkGroups[label]);
+    if (label in this.linkGroups) {
+        this.warn(`Link group ${label} is being overwritten`, this.linkGroups[label]);
     }
     const group = new LinkGroup(this, label, filterer, val);
-    this._linkGroups[label] = group;
+    this.linkGroups[label] = group;
     return group;
   }
 
   getLinkGroup(label) {
-    return this._linkGroups[label];
+    return this.linkGroups[label];
   }
 
   getAllLinkGroups() {
-    return this._linkGroups;
+    return this.linkGroups;
   }
 
 
@@ -589,10 +589,10 @@ class Network {
     // Update circles
     this.nodeContainers
         .select("circle")
-            .style("r", this._defaultNodeStyles["r"])
-            .style("fill", this._defaultNodeStyles["fill"])
-            .style("stroke", this._defaultNodeStyles["stroke"])
-            .style("stroke-width", this._defaultNodeStyles["stroke-width"]);
+            .style("r", this.defaultNodeStyles["r"])
+            .style("fill", this.defaultNodeStyles["fill"])
+            .style("stroke", this.defaultNodeStyles["stroke"])
+            .style("stroke-width", this.defaultNodeStyles["stroke-width"]);
 
     // Update labels
     this.nodeContainers
@@ -658,9 +658,9 @@ class Network {
     // Update lines
     this.linkContainers
         .select("line")
-        .style("stroke", this._defaultLinkStyles["stroke"])
-        .style("stroke-width", this._defaultLinkStyles["stroke-width"])
-        .style("stroke-dasharray", this._defaultLinkStyles["stroke-dasharray"])
+        .style("stroke", this.defaultLinkStyles["stroke"])
+        .style("stroke-width", this.defaultLinkStyles["stroke-width"])
+        .style("stroke-dasharray", this.defaultLinkStyles["stroke-dasharray"])
 
     // Update labels
     this.linkContainers

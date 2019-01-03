@@ -3,8 +3,8 @@ export default class Morph {
   constructor(network, label, type, change) {
     this.network = network;
     this.label = label;
-    this._type = type;
-    this._change = change;
+    this.type = type;
+    this.change = change;
 
     // Phase the morph is associated with
     this.phase = null;

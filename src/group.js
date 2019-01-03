@@ -47,86 +47,90 @@ class Group {
 
   // Applies styles from the stylemap to the selection
   style(styleMap) {
-    for (const attr in styleMap) {
+    // Use foreach on styleMap
+    styleMap.keys().forEach((attr) => {
       this.styles[attr] = styleMap[attr];
       this.selection.select(this.selector).style(attr, styleMap[attr]);
-    }
+    });
   }
 
   // Sets style history to an existing map when rebinding to new svg
-  setStyle(styleMap){
+  setStyle(styleMap) {
     this.styles = styleMap;
   }
 
-  getStyle(){
+  getStyle() {
     return this.styles;
   }
 
-  restyle(){
+  restyle() {
     this.style(this.styles);
   }
 
   labels(labeler) {
-    this.selection.select("text").text(labeler);
+    this.selection.select('text').text(labeler);
   }
 
   morph(label) {
-    const morph = this.phase ? this.network.getPhase(this.phase).getMorph(label) : this.network.getMorph(label);
-    if (morph._type == "style") {
-      this.style(morph._change);
+    const morph = this.phase ? this.network.getPhase(this.phase)
+      .getMorph(label) : this.network.getMorph(label);
+    if (morph.type === 'style') {
+      this.style(morph.change);
     }
-    if (morph._type == "data") {
-      let newData = this.selection.data();
-      for (const datum in newData) {
-          for (const update in morph._change) {
-              newData[datum][update] = morph._change[update];
-          }
-      }
+    if (morph.type === 'data') {
+      const newData = this.selection.data();
+      newData.keys().forEach((datum) => {
+        morph.change.keys().forEach((update) => {
+          newData[datum][update] = morph.change[update];
+        });
+      });
       this.selection.data(newData);
     }
   }
 
   event(eventName, func) {
+    let func1 = func;
     if (func == null) {
-      func = () => {};
+      func1 = () => {};
     }
-    let wrapperFunc = function(d) {
+    const wrapperFunc = function (d) {
       // TODO: Modify stylemap
-      func.call(this, d, d3.select(this.childNodes[0]), d3.select(this.childNodes[1]));
-    }
+      func1.call(this, d, d3.select(this.childNodes[0]), d3.select(this.childNodes[1]));
+    };
 
     this.selection.on(eventName, wrapperFunc);
-    // TODO: If an element is reevaluated into multiple groups after being added, which handler is it assigned?
+    // TODO: If an element is reevaluated into multiple groups after being
+    // added, which handler is it assigned?
     this.eventHandlers[eventName] = wrapperFunc;
   }
 
   destroy() {
-    if (this.label in this.network._nodeGroups) {
-      delete this.network._nodeGroups[this.label];
-    } else if (this.label in this.network._linkGroups) {
-      delete this.network._linkGroups[this.label];
+    if (this.label in this.network.nodeGroups) {
+      delete this.network.nodeGroups[this.label];
+    } else if (this.label in this.network.linkGroups) {
+      delete this.network.linkGroups[this.label];
     }
   }
 } // End Group Class
 
 export class NodeGroup extends Group {
-    // Creates a node group based on attributes or a passed in selection
+  // Creates a node group based on attributes or a passed in selection
   constructor(network, label, filterer, val) {
     super(network, label, filterer, val, NODE_SELECTOR);
   }
 
   unstyle() {
-    super.style(this.network._defaultNodeStyles);
+    super.style(this.network.defaultNodeStyles);
   }
 } // End NodeGroup Class
 
 export class LinkGroup extends Group {
-    // Creates a link group based on attributes or a passed in selection
+  // Creates a link group based on attributes or a passed in selection
   constructor(network, label, filterer, val) {
     super(network, label, filterer, val, LINK_SELECTOR);
   }
 
   unstyle() {
-    super.style(this.network._defaultLinkStyles);
+    super.style(this.network.defaultLinkStyles);
   }
 } // End LinkGroup Class
