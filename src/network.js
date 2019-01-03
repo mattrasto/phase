@@ -15,7 +15,7 @@ function ticked(nodeContainer, linkContainer) {
     .attr('x2', d => d.target.x)
     .attr('y2', d => d.target.y);
 
-  linkContainer.select('text').attr('transform', (d) => `translate(${(d.source.x + d.target.x) / 2},${(d.source.y + d.target.y) / 2})`);
+  linkContainer.select('text').attr('transform', d => `translate(${(d.source.x + d.target.x) / 2},${(d.source.y + d.target.y) / 2})`);
 }
 
 class Network {
@@ -213,9 +213,9 @@ class Network {
       nodeMousedown(d) {
         // Unpin node if middle click
         if (d3.event.which === 2) {
-          d3.select(this).classed('fixed', d.fixed = false);
-          d.fx = null;
-          d.fy = null;
+          d3.select(this).classed('fixed', d.fixed = false); // eslint-disable-line
+          d.fx = null; // eslint-disable-line
+          d.fy = null; // eslint-disable-line
         }
       },
       // Node left click handler
@@ -237,15 +237,15 @@ class Network {
       nodeDragStart(d) {
         this.log('Drag start');
         if (!d3.event.active) this.simulation.alphaTarget(0.3).restart();
-        d.fx = d.x;
-        d.fy = d.y;
+        d.fx = d.x; // eslint-disable-line
+        d.fy = d.y; // eslint-disable-line
       },
       // Container drag handler
       nodeDrag(d) {
         this.log('Drag step');
         if (!this.settings.static) {
-          d.fx = d3.event.x;
-          d.fy = d3.event.y;
+          d.fx = d3.event.x; // eslint-disable-line
+          d.fy = d3.event.y; // eslint-disable-line
         } else {
           // TODO: This is abominable (yet performant enough)
           // The root of the problem is that d3.select(d).node() returns a
