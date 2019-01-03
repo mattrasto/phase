@@ -1,8 +1,6 @@
 import { Selector } from 'testcafe';
 
-
 const pathToFile = file => `localhost:8000/demos/${file}.html`;
-
 
 // TODO: Initialize tests with random nodes to test for from sample data and pass to tests via context
 fixture('Basic')
@@ -19,7 +17,7 @@ test('Test network rendering timeout', async t => {
         await Selector('#phase-network', {visibilityCheck: true});
 
         // Check that test took less than 2 seconds
-        let timeDiff = (new Date).getTime() - t.ctx.startTime;
+        const timeDiff = (new Date).getTime() - t.ctx.startTime;
         await t.expect(timeDiff).lte(1000, `Network rendering took too long: ${timeDiff}`);
 });
 
@@ -31,7 +29,6 @@ test('Test viz container exists', async t => {
         // Check that SVG element is visible
         await t.expect(Selector('#phase-network').visible).ok('Network container SVG element is not visible');
 });
-
 
 test('Test container group classes', async t => {
         // Wait for network to render
@@ -59,7 +56,6 @@ test('Test container classes', async t => {
         await t.expect(linkContainer.classNames).contains('link', 'Link container does not have "link" class');
 });
 
-
 fixture('Array Grouping')
     .page(pathToFile('array_grouping'));
 
@@ -76,7 +72,7 @@ test('Test node style morphs', async t => {
 });
 
 test('Test link style morphs', async t => {
-        //Wait for network to render
+        // Wait for network to render
         await Selector('#phase-network', {visibilityCheck: true});
         // Apply morphs
         await t.click(Selector('#sidebar input', {timeout: 1000}));
