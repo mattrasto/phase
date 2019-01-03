@@ -1,3 +1,9 @@
 module.exports = {
-    "extends": "airbnb-base"
+    "plugins": [
+        "testcafe"
+    ],
+    "extends": [
+        "airbnb-base",
+        "plugin:testcafe/recommended"
+    ]
 };
