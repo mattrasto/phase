@@ -2,6 +2,22 @@ import Phase from './phase';
 import Morph from './morph';
 import { NodeGroup, LinkGroup } from './group';
 
+// Recalculates node and link positions every simulation tick
+function ticked(nodeContainer, linkContainer) {
+  nodeContainer
+    .attr('transform', d => `translate(${d.x},${d.y})`)
+    .attr('x', d => d.x)
+    .attr('y', d => d.y);
+
+  linkContainer.select('line')
+    .attr('x1', d => d.source.x)
+    .attr('y1', d => d.source.y)
+    .attr('x2', d => d.target.x)
+    .attr('y2', d => d.target.y);
+
+  linkContainer.select('text').attr('transform', (d, i) => `translate(${(d.source.x + d.target.x) / 2},${(d.source.y + d.target.y) / 2})`);
+}
+
 class Network {
   constructor(query, settings) {
     /* global document */
@@ -72,7 +88,7 @@ class Network {
     if (this.settings.static) {
       for (let i = 0, n = Math.ceil(Math.log(this.simulation.alphaMin())
         / Math.log(1 - this.simulation.alphaDecay())); i < n; i += 1) {
-        this.ticked(this.nodeContainers, this.linkContainers);
+        ticked(this.nodeContainers, this.linkContainers);
       }
     }
 
@@ -196,7 +212,7 @@ class Network {
       // Node mousedown handler
       nodeMousedown(d) {
         // Unpin node if middle click
-        if (d3.event.which == 2) {
+        if (d3.event.which === 2) {
           d3.select(this).classed('fixed', d.fixed = false);
           d.fx = null;
           d.fy = null;
@@ -232,10 +248,13 @@ class Network {
           d.fy = d3.event.y;
         } else {
           // TODO: This is abominable (yet performant enough)
-          // The root of the problem is that d3.select(d).node() returns a selection of the data, not the elements
-          // This means the only way to obtain the element associated with the data is to manually search for it
+          // The root of the problem is that d3.select(d).node() returns a
+          // selection of the data, not the elements
+          // This means the only way to obtain the element associated with the
+          // data is to manually search for it
           // Is this due to how data is bound to elements in this.nodeContainers?
-          // NOTE: Another stopgap solution is assigning ids to each element corresponding with data ids
+          // NOTE: Another stopgap solution is assigning ids to each element
+          // corresponding with data ids
           // let newX;
           // let newY;
           // for (const nodeContainer of this.nodeContainers.groups[0]) {
@@ -243,7 +262,8 @@ class Network {
           //         newX = d3.event.x - d.x;
           //         newY = d3.event.y - d.y;
           //         d3.select(nodeContainer)
-          //             .attr("transform", function(d) { return "translate(" + newX + "," + newY + ")"; });
+          //             .attr("transform", function(d) { return "translate(" +
+          // newX + "," + newY + ")"; });
           //         nodeContainer.x = newX;
           //         nodeContainer.y = newY;
           //         return;
@@ -258,7 +278,8 @@ class Network {
           //             .attr("x2", function(d) { return 100; })
           //             .attr("y2", function(d) { return 100; });
           //         d3.select(linkContainer.childNodes[1]).attr('transform', function(d, i) {
-          //             return "translate(" + ((d.source.x + d.target.x) / 2) + "," + ((d.source.y + d.target.y) / 2) + ")"
+          //             return "translate(" + ((d.source.x + d.target.x) / 2) +
+          // "," + ((d.source.y + d.target.y) / 2) + ")"
           //         });
           //     }
           // }
@@ -270,7 +291,7 @@ class Network {
       },
     };
 
-    this._defaultLinkEventHandlers = {};
+    this.defaultLinkEventHandlers = {};
   }
 
   // Resets the network to initial rendered state
@@ -329,19 +350,19 @@ class Network {
       .force('centerY', d3.forceY(this.containerHeight / 2).strength(this.settings.gravity));
 
     // Creates g container for link containers
-    this._linkContainerG = this.g.append('g')
+    this.linkContainerG = this.g.append('g')
       .attr('class', 'links');
 
     // Appends links to link g container
-    this.linkContainers = this._linkContainerG
+    this.linkContainers = this.linkContainerG
       .selectAll('g');
 
     // Creates g container for node containers
-    this._nodeContainerG = this.g.append('g')
+    this.nodeContainerG = this.g.append('g')
       .attr('class', 'nodes');
 
     // Adds node containers to node g container
-    this.nodeContainers = this._nodeContainerG
+    this.nodeContainers = this.nodeContainerG
       .selectAll('g');
 
     this.bindData(this.data);
@@ -356,48 +377,31 @@ class Network {
     if (this.settings.static) {
       this.simulation.stop();
     } else {
-      this.simulation.on('tick', () => this.ticked(this.nodeContainers, this.linkContainers));
+      this.simulation.on('tick', () => ticked(this.nodeContainers, this.linkContainers));
     }
 
     // Rebind all previous groups to new svg and save style
-    for (const key in this.nodeGroups) {
+    this.nodeGroups.keys().forEach((key) => {
       const ng = this.nodeGroups[key];
       const newGroup = this.nodeGroup(ng.label, ng.filterer);
       newGroup.setStyle(ng.getStyle());
-    }
-    for (const key in this.linkGroups) {
+    });
+    this.linkGroups.keys().forEach((key) => {
       const lg = this.linkGroups[key];
       const newGroup = this.linkGroup(lg.label, lg.filterer);
       newGroup.setStyle(lg.getStyle());
-    }
+    });
 
     this.log(`Rendered on ${this.container.id}`);
   }
-
-  // Recalculates node and link positions every simulation tick
-  ticked(nodeContainer, linkContainer) {
-    nodeContainer
-      .attr('transform', d => `translate(${d.x},${d.y})`)
-      .attr('x', d => d.x)
-      .attr('y', d => d.y);
-
-    linkContainer.select('line')
-      .attr('x1', d => d.source.x)
-      .attr('y1', d => d.source.y)
-      .attr('x2', d => d.target.x)
-      .attr('y2', d => d.target.y);
-
-    linkContainer.select('text').attr('transform', (d, i) => `translate(${(d.source.x + d.target.x) / 2},${(d.source.y + d.target.y) / 2})`);
-  }
-
 
   // GRAPH STORE
 
 
   // Creates a dict containing children of each node
   generateAdjacencyList(data) {
-    const links = data.links;
-    const nodes = data.nodes;
+    const { links } = data;
+    const { nodes } = data;
 
     this.adjList = {};
     nodes.forEach((node) => {
@@ -501,8 +505,8 @@ class Network {
     // Assign new data
     this.data = data;
 
-    this._bindNodes();
-    this._bindLinks();
+    this.bindNodes();
+    this.bindLinks();
 
     // Rebind data and restart simulation
     this.simulation
@@ -512,34 +516,34 @@ class Network {
   }
 
   // Binds new data to the nodes
-  _bindNodes() {
+  bindNodes() {
     // Rejoin node data
     this.nodeContainers = this.nodeContainers.data(this.data.nodes, d => d.id);
 
     // Remove old nodes
     if (this.nodeContainers.exit().groups[0].length > 0) {
-      this._bindNodesRemove();
+      this.bindNodesRemove();
     }
 
     // Add new nodes
     let newNodes = this.nodeContainers;
     if (this.nodeContainers.enter().groups[0].length > 0) {
-      newNodes = this._bindNodesAdd();
+      newNodes = this.bindNodesAdd();
     }
 
     // Merge enter and update selections
     this.nodeContainers = newNodes.merge(this.nodeContainers);
 
     // Update existing nodes
-    this._bindNodesUpdate();
+    this.bindNodesUpdate();
   }
 
-  _bindNodesRemove() {
+  bindNodesRemove() {
     // Remove old nodes
     this.nodeContainers.exit().remove();
   }
 
-  _bindNodesAdd() {
+  bindNodesAdd() {
     // Add new node containers to node g container
     const newNodes = this.nodeContainers
       .enter().append('g');
@@ -555,7 +559,7 @@ class Network {
     return newNodes;
   }
 
-  _bindNodesUpdate() {
+  bindNodesUpdate() {
     // Update containers
     this.nodeContainers
       .attr('class', 'node')
@@ -589,34 +593,34 @@ class Network {
   }
 
   // Binds new data to the links
-  _bindLinks() {
+  bindLinks() {
     // Rejoin link data
     this.linkContainers = this.linkContainers.data(this.data.links, d => d.source.id + d.target.id);
 
     // Remove old links
     if (this.linkContainers.exit().groups[0].length > 0) {
-      this._bindLinksRemove();
+      this.bindLinksRemove();
     }
 
     // Add new links
     let newLinks = this.linkContainers;
     if (this.linkContainers.enter().groups[0].length > 0) {
-      newLinks = this._bindLinksAdd();
+      newLinks = this.bindLinksAdd();
     }
 
     // Merge enter and update selections
     this.linkContainers = newLinks.merge(this.linkContainers);
 
     // Update existing links
-    this._bindLinksUpdate();
+    this.bindLinksUpdate();
   }
 
-  _bindLinksRemove() {
+  bindLinksRemove() {
     // Remove old links
     this.linkContainers.exit().remove();
   }
 
-  _bindLinksAdd() {
+  bindLinksAdd() {
     // Add new links to link g container
     const newLinks = this.linkContainers
       .enter().append('g');
@@ -636,7 +640,7 @@ class Network {
     return newLinks;
   }
 
-  _bindLinksUpdate() {
+  bindLinksUpdate() {
     // Update lines
     this.linkContainers
       .select('line')
