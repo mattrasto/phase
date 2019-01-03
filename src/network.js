@@ -15,7 +15,7 @@ function ticked(nodeContainer, linkContainer) {
     .attr('x2', d => d.target.x)
     .attr('y2', d => d.target.y);
 
-  linkContainer.select('text').attr('transform', (d, i) => `translate(${(d.source.x + d.target.x) / 2},${(d.source.y + d.target.y) / 2})`);
+  linkContainer.select('text').attr('transform', (d) => `translate(${(d.source.x + d.target.x) / 2},${(d.source.y + d.target.y) / 2})`);
 }
 
 class Network {
@@ -184,11 +184,11 @@ class Network {
   }
 
   initEventHandlers() {
-    /* global d3 d */
+    /* global d3 */
     this.defaultVizEventHandlers = {
       // Container right click handler (outside nodes)
       // TODO: Remove d?
-      containerContextmenu(d) {
+      containerContextmenu() {
         d3.event.preventDefault(); // Prevent context menu from appearing
       },
       // Container zoom handler
@@ -200,12 +200,12 @@ class Network {
     // Default node element event handlers
     this.defaultNodeEventHandlers = {
       // Node mouseover handler
-      nodeMouseover(d) {
+      nodeMouseover() {
         // Default: add blue border
         d3.select(this.childNodes[0]).style('stroke', '#7DABFF').style('stroke-width', '3px');
       },
       // Node mouseout handler
-      nodeMouseout(d) {
+      nodeMouseout() {
         // Default: remove blue border
         d3.select(this.childNodes[0]).style('stroke', '#F7F6F2').style('stroke-width', '.8');
       },
@@ -219,18 +219,18 @@ class Network {
         }
       },
       // Node left click handler
-      nodeClick(d) {
+      nodeClick() {
         const currentColor = d3.select(this.childNodes[0]).style('fill');
         const defaultColor = 'rgb(51, 51, 51)';
         const newColor = currentColor === defaultColor ? '#63B2D4' : defaultColor;
         d3.select(this.childNodes[0]).style('fill', newColor);
       },
       // Node double left click handler
-      nodeDblclick(d) {
+      nodeDblclick() {
         this.log('Double click');
       },
       // Node right click handler
-      nodeContextmenu(d) {
+      nodeContextmenu() {
         this.log('Right click');
       },
       // Container drag start handler
@@ -286,7 +286,7 @@ class Network {
         }
       },
       // Container drag end handler
-      nodeDragEnd(d) {
+      nodeDragEnd() {
         if (!d3.event.active) this.simulation.alphaTarget(0);
       },
     };
