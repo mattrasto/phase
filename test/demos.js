@@ -11,7 +11,7 @@ fixture('Basic')
         ctx.vizContainer = await Selector('#phase-network', {visibilityCheck: true});
     });
 
-test('Test network rendering timeout', async t => {
+test('Network renders within 2 seconds', async t => {
         // Basic demo page should load within 2 seconds
         await t.setPageLoadTimeout(2000);
 
@@ -20,32 +20,29 @@ test('Test network rendering timeout', async t => {
         await t.expect(timeDiff).lte(2000, `Network rendering took too long: ${timeDiff}`);
 });
 
-test('Test viz container exists', async t => {
+test('Viz container exists', async t => {
+        // Check that SVG element exists
+        await t.expect(t.fixtureCtx.vizContainer.exists).ok('Network container SVG element does not exist');
+
         // Check that viz container has a child element
         await t.expect(t.fixtureCtx.vizContainer.hasChildNodes).ok('Viz container does not have any child elements');
-
-        // Check that SVG element is visible
-        await t.expect(Selector('#phase-network').visible).ok('Network container SVG element is not visible');
 });
 
-test('Test container group classes', async t => {
-        // Check that node container group has proper class
-        const nodeContainerGroup = await Selector('#phase-network > g > g:nth-child(2)');
-        await t.expect(nodeContainerGroup.classNames).contains('nodes', 'Node container group does not have "nodes" class');
+test('Node and Link Containers are populated', async t => {
+        const nodeContainer = await Selector('.nodes');
+        const linkContainer = await Selector('.links');
 
-        // Check that link container group has proper class
-        const linkContainerGroup = await Selector('#phase-network > g > g:nth-child(1)');
-        await t.expect(linkContainerGroup.classNames).contains('links', 'Link container group does not have "links" class');
+        await t.expect(nodeContainer.exists).ok().expect(linkContainer.exists).ok();
+
+        await t.expect(nodeContainer.hasChildNodes).ok('Node Container does not have any child elements');
+        await t.expect(linkContainer.hasChildNodes).ok('Link Container does not have any child elements');
 });
 
-test('Test container classes', async t => {
-        // Check that node container has proper class
-        const nodeContainer = await Selector('#phase-network > g > g.nodes > g:nth-child(1)');
-        await t.expect(nodeContainer.classNames).contains('node', 'Node container does not have "node" class');
+test('Correct number of nodes and links', async t => {
+        const numNodes = await Selector('.node').count;
+        const numLinks = await Selector('.link').count;
 
-        // Check that link container has proper class
-        const linkContainer = await Selector('#phase-network > g > g.links > g:nth-child(1)');
-        await t.expect(linkContainer.classNames).contains('link', 'Link container does not have "link" class');
+        await t.expect(numNodes).eql(77).expect(numLinks).eql(254);
 });
 
 fixture('Array Grouping')
@@ -57,16 +54,14 @@ fixture('Array Grouping')
         await t.click(Selector('#sidebar input', {timeout: 1000}));
     });
 
-test('Test node style morphs', async t => {
-        // Check that "Myriel" node has proper styles
-        const myrielNode = await Selector('#phase-network > g > g.nodes > g:nth-child(1) > circle');
+test('Morph applies correct changes to node', async t => {
+        const myrielNode = await Selector('circle').nth(0);
         await t.expect(myrielNode.getStyleProperty('fill')).eql('rgb(125, 171, 255)', 'Node does not have proper fill');
         await t.expect(myrielNode.getStyleProperty('stroke')).eql('rgb(174, 99, 212)', 'Node does not have proper stroke');
 });
 
-test('Test link style morphs', async t => {
-        // Check that link has proper styles
-        const link = await Selector('#phase-network > g > g.links > g:nth-child(18) > line');
+test('Morph applies correct changes to link', async t => {
+        const link = await Selector('line').nth(17);
         await t.expect(link.getStyleProperty('stroke')).eql('rgb(212, 99, 99)', 'Link does not have proper stroke');
         await t.expect(link.getStyleProperty('stroke-width')).eql('3px', 'Link does not have proper stroke-width');
 });
