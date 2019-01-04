@@ -143,4 +143,6 @@ function startSearch() {
 function resetStyles() {
     viz.unstyleGraph();
     viz.getPhase("bfs").reset();
+    viz.getPhase("barriers").stop();
+    viz.getPhase("barriers").reset();
 }
