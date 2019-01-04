@@ -17,7 +17,7 @@ export default class Phase {
     this.layerNodes = []; // Array of MorphNodes present in each layer of the execution tree
 
     // External state
-    this.state = {}; // State variables belonging to state
+    this.phaseState = {}; // State variables belonging to state
 
     // Morphs and groups associated with the phase
     this.morphs = {};
@@ -25,34 +25,34 @@ export default class Phase {
     this.linkGroups = {};
 
     // Function called on when phase is initialized
-    this.initial = null;
+    this.initialFunction = null;
     // Function called on each timestep to compute phase's next state
-    this.transition = null;
+    this.transitionFunction = null;
     // Function called to determine whether the phase is finished
-    this.terminal = null;
+    this.terminalFunction = null;
 
     return this;
   }
 
   // Updates or returns the current state
   state(updatedState) {
-    if (updatedState === undefined) return this.state;
-    updatedState.keys().forEach((key) => {
-      this.state[key] = updatedState[key];
+    if (updatedState === undefined) return this.phaseState;
+    Object.keys(updatedState).forEach((key) => {
+      this.phaseState[key] = updatedState[key];
     });
     return null;
   }
 
   initial(initial) {
-    this.initial = initial;
+    this.initialFunction = initial;
   }
 
   next(transition) {
-    this.transition = transition;
+    this.transitionFunction = transition;
   }
 
   end(terminal) {
-    this.terminal = terminal;
+    this.terminalFunction = terminal;
   }
 
   updateTimestep(newValue) {
@@ -60,11 +60,11 @@ export default class Phase {
   }
 
   calculateNextState() {
-    this.transition(this.state(), this.network.state());
+    this.transitionFunction(this.state(), this.network.state());
   }
 
   evaluateTermination() {
-    if (this.terminal(this.state(), this.network.state())) {
+    if (this.terminalFunction(this.state(), this.network.state())) {
       return true;
     }
     return false;
@@ -77,17 +77,17 @@ export default class Phase {
 
   // Reset the phase to its initial settings/state
   reset() {
-    this.state = {};
+    this.phaseState = {};
 
-    this.morphs.keys().forEach((morph) => {
+    Object.keys(this.morphs).forEach((morph) => {
       this.morphs[morph].destroy();
     });
     this.morphs = {};
-    this.nodeGroups.keys().forEach((nodeGroup) => {
+    Object.keys(this.nodeGroups).forEach((nodeGroup) => {
       this.nodeGroups[nodeGroup].destroy();
     });
     this.nodeGroups = {};
-    this.linkGroups.keys().forEach((linkGroup) => {
+    Object.keys(this.linkGroups).forEach((linkGroup) => {
       this.linkGroups[linkGroup].destroy();
     });
     this.linkGroups = {};
@@ -95,15 +95,15 @@ export default class Phase {
 
   // Teardown the phase along with its associated groups/morphs and remove from viz
   destroy() {
-    this.morphs.keys().forEach((morph) => {
+    Object.keys(this.morphs).forEach((morph) => {
       this.morphs[morph].destroy();
     });
     this.morphs = {};
-    this.nodeGroups.keys().forEach((nodeGroup) => {
+    Object.keys(this.nodeGroups).forEach((nodeGroup) => {
       this.nodeGroups[nodeGroup].destroy();
     });
     this.nodeGroups = {};
-    this.linkGroups.keys().forEach((linkGroup) => {
+    Object.keys(this.linkGroups).forEach((linkGroup) => {
       this.linkGroups[linkGroup].destroy();
     });
     this.linkGroups = {};
@@ -114,14 +114,14 @@ export default class Phase {
   // Begins the simulation
   start() {
     // TODO: Only initialize if the simulation has not been started yet or has been reset
-    this.initial(this.state(), this.network.state());
+    this.initialFunction(this.state(), this.network.state());
 
     function step() {
       this.calculateNextState();
       if (this.evaluateTermination()) this.stop();
     }
 
-    if (this.transition) {
+    if (this.transitionFunction) {
       this.interval = setInterval(step.bind(this), this.timeStep);
     }
   }

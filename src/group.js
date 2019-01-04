@@ -47,7 +47,7 @@ class Group {
   // Applies styles from the stylemap to the selection
   style(styleMap) {
     // Use foreach on styleMap
-    styleMap.keys().forEach((attr) => {
+    Object.keys(styleMap).forEach((attr) => {
       this.styles[attr] = styleMap[attr];
       this.selection.select(this.selector).style(attr, styleMap[attr]);
     });
@@ -70,16 +70,14 @@ class Group {
     this.selection.select('text').text(labeler);
   }
 
-  morph(label) {
-    const morph = this.phase ? this.network.getPhase(this.phase)
-      .getMorph(label) : this.network.getMorph(label);
+  morph(morph) {
     if (morph.type === 'style') {
       this.style(morph.change);
     }
     if (morph.type === 'data') {
       const newData = this.selection.data();
-      newData.keys().forEach((datum) => {
-        morph.change.keys().forEach((update) => {
+      Object.keys(newData).forEach((datum) => {
+        Object.keys(morph.change).forEach((update) => {
           newData[datum][update] = morph.change[update];
         });
       });
@@ -93,7 +91,7 @@ class Group {
     if (func == null) {
       func1 = () => {};
     }
-    const wrapperFunc = (d) => {
+    const wrapperFunc = function wrapper(d) {
       // TODO: Modify stylemap
       func1.call(this, d, d3.select(this.childNodes[0]), d3.select(this.childNodes[1]));
     };
@@ -104,6 +102,7 @@ class Group {
     this.eventHandlers[eventName] = wrapperFunc;
   }
 
+  // TODO: If group belongs to a phase, this will not properly remove the reference
   destroy() {
     if (this.label in this.network.nodeGroups) {
       delete this.network.nodeGroups[this.label];
