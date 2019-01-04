@@ -106,11 +106,7 @@ class Network {
   // Updates or returns the current viz state
   state(updatedState) {
     if (updatedState === undefined) return this.networkState;
-<<<<<<< HEAD
-    updatedState.keys().forEach((key) => {
-=======
     Object.keys(updatedState).forEach((key) => {
->>>>>>> demos
       this.networkState[key] = updatedState[key];
     });
     return null;
