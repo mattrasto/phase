@@ -49,7 +49,12 @@ class Group {
     // Use foreach on styleMap
     Object.keys(styleMap).forEach((attr) => {
       this.styles[attr] = styleMap[attr];
-      this.selection.select(this.selector).style(attr, styleMap[attr]);
+      // Check for unsupported styles (eg. Firefox only supports 'r' as an attribute, not a style)
+      if (['r'].includes(attr)) {
+        this.selection.select(this.selector).attr(attr, styleMap[attr]);
+      } else {
+        this.selection.select(this.selector).style(attr, styleMap[attr]);
+      }
     });
   }
 

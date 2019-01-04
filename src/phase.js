@@ -25,11 +25,11 @@ export default class Phase {
     this.linkGroups = {};
 
     // Function called on when phase is initialized
-    this.initialFunction = null;
+    this.initialFunction = () => {};
     // Function called on each timestep to compute phase's next state
-    this.transitionFunction = null;
+    this.transitionFunction = () => {};
     // Function called to determine whether the phase is finished
-    this.terminalFunction = null;
+    this.terminalFunction = () => (false);
 
     return this;
   }
@@ -57,17 +57,6 @@ export default class Phase {
 
   updateTimestep(newValue) {
     this.timeStep = newValue;
-  }
-
-  calculateNextState() {
-    this.transitionFunction(this.state(), this.network.state());
-  }
-
-  evaluateTermination() {
-    if (this.terminalFunction(this.state(), this.network.state())) {
-      return true;
-    }
-    return false;
   }
 
   // Stop the phase's application but don't clear settings/state
@@ -117,8 +106,8 @@ export default class Phase {
     this.initialFunction(this.state(), this.network.state());
 
     function step() {
-      this.calculateNextState();
-      if (this.evaluateTermination()) this.stop();
+      this.transitionFunction(this.state(), this.network.state());
+      if (this.terminalFunction(this.state(), this.network.state())) this.stop();
     }
 
     if (this.transitionFunction) {

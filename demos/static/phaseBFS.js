@@ -18,49 +18,51 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Constructs phase for turning nodes into barriers (search cannot travel through them)
 function createBarrierPhase(startNodes) {
-  const oldPhase = viz.getPhase('barriers');
-  if (oldPhase) oldPhase.destroy();
+    const oldPhase = viz.getPhase("barriers");
+    if (oldPhase) oldPhase.destroy();
 
-  // Initialize phase
-  const barrierPhase = viz.phase('barriers');
-  barrierPhase.updateTimestep(2000); // Change barriers every 2 seconds
+    // Initialize phase
+    let barrierPhase = viz.phase("barriers");
+    barrierPhase.updateTimestep(2000); // Change barriers every 2 seconds
 
-  // Set the phase's initial state
-  // TODO: Default should be no-op function
-  barrierPhase.initial(() => {
-    barrierPhase.state({
-      // NOTE: The morphs are attached to the phase and are destructed with it
-      // QUESTION: Should we build "type" parameter into "change" parameter object?
-      enableStyleMorph: barrierPhase.morph('enable_barrier_style', 'style', { fill: '#D46363' }),
-      enableDataMorph: barrierPhase.morph('enable_barrier_data', 'data', { barrier: true }),
-      disableStyleMorph: barrierPhase.morph('disable_barrier_style', 'style', { fill: '#333' }),
-      disableDataMorph: barrierPhase.morph('disable_barrier_data', 'data', { barrier: false }),
-      prevBarriers: null,
+    // Set the phase's initial state
+    barrierPhase.initial(function(vizState) {
+        barrierPhase.state({
+            // NOTE: The morphs are attached to the phase and are destructed with it
+            // QUESTION: Should we build "type" parameter into "change" parameter object?
+            'enableStyleMorph': barrierPhase.morph("enable_barrier_style", "style", {"fill": "#D46363"}),
+            'enableDataMorph': barrierPhase.morph("enable_barrier_data", "data", {"barrier": true}),
+            'disableStyleMorph': barrierPhase.morph("disable_barrier_style", "style", {"fill": "#333"}),
+            'disableDataMorph': barrierPhase.morph("disable_barrier_data", "data", {"barrier": false}),
+            'prevBarriers': null
+        });
+    });
+
+    barrierPhase.next(function(phaseState, vizState) {
+        // Remove old barriers
+        if (phaseState.prevBarriers != null) {
+            phaseState.prevBarriers.morph(phaseState.disableStyleMorph);
+            phaseState.prevBarriers.morph(phaseState.disableDataMorph);
+            phaseState.prevBarriers.destroy();
+        }
+
+        // Create a group with ~20% of nodes as new barriers
+        // NOTE: The node group is attached to the phase and is destructed with it
+        const randomNodes = barrierPhase.nodeGroup('random_nodes', function(d) {
+            return Math.random() < .2 && !d.visited && !startNodes.includes(d.id);
+        });
+        // Style new barriers
+        randomNodes.morph(phaseState.enableStyleMorph);
+        randomNodes.morph(phaseState.enableDataMorph);
+        barrierPhase.state({
+            'prevBarriers': randomNodes
+        });
     });
   });
 
-  // TODO: Default should be no-op function
-  barrierPhase.next((phaseState) => {
-    // Remove old barriers
-    if (phaseState.prevBarriers != null) {
-      phaseState.prevBarriers.morph(phaseState.disableStyleMorph);
-      phaseState.prevBarriers.morph(phaseState.disableDataMorph);
-      phaseState.prevBarriers.destroy();
-    }
-
-    // Create a group with ~20% of nodes as new barriers
-    // NOTE: The node group is attached to the phase and is destructed with it
-    const randomNodes = barrierPhase.nodeGroup('random_nodes', d => Math.random() < 0.2 && !d.visited && !startNodes.includes(d.id));
-    // Style new barriers
-    randomNodes.morph(phaseState.enableStyleMorph);
-    randomNodes.morph(phaseState.enableDataMorph);
-    barrierPhase.state({
-      prevBarriers: randomNodes,
+    barrierPhase.end(function(phaseState, vizState) {
+        return false;
     });
-  });
-
-  // TODO: Default should be always-falsy function
-  barrierPhase.end(() => false);
 
   return barrierPhase;
 }
