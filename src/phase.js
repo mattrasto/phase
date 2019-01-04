@@ -25,11 +25,11 @@ export default class Phase {
     this.linkGroups = {};
 
     // Function called on when phase is initialized
-    this.initialFunction = null;
+    this.initialFunction = () => {};
     // Function called on each timestep to compute phase's next state
-    this.transitionFunction = null;
+    this.transitionFunction = () => {};
     // Function called to determine whether the phase is finished
-    this.terminalFunction = null;
+    this.terminalFunction = () => (false);
 
     return this;
   }

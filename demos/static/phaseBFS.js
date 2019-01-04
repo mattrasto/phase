@@ -17,7 +17,6 @@ function createBarrierPhase(startNodes) {
     barrierPhase.updateTimestep(2000); // Change barriers every 2 seconds
 
     // Set the phase's initial state
-    // TODO: Default should be no-op function
     barrierPhase.initial(function(vizState) {
         barrierPhase.state({
             // NOTE: The morphs are attached to the phase and are destructed with it
@@ -30,7 +29,6 @@ function createBarrierPhase(startNodes) {
         });
     });
 
-    // TODO: Default should be no-op function
     barrierPhase.next(function(phaseState, vizState) {
         // Remove old barriers
         if (phaseState.prevBarriers != null) {
@@ -52,7 +50,6 @@ function createBarrierPhase(startNodes) {
         });
     });
 
-    // TODO: Default should be always-falsy function
     barrierPhase.end(function(phaseState, vizState) {
         return false;
     });
