@@ -43,24 +43,3 @@ test('Correct number of nodes and links', async (t) => {
 
   await t.expect(numNodes).eql(77).expect(numLinks).eql(254);
 });
-
-fixture('Array Grouping')
-  .page(pathToFile('array_grouping'))
-  .beforeEach(async (t) => {
-    // Wait for network to render
-    await Selector('#phase-network', { visibilityCheck: true });
-    // Apply morphs
-    await t.click(Selector('#sidebar input', { timeout: 1000 }));
-  });
-
-test('Morph applies correct changes to node', async (t) => {
-  const myrielNode = await Selector('circle').nth(0);
-  await t.expect(myrielNode.getStyleProperty('fill')).eql('rgb(125, 171, 255)', 'Node does not have proper fill');
-  await t.expect(myrielNode.getStyleProperty('stroke')).eql('rgb(174, 99, 212)', 'Node does not have proper stroke');
-});
-
-test('Morph applies correct changes to link', async (t) => {
-  const link = await Selector('line').nth(17);
-  await t.expect(link.getStyleProperty('stroke')).eql('rgb(212, 99, 99)', 'Link does not have proper stroke');
-  await t.expect(link.getStyleProperty('stroke-width')).eql('3px', 'Link does not have proper stroke-width');
-});
