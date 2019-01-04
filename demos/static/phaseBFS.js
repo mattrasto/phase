@@ -8,7 +8,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
 });
 
 // Constructs phase for turning nodes into barriers (search cannot travel through them)
-function createBarrierPhase() {
+function createBarrierPhase(startNodes) {
     const oldPhase = viz.getPhase("barriers");
     if (oldPhase) oldPhase.destroy();
 
@@ -22,8 +22,10 @@ function createBarrierPhase() {
         barrierPhase.state({
             // NOTE: The morphs are attached to the phase and are destructed with it
             // QUESTION: Should we build "type" parameter into "change" parameter object?
-            'enableMorph': barrierPhase.morph("enable_barrier", "style", {"fill": "#D46363"}),
-            'disableMorph': barrierPhase.morph("disable_barrier", "style", {"fill": "#333"}),
+            'enableStyleMorph': barrierPhase.morph("enable_barrier_style", "style", {"fill": "#D46363"}),
+            'enableDataMorph': barrierPhase.morph("enable_barrier_data", "data", {"barrier": true}),
+            'disableStyleMorph': barrierPhase.morph("disable_barrier_style", "style", {"fill": "#333"}),
+            'disableDataMorph': barrierPhase.morph("disable_barrier_data", "data", {"barrier": false}),
             'prevBarriers': null
         });
     });
@@ -32,17 +34,19 @@ function createBarrierPhase() {
     barrierPhase.next(function(phaseState, vizState) {
         // Remove old barriers
         if (phaseState.prevBarriers != null) {
-            phaseState.prevBarriers.morph(phaseState.disableMorph);
+            phaseState.prevBarriers.morph(phaseState.disableStyleMorph);
+            phaseState.prevBarriers.morph(phaseState.disableDataMorph);
             phaseState.prevBarriers.destroy();
         }
 
         // Create a group with ~20% of nodes as new barriers
         // NOTE: The node group is attached to the phase and is destructed with it
         const randomNodes = barrierPhase.nodeGroup('random_nodes', function(d) {
-            return Math.random() < .2;
+            return Math.random() < .2 && !d.visited && !startNodes.includes(d.id);
         });
         // Style new barriers
-        randomNodes.morph(phaseState.enableMorph);
+        randomNodes.morph(phaseState.enableStyleMorph);
+        randomNodes.morph(phaseState.enableDataMorph);
         barrierPhase.state({
             'prevBarriers': randomNodes
         });
@@ -67,10 +71,12 @@ function createSearchPhase(startNodes) {
 
     // Set the phase's initial state
     searchPhase.initial(function(vizState) {
+        viz.getPhase("barriers").stop(); // Stop the barriers from moving
         searchPhase.state({
             'visited': new Set(startNodes), // Nodes we've visited
             'validNeighbors': new Set(startNodes), // Neighbors that haven't been visited
             'depth': 0, // Distance from start node
+            'visitedMorph': searchPhase.morph("visited", "data", {"visited": true})
         });
     });
 
@@ -80,11 +86,15 @@ function createSearchPhase(startNodes) {
         // Adjacency list for quick access to neighbors
         const childDict = viz.getAdjacencyList();
 
-        // Morph the next layer in the BFS
+        // Morph the next layer in the BFS if node isn't a barrier
         // NOTE: The node group is attached to the phase and is destructed with it
-        const neighbors = searchPhase.nodeGroup("depth_" + phaseState.depth, phaseState.validNeighbors);
-        const colorNodes = createMorph(searchPhase, phaseState.depth++);
+        const neighbors = searchPhase.nodeGroup("depth_" + phaseState.depth, function(d) {
+            if (d.barrier) return false;
+            return phaseState.validNeighbors.has(d.id);
+        });
+        const colorNodes = createColorMorph(searchPhase, phaseState.depth++);
         neighbors.morph(colorNodes);
+        neighbors.morph(phaseState.visitedMorph); // Mark as visited
 
         // Classic BFS
         phaseState.validNeighbors.forEach(node => {
@@ -115,12 +125,12 @@ function createPhases() {
     const startNodes = startNode2 ? [startNode1, startNode2] : [startNode1]
     createSearchPhase(startNodes);
 
-    createBarrierPhase();
+    createBarrierPhase(startNodes);
     viz.getPhase("barriers").start();
 }
 
 // Changes the color of the node based on its distance from the start
-function createMorph(searchPhase, depth) {
+function createColorMorph(searchPhase, depth) {
     const colors = ["#AE63D4", "#63B2D4", "#63D467", "#E5EB7A", "#ED9A55"];
     return searchPhase.morph("style_nodes_" + depth, "style", {"fill": colors[depth % colors.length]});
 }
