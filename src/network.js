@@ -470,9 +470,9 @@ class Network {
     // PHASES AND MORPHS
 
     morph(label, type, change) {
-        // if (label in this._morphs) {
-        //     this.warn(`Morph ${label} is being overwritten`, this._morphs[label]);
-        // }
+        if (label in this._morphs) {
+            this.warn(`Morph ${label} is being overwritten`, this._morphs[label]);
+        }
         const morph = new Morph(this, label, type, change);
         this._morphs[label] = morph;
         return morph;
