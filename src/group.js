@@ -101,6 +101,7 @@ class Group {
         this._eventHandlers[eventName] = wrapperFunc;
     }
 
+    // TODO: If group belongs to a phase, this will not properly remove the reference
     destroy() {
         if (this.label in this._network._nodeGroups) {
             delete this._network._nodeGroups[this.label];
