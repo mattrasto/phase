@@ -581,7 +581,7 @@ class Network {
     // Update circles
     this.nodeContainers
       .select('circle')
-      .style('r', this.defaultNodeStyles.r)
+      .attr('r', this.defaultNodeStyles.r)
       .style('fill', this.defaultNodeStyles.fill)
       .style('stroke', this.defaultNodeStyles.stroke)
       .style('stroke-width', this.defaultNodeStyles['stroke-width']);
