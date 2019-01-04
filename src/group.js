@@ -91,7 +91,7 @@ class Group {
     if (func == null) {
       func1 = () => {};
     }
-    const wrapperFunc = function(d) {
+    const wrapperFunc = function wrapper(d) {
       // TODO: Modify stylemap
       func1.call(this, d, d3.select(this.childNodes[0]), d3.select(this.childNodes[1]));
     };

@@ -155,7 +155,7 @@ class Network {
       static: false,
     };
 
-    if(settings) {
+    if (settings) {
       Object.keys(settings).forEach((attr) => {
         this.networkSettings[attr] = settings[attr];
       });
@@ -505,7 +505,7 @@ class Network {
   // Binds new data to the network
   bindData(data) {
     // Assign new data
-    this.networkData= data;
+    this.networkData = data;
 
     this.bindNodes();
     this.bindLinks();
@@ -523,12 +523,14 @@ class Network {
     this.nodeContainers = this.nodeContainers.data(this.networkData.nodes, d => d.id);
 
     // Remove old nodes
+    // eslint-disable-next-line
     if (this.nodeContainers.exit()._groups[0].length > 0) {
       this.bindNodesRemove();
     }
 
     // Add new nodes
     let newNodes = this.nodeContainers;
+    // eslint-disable-next-line
     if (this.nodeContainers.enter()._groups[0].length > 0) {
       newNodes = this.bindNodesAdd();
     }
@@ -597,15 +599,19 @@ class Network {
   // Binds new data to the links
   bindLinks() {
     // Rejoin link data
-    this.linkContainers = this.linkContainers.data(this.networkData.links, d => d.source.id + d.target.id);
+    this.linkContainers = (
+      this.linkContainers.data(this.networkData.links, d => d.source.id + d.target.id)
+    );
 
     // Remove old links
+    // eslint-disable-next-line
     if (this.linkContainers.exit()._groups[0].length > 0) {
       this.bindLinksRemove();
     }
 
     // Add new links
     let newLinks = this.linkContainers;
+    // eslint-disable-next-line
     if (this.linkContainers.enter()._groups[0].length > 0) {
       newLinks = this.bindLinksAdd();
     }
