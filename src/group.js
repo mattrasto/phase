@@ -71,7 +71,7 @@ class Group {
   }
 
   morph(morph) {
-    if (morph._type == "style") {
+    if (morph.type === 'style') {
       this.style(morph.change);
     }
     if (morph.type === 'data') {
