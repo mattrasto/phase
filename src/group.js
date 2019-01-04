@@ -72,8 +72,7 @@ class Group {
         this._selection.select("text").text(labeler);
     }
 
-    morph(label) {
-        const morph = this.phase ? this._network.getPhase(this.phase).getMorph(label) : this._network.getMorph(label);
+    morph(morph) {
         if (morph._type == "style") {
             this.style(morph._change);
         }
