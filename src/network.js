@@ -54,7 +54,7 @@ class Network {
     // Default elements' event handlers
     this.defaultVizEventHandlers = {};
     this.defaultNodeEventHandlers = {};
-    this.defaultNodeEventHandlers = {};
+    this.defaultLinkEventHandlers = {};
 
     this.initSettings(settings);
     this.initStyles();
@@ -67,7 +67,7 @@ class Network {
     this.debug = true;
 
     // Viz state
-    this.state = {};
+    this.networkState = {};
 
     this.log('Network Constructed');
 
@@ -105,9 +105,9 @@ class Network {
 
   // Updates or returns the current viz state
   state(updatedState) {
-    if (updatedState === undefined) return this.state;
+    if (updatedState === undefined) return this.networkState;
     updatedState.keys().forEach((key) => {
-      this.state[key] = updatedState[key];
+      this.networkState[key] = updatedState[key];
     });
     return null;
   }
