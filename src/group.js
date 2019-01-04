@@ -47,7 +47,7 @@ class Group {
   // Applies styles from the stylemap to the selection
   style(styleMap) {
     // Use foreach on styleMap
-    styleMap.keys().forEach((attr) => {
+    Object.keys(styleMap).forEach((attr) => {
       this.styles[attr] = styleMap[attr];
       this.selection.select(this.selector).style(attr, styleMap[attr]);
     });
@@ -76,8 +76,8 @@ class Group {
     }
     if (morph.type === 'data') {
       const newData = this.selection.data();
-      newData.keys().forEach((datum) => {
-        morph.change.keys().forEach((update) => {
+      Object.keys(newData).forEach((datum) => {
+        Object.keys(morph.change).forEach((update) => {
           newData[datum][update] = morph.change[update];
         });
       });
