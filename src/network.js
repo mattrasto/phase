@@ -54,7 +54,7 @@ class Network {
     // Default elements' event handlers
     this.defaultVizEventHandlers = {};
     this.defaultNodeEventHandlers = {};
-    this.defaultNodeEventHandlers = {};
+    this.defaultLinkEventHandlers = {};
 
     this.initSettings(settings);
     this.initStyles();
