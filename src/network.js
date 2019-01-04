@@ -23,8 +23,8 @@ class Network {
     /* global document */
     this.container = (typeof query === 'string') ? document.querySelectorAll(query)[0] : query;
 
-    this.data = { nodes: [], links: [] };
-    this.dataLoaded = false; // Whether the data has been loaded into this.data
+    this.networkData = { nodes: [], links: [] };
+    this.dataLoaded = false; // Whether the data has been loaded into this.networkData
     this.dataBound = false; // Whether the data has been bound to objects (this
     // changes the structure of link references)
 
@@ -47,7 +47,7 @@ class Network {
     this.adjList = {};
 
     // Settings (user-accessible)
-    this.settings = {};
+    this.networkSettings = {};
     // Default styles for each element
     this.defaultNodeStyles = {};
     this.defaultLinkStyles = {};
@@ -78,14 +78,14 @@ class Network {
   // TODO: Fix this? (see issue #19)
   data(data) {
     this.bindData(data);
-    if (this.data != null && !this.dataBound) {
+    if (this.networkData != null && !this.dataBound) {
       this.dataLoaded = true;
     }
     this.dataBound = true;
 
     this.generateAdjacencyList(data);
 
-    if (this.settings.static) {
+    if (this.networkSettings.static) {
       for (let i = 0, n = Math.ceil(Math.log(this.simulation.alphaMin())
         / Math.log(1 - this.simulation.alphaDecay())); i < n; i += 1) {
         ticked(this.nodeContainers, this.linkContainers);
@@ -106,7 +106,11 @@ class Network {
   // Updates or returns the current viz state
   state(updatedState) {
     if (updatedState === undefined) return this.networkState;
+<<<<<<< HEAD
     updatedState.keys().forEach((key) => {
+=======
+    Object.keys(updatedState).forEach((key) => {
+>>>>>>> demos
       this.networkState[key] = updatedState[key];
     });
     return null;
@@ -114,13 +118,13 @@ class Network {
 
   // Updates or returns the current viz settings
   settings(updatedSettings) {
-    if (updatedSettings === undefined) return this.settings;
+    if (updatedSettings === undefined) return this.networkSettings;
 
     const changedSettings = new Set();
-    updatedSettings.keys().forEach((key) => {
+    Object.keys(updatedSettings).forEach((key) => {
       // Check for update in settings dict
-      if (key in this.settings && this.settings[key] !== updatedSettings[key]) {
-        this.settings[key] = updatedSettings[key];
+      if (key in this.networkSettings && this.networkSettings[key] !== updatedSettings[key]) {
+        this.networkSettings[key] = updatedSettings[key];
         changedSettings.add(key);
       }
     });
@@ -129,7 +133,7 @@ class Network {
     if ([...changedSettings].filter(x => this.forceRerender.has(x)).length > 0) {
       this.reset();
     } else {
-      this.bindData(this.data);
+      this.bindData(this.networkData);
     }
     return null;
   }
@@ -137,7 +141,7 @@ class Network {
   // Create settings, styles, and event handler dictionaries
   initSettings(settings) {
     // Default settings
-    this.settings = {
+    this.networkSettings = {
       // Strength of links (how easily they can be compressed) between nodes [0, INF]
       linkStrength: 1,
       // Distance between nodes [0, INF]
@@ -155,9 +159,11 @@ class Network {
       static: false,
     };
 
-    settings.keys().forEach((attr) => {
-      this.settings[attr] = settings[attr];
-    });
+    if (settings) {
+      Object.keys(settings).forEach((attr) => {
+        this.networkSettings[attr] = settings[attr];
+      });
+    }
   }
 
   initStyles() {
@@ -243,7 +249,7 @@ class Network {
       // Container drag handler
       nodeDrag(d) {
         this.log('Drag step');
-        if (!this.settings.static) {
+        if (!this.networkSettings.static) {
           d.fx = d3.event.x; // eslint-disable-line
           d.fy = d3.event.y; // eslint-disable-line
         } else {
@@ -333,7 +339,7 @@ class Network {
       .attr('preserveAspectRatio', 'xMinYMin')
       .on('contextmenu', this.defaultVizEventHandlers.containerContextmenu)
       .call(d3.zoom()
-        .scaleExtent(this.settings.zoom ? [0.1, 10] : [1, 1])
+        .scaleExtent(this.networkSettings.zoom ? [0.1, 10] : [1, 1])
         .on('zoom', this.defaultVizEventHandlers.containerZoom.bind(this)))
       .on('dblclick.zoom', null); // Don't zoom on double left click
 
@@ -344,10 +350,10 @@ class Network {
     this.g = this.svg.append('g');
 
     this.simulation = d3.forceSimulation()
-      .force('link', d3.forceLink().id(d => d.id).distance(this.settings.linkDistance).strength(this.settings.linkStrength))
-      .force('charge', d3.forceManyBody().strength(this.settings.charge))
-      .force('centerX', d3.forceX(this.containerWidth / 2).strength(this.settings.gravity))
-      .force('centerY', d3.forceY(this.containerHeight / 2).strength(this.settings.gravity));
+      .force('link', d3.forceLink().id(d => d.id).distance(this.networkSettings.linkDistance).strength(this.networkSettings.linkStrength))
+      .force('charge', d3.forceManyBody().strength(this.networkSettings.charge))
+      .force('centerX', d3.forceX(this.containerWidth / 2).strength(this.networkSettings.gravity))
+      .force('centerY', d3.forceY(this.containerHeight / 2).strength(this.networkSettings.gravity));
 
     // Creates g container for link containers
     this.linkContainerG = this.g.append('g')
@@ -365,28 +371,28 @@ class Network {
     this.nodeContainers = this.nodeContainerG
       .selectAll('g');
 
-    this.bindData(this.data);
+    this.bindData(this.networkData);
 
     // Initializes simulation
     this.simulation
-      .nodes(this.data.nodes)
+      .nodes(this.networkData.nodes)
       .force('link')
-      .links(this.data.links);
+      .links(this.networkData.links);
 
     // If the visualization is static, stop the simulation
-    if (this.settings.static) {
+    if (this.networkSettings.static) {
       this.simulation.stop();
     } else {
       this.simulation.on('tick', () => ticked(this.nodeContainers, this.linkContainers));
     }
 
     // Rebind all previous groups to new svg and save style
-    this.nodeGroups.keys().forEach((key) => {
+    Object.keys(this.nodeGroups).forEach((key) => {
       const ng = this.nodeGroups[key];
       const newGroup = this.nodeGroup(ng.label, ng.filterer);
       newGroup.setStyle(ng.getStyle());
     });
-    this.linkGroups.keys().forEach((key) => {
+    Object.keys(this.linkGroups).forEach((key) => {
       const lg = this.linkGroups[key];
       const newGroup = this.linkGroup(lg.label, lg.filterer);
       newGroup.setStyle(lg.getStyle());
@@ -503,31 +509,33 @@ class Network {
   // Binds new data to the network
   bindData(data) {
     // Assign new data
-    this.data = data;
+    this.networkData = data;
 
     this.bindNodes();
     this.bindLinks();
 
     // Rebind data and restart simulation
     this.simulation
-      .nodes(this.data.nodes)
-      .force('link').links(this.data.links);
+      .nodes(this.networkData.nodes)
+      .force('link').links(this.networkData.links);
     this.simulation.alpha(1).restart();
   }
 
   // Binds new data to the nodes
   bindNodes() {
     // Rejoin node data
-    this.nodeContainers = this.nodeContainers.data(this.data.nodes, d => d.id);
+    this.nodeContainers = this.nodeContainers.data(this.networkData.nodes, d => d.id);
 
     // Remove old nodes
-    if (this.nodeContainers.exit().groups[0].length > 0) {
+    // eslint-disable-next-line
+    if (this.nodeContainers.exit()._groups[0].length > 0) {
       this.bindNodesRemove();
     }
 
     // Add new nodes
     let newNodes = this.nodeContainers;
-    if (this.nodeContainers.enter().groups[0].length > 0) {
+    // eslint-disable-next-line
+    if (this.nodeContainers.enter()._groups[0].length > 0) {
       newNodes = this.bindNodesAdd();
     }
 
@@ -595,16 +603,20 @@ class Network {
   // Binds new data to the links
   bindLinks() {
     // Rejoin link data
-    this.linkContainers = this.linkContainers.data(this.data.links, d => d.source.id + d.target.id);
+    this.linkContainers = (
+      this.linkContainers.data(this.networkData.links, d => d.source.id + d.target.id)
+    );
 
     // Remove old links
-    if (this.linkContainers.exit().groups[0].length > 0) {
+    // eslint-disable-next-line
+    if (this.linkContainers.exit()._groups[0].length > 0) {
       this.bindLinksRemove();
     }
 
     // Add new links
     let newLinks = this.linkContainers;
-    if (this.linkContainers.enter().groups[0].length > 0) {
+    // eslint-disable-next-line
+    if (this.linkContainers.enter()._groups[0].length > 0) {
       newLinks = this.bindLinksAdd();
     }
 
