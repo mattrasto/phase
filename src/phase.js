@@ -59,17 +59,6 @@ export default class Phase {
     this.timeStep = newValue;
   }
 
-  calculateNextState() {
-    this.transitionFunction(this.state(), this.network.state());
-  }
-
-  evaluateTermination() {
-    if (this.terminalFunction(this.state(), this.network.state())) {
-      return true;
-    }
-    return false;
-  }
-
   // Stop the phase's application but don't clear settings/state
   stop() {
     clearInterval(this.interval);
@@ -117,8 +106,8 @@ export default class Phase {
     this.initialFunction(this.state(), this.network.state());
 
     function step() {
-      this.calculateNextState();
-      if (this.evaluateTermination()) this.stop();
+      this.transitionFunction(this.state(), this.network.state());
+      if (this.terminalFunction(this.state(), this.network.state())) this.stop();
     }
 
     if (this.transitionFunction) {
