@@ -52,6 +52,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
   createRandGroups();
 
+  // SUBGROUP TESTING: REMOVE WHEN FINISHED
+  const subgroup = viz.getNodeGroup('rand_node_group').subgroup('subgroup', d => d.id.includes('i'));
+  console.log(subgroup);
+  setTimeout(() => {
+    subgroup.style({ fill: '#D46363' });
+  }, 1000);
+
+
   createMorphs();
 
   console.log('Visualization Loaded');

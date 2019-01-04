@@ -2,12 +2,13 @@ const NODE_SELECTOR = 'circle';
 const LINK_SELECTOR = 'line';
 
 class Group {
-  constructor(network, label, filterer, val, selector) {
+  constructor(network, label, filterer, val, selector, parent = undefined) {
     this.network = network;
     this.label = label;
     this.filterer = filterer;
     this.val = val;
     this.selector = selector; // "circle" or "line"
+    this.parent = parent;
 
     // Phase the group is associated with
     this.phase = null;
@@ -23,10 +24,19 @@ class Group {
     return this;
   }
 
+  subgroup(label, filterer, val) {
+    return new Group(this.network, label, filterer, val, this.selector, this);
+  }
+
   filter(filterer, val) {
     // TODO: Refactor to make clearer (perhaps remove options?)
     const isNodeGroup = this.selector === NODE_SELECTOR;
-    const containers = isNodeGroup ? this.network.nodeContainers : this.network.linkContainers;
+    let containers;
+    if (this.parent !== undefined) {
+      containers = this.parent.selection;
+    } else {
+      containers = isNodeGroup ? this.network.nodeContainers : this.network.linkContainers;
+    }
 
     if (typeof filterer === 'string') {
       return val === undefined ? containers : containers.filter(d => d[filterer] === val);
