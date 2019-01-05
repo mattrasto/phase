@@ -74,17 +74,6 @@ class Network {
     this.render();
   }
 
-    // Update "all" groups
-    // QUESTION: Should duplicate constructor calls cause group reevaluation?
-    this.nodeGroup('all', '');
-    this.linkGroup('all', '');
-
-    // Update default styles for all elements
-    this.initStyles();
-
-    this.log('Bound data to viz');
-  }
-
   // Updates or returns the current viz state
   state(updatedState) {
     if (updatedState === undefined) return this.networkState;
@@ -463,7 +452,12 @@ class Network {
 
   // Binds data to the viz
   // TODO: Fix this? (see issue #19)
-  data(data) {
+  data(rawData) {
+    // Auto-generate link ids
+    const data = this.generateLinkIds(rawData);
+
+    // TODO: Data integrity checks
+
     this.bindData(data);
     if (this.networkData != null && !this.dataBound) {
       this.dataLoaded = true;
@@ -478,6 +472,17 @@ class Network {
         ticked(this.nodeContainers, this.linkContainers);
       }
     }
+
+    // Update "all" groups
+    // QUESTION: Should duplicate constructor calls cause group reevaluation?
+    this.nodeGroup('all', '');
+    this.linkGroup('all', '');
+
+    // Update default styles for all elements
+    this.initStyles();
+
+    this.log('Bound data to viz');
+  }
 
   // Binds new data to the network
   bindData(data) {
@@ -648,6 +653,16 @@ class Network {
 
   // DATA OPERATIONS
 
+
+  // Generate link ids where not specified in the data as 'source->target'
+  generateLinkIds(rawData) { //eslint-disable-line
+    rawData.links.forEach((link) => {
+      if (link.id === undefined) {
+        link.id = `${link.source  }->${  link.target}`; //eslint-disable-line
+      }
+    });
+    return rawData;
+  }
 
   // Creates a dict containing children of each node
   generateAdjacencyList(data) {
