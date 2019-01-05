@@ -2,22 +2,6 @@ import Phase from './phase';
 import Morph from './morph';
 import { NodeGroup, LinkGroup } from './group';
 
-// Recalculates node and link positions every simulation tick
-function ticked(nodeContainer, linkContainer) {
-  nodeContainer
-    .attr('transform', d => `translate(${d.x},${d.y})`)
-    .attr('x', d => d.x)
-    .attr('y', d => d.y);
-
-  linkContainer.select('line')
-    .attr('x1', d => d.source.x)
-    .attr('y1', d => d.source.y)
-    .attr('x2', d => d.target.x)
-    .attr('y2', d => d.target.y);
-
-  linkContainer.select('text').attr('transform', d => `translate(${(d.source.x + d.target.x) / 2},${(d.source.y + d.target.y) / 2})`);
-}
-
 class Network {
   constructor(query, settings) {
     /* global document */
@@ -350,7 +334,7 @@ class Network {
     if (this.networkSettings.static) {
       this.simulation.stop();
     } else {
-      this.simulation.on('tick', () => ticked(this.nodeContainers, this.linkContainers));
+      this.simulation.on('tick', () => this.ticked(this.nodeContainers, this.linkContainers));
     }
 
     // Rebind all previous groups to new svg and save style
@@ -366,6 +350,22 @@ class Network {
     });
 
     this.log(`Rendered on ${this.container.id}`);
+  }
+
+  // Recalculates node and link positions every simulation tick
+  ticked(nodeContainer, linkContainer) { // eslint-disable-line
+    nodeContainer
+      .attr('transform', d => `translate(${d.x},${d.y})`)
+      .attr('x', d => d.x)
+      .attr('y', d => d.y);
+
+    linkContainer.select('line')
+      .attr('x1', d => d.source.x)
+      .attr('y1', d => d.source.y)
+      .attr('x2', d => d.target.x)
+      .attr('y2', d => d.target.y);
+
+    linkContainer.select('text').attr('transform', d => `translate(${(d.source.x + d.target.x) / 2},${(d.source.y + d.target.y) / 2})`);
   }
 
 
@@ -469,7 +469,7 @@ class Network {
     if (this.networkSettings.static) {
       for (let i = 0, n = Math.ceil(Math.log(this.simulation.alphaMin())
         / Math.log(1 - this.simulation.alphaDecay())); i < n; i += 1) {
-        ticked(this.nodeContainers, this.linkContainers);
+        this.ticked(this.nodeContainers, this.linkContainers);
       }
     }
 
