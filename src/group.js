@@ -2,7 +2,7 @@ const NODE_SELECTOR = 'circle';
 const LINK_SELECTOR = 'line';
 
 class Group {
-  constructor(network, label, filterer, val, selector, parent = undefined) {
+  constructor(network, label, filterer, val, selector, parent) {
     this.network = network;
     this.label = label;
     this.filterer = filterer;
@@ -31,7 +31,10 @@ class Group {
   }
 
   subgroup(label, filterer, val) {
-    return new Group(this.network, label, filterer, val, this.selector, this);
+    if (this.selector === NODE_SELECTOR) {
+      return new NodeGroup(this.network, label, filterer, val, this); // eslint-disable-line
+    }
+    return new LinkGroup(this.network, label, filterer, val, this.selector, this); // eslint-disable-line
   }
 
   // Creates the selection by filtering the parent group's selection (if it exists) or all elements
@@ -148,8 +151,8 @@ class Group {
 
 export class NodeGroup extends Group {
   // Creates a node group based on attributes or a passed in selection
-  constructor(network, label, filterer, val) {
-    super(network, label, filterer, val, NODE_SELECTOR);
+  constructor(network, label, filterer, val, parent = undefined) {
+    super(network, label, filterer, val, NODE_SELECTOR, parent);
   }
 
   unstyle() {
@@ -159,8 +162,8 @@ export class NodeGroup extends Group {
 
 export class LinkGroup extends Group {
   // Creates a link group based on attributes or a passed in selection
-  constructor(network, label, filterer, val) {
-    super(network, label, filterer, val, LINK_SELECTOR);
+  constructor(network, label, filterer, val, parent = undefined) {
+    super(network, label, filterer, val, LINK_SELECTOR, parent);
   }
 
   unstyle() {
