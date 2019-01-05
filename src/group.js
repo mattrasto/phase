@@ -63,11 +63,7 @@ class Group {
       subFilterer = filterer;
     } else if (Array.isArray(filterer) || filterer instanceof Set) {
       const set = new Set(filterer);
-      if (this.selector === NODE_SELECTOR) {
-        subFilterer = d => (set.has(d.id));
-      } else {
-        subFilterer = d => (set.has(d.source.id) || set.has(d.target.id));
-      }
+      subFilterer = d => (set.has(d.id));
     } else {
       throw Error('Invalid filterer type');
     }
