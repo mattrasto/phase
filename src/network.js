@@ -74,24 +74,6 @@ class Network {
     this.render();
   }
 
-  // Binds data to the viz
-  // TODO: Fix this? (see issue #19)
-  data(data) {
-    this.bindData(data);
-    if (this.networkData != null && !this.dataBound) {
-      this.dataLoaded = true;
-    }
-    this.dataBound = true;
-
-    this.generateAdjacencyList(data);
-
-    if (this.networkSettings.static) {
-      for (let i = 0, n = Math.ceil(Math.log(this.simulation.alphaMin())
-        / Math.log(1 - this.simulation.alphaDecay())); i < n; i += 1) {
-        ticked(this.nodeContainers, this.linkContainers);
-      }
-    }
-
     // Update "all" groups
     // QUESTION: Should duplicate constructor calls cause group reevaluation?
     this.nodeGroup('all', '');
@@ -397,30 +379,6 @@ class Network {
     this.log(`Rendered on ${this.container.id}`);
   }
 
-  // GRAPH STORE
-
-
-  // Creates a dict containing children of each node
-  generateAdjacencyList(data) {
-    const { links } = data;
-    const { nodes } = data;
-
-    this.adjList = {};
-    nodes.forEach((node) => {
-      this.adjList[node.id] = [];
-    });
-    links.forEach((link) => {
-      const source = this.dataBound ? link.source.id : link.source;
-      const target = this.dataBound ? link.target.id : link.target;
-      this.adjList[source].push(target);
-      this.adjList[target].push(source);
-    });
-  }
-
-  getAdjacencyList() {
-    return this.adjList;
-  }
-
 
   // GROUPING
 
@@ -464,6 +422,7 @@ class Network {
 
   // PHASES AND MORPHS
 
+
   morph(label, type, change) {
     if (label in this.morphs) {
       this.warn(`Morph ${label} is being overwritten`, this.morphs[label]);
@@ -501,6 +460,24 @@ class Network {
 
   // DATA BINDING
 
+
+  // Binds data to the viz
+  // TODO: Fix this? (see issue #19)
+  data(data) {
+    this.bindData(data);
+    if (this.networkData != null && !this.dataBound) {
+      this.dataLoaded = true;
+    }
+    this.dataBound = true;
+
+    this.generateAdjacencyList(data);
+
+    if (this.networkSettings.static) {
+      for (let i = 0, n = Math.ceil(Math.log(this.simulation.alphaMin())
+        / Math.log(1 - this.simulation.alphaDecay())); i < n; i += 1) {
+        ticked(this.nodeContainers, this.linkContainers);
+      }
+    }
 
   // Binds new data to the network
   bindData(data) {
@@ -666,6 +643,31 @@ class Network {
       .style('stroke-width', 0)
       .style('font-size', '12px')
       .text(d => d.value);
+  }
+
+
+  // DATA OPERATIONS
+
+
+  // Creates a dict containing children of each node
+  generateAdjacencyList(data) {
+    const { links } = data;
+    const { nodes } = data;
+
+    this.adjList = {};
+    nodes.forEach((node) => {
+      this.adjList[node.id] = [];
+    });
+    links.forEach((link) => {
+      const source = this.dataBound ? link.source.id : link.source;
+      const target = this.dataBound ? link.target.id : link.target;
+      this.adjList[source].push(target);
+      this.adjList[target].push(source);
+    });
+  }
+
+  getAdjacencyList() {
+    return this.adjList;
   }
 } // End Network Class
 
