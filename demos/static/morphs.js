@@ -53,7 +53,7 @@ document.addEventListener('DOMContentLoaded', () => {
   createRandGroups();
 
   // SUBGROUP TESTING: REMOVE WHEN FINISHED
-  const subgroup = viz.getNodeGroup('rand_node_group').subgroup('subgroup', d => d.id.includes('i'));
+  const subgroup = viz.getNodeGroup('rand_node_group').subgroup('subgroup');
   console.log(subgroup);
   setTimeout(() => {
     subgroup.style({ fill: '#D46363' });

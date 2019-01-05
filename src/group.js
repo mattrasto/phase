@@ -30,11 +30,14 @@ class Group {
     return this;
   }
 
+  // Creates a subgroup of the current group
+  // If no filterer is passed, creates a copy of the current group
   subgroup(label, filterer, val) {
+    const subfilterer = filterer === undefined ? '' : filterer;
     if (this.selector === NODE_SELECTOR) {
-      return new NodeGroup(this.network, label, filterer, val, this); // eslint-disable-line
+      return new NodeGroup(this.network, label, subfilterer, val, this); // eslint-disable-line
     }
-    return new LinkGroup(this.network, label, filterer, val, this.selector, this); // eslint-disable-line
+    return new LinkGroup(this.network, label, subfilterer, val, this.selector, this); // eslint-disable-line
   }
 
   // Creates the selection by filtering the parent group's selection (if it exists) or all elements
