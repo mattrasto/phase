@@ -52,7 +52,7 @@ class Group {
     this.selection = containers.filter(d => this.filterer(d));
   }
 
-  // TODO: evaluateMember() function for individual data entries
+  // TODO: evaluateMember() function for individual data entries (related to #24)
 
   // Creates the filter function used to assess element membership
   createFilterer(filterer, val, parentFilterer) {
