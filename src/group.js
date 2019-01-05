@@ -13,7 +13,13 @@ class Group {
     // Phase the group is associated with
     this.phase = null;
 
-    this.selection = this.filter(filterer, val);
+    if (this.parent !== undefined) {
+      this.createFilterer(filterer, val, this.parent.filterer);
+      this.filterSelection(this.parent.selection);
+    } else {
+      this.createFilterer(filterer, val);
+      this.filterSelection();
+    }
 
     // Style history
     this.styles = {};
@@ -28,30 +34,43 @@ class Group {
     return new Group(this.network, label, filterer, val, this.selector, this);
   }
 
-  filter(filterer, val) {
-    // TODO: Refactor to make clearer (perhaps remove options?)
+  // Creates the selection by filtering the parent group's selection (if it exists) or all elements
+  filterSelection(parentSelection) {
     const isNodeGroup = this.selector === NODE_SELECTOR;
     let containers;
-    if (this.parent !== undefined) {
-      containers = this.parent.selection;
+    if (parentSelection !== undefined) {
+      containers = parentSelection;
     } else {
       containers = isNodeGroup ? this.network.nodeContainers : this.network.linkContainers;
     }
+    this.selection = containers.filter(d => this.filterer(d));
+  }
 
+  // TODO: evaluateMember() function for individual data entries
+
+  // Creates the filter function used to assess element membership
+  createFilterer(filterer, val, parentFilterer) {
+    let subFilterer;
     if (typeof filterer === 'string') {
-      return val === undefined ? containers : containers.filter(d => d[filterer] === val);
-    }
-    if (typeof filterer === 'function') {
-      return containers.filter(d => filterer(d));
-    }
-    if (Array.isArray(filterer) || filterer instanceof Set) {
+      subFilterer = d => (val === undefined ? true : d[filterer] === val);
+    } else if (typeof filterer === 'function') {
+      subFilterer = filterer;
+    } else if (Array.isArray(filterer) || filterer instanceof Set) {
       const set = new Set(filterer);
-      if (isNodeGroup) {
-        return containers.filter(d => set.has(d.id));
+      if (this.selector === NODE_SELECTOR) {
+        subFilterer = d => (set.has(d.id));
+      } else {
+        subFilterer = d => (set.has(d.source.id) || set.has(d.target.id));
       }
-      return containers.filter(d => set.has(d.source.id) || set.has(d.target.id));
+    } else {
+      throw Error('Invalid filterer type');
     }
-    throw Error('Invalid filterer type');
+
+    if (parentFilterer !== undefined) {
+      this.filterer = d => (subFilterer(d) && parentFilterer(d));
+    } else {
+      this.filterer = subFilterer;
+    }
   }
 
   // Applies styles from the stylemap to the selection
