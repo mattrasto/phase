@@ -2,17 +2,24 @@ const NODE_SELECTOR = 'circle';
 const LINK_SELECTOR = 'line';
 
 class Group {
-  constructor(network, label, filterer, val, selector) {
+  constructor(network, label, filterer, val, selector, parent) {
     this.network = network;
     this.label = label;
     this.filterer = filterer;
     this.val = val;
     this.selector = selector; // "circle" or "line"
+    this.parent = parent;
 
     // Phase the group is associated with
     this.phase = null;
 
-    this.selection = this.filter(filterer, val);
+    if (this.parent !== undefined) {
+      this.createFilterer(filterer, val, this.parent.filterer);
+      this.filterSelection(this.parent.selection);
+    } else {
+      this.createFilterer(filterer, val);
+      this.filterSelection();
+    }
 
     // Style history
     this.styles = {};
@@ -23,25 +30,48 @@ class Group {
     return this;
   }
 
-  filter(filterer, val) {
-    // TODO: Refactor to make clearer (perhaps remove options?)
-    const isNodeGroup = this.selector === NODE_SELECTOR;
-    const containers = isNodeGroup ? this.network.nodeContainers : this.network.linkContainers;
+  // Creates a subgroup of the current group
+  // If no filterer is passed, creates a copy of the current group
+  subgroup(label, filterer, val) {
+    const subfilterer = filterer === undefined ? '' : filterer;
+    if (this.selector === NODE_SELECTOR) {
+      return new NodeGroup(this.network, label, subfilterer, val, this); // eslint-disable-line
+    }
+    return new LinkGroup(this.network, label, subfilterer, val, this.selector, this); // eslint-disable-line
+  }
 
+  // Creates the selection by filtering the parent group's selection (if it exists) or all elements
+  filterSelection(parentSelection) {
+    const isNodeGroup = this.selector === NODE_SELECTOR;
+    if (parentSelection !== undefined) {
+      this.selection = parentSelection.filter(d => this.filterer(d));
+    } else {
+      const containers = isNodeGroup ? this.network.nodeContainers : this.network.linkContainers;
+      this.selection = containers.filter(d => this.filterer(d));
+    }
+  }
+
+  // TODO: evaluateMember() function for individual data entries (related to #24)
+
+  // Creates the filter function used to assess element membership
+  createFilterer(filterer, val, parentFilterer) {
+    let subFilterer;
     if (typeof filterer === 'string') {
-      return val === undefined ? containers : containers.filter(d => d[filterer] === val);
-    }
-    if (typeof filterer === 'function') {
-      return containers.filter(d => filterer(d));
-    }
-    if (Array.isArray(filterer) || filterer instanceof Set) {
+      subFilterer = d => (val === undefined ? true : d[filterer] === val);
+    } else if (typeof filterer === 'function') {
+      subFilterer = filterer;
+    } else if (Array.isArray(filterer) || filterer instanceof Set) {
       const set = new Set(filterer);
-      if (isNodeGroup) {
-        return containers.filter(d => set.has(d.id));
-      }
-      return containers.filter(d => set.has(d.source.id) || set.has(d.target.id));
+      subFilterer = d => (set.has(d.id));
+    } else {
+      throw Error('Invalid filterer type');
     }
-    throw Error('Invalid filterer type');
+
+    if (parentFilterer !== undefined) {
+      this.filterer = d => (subFilterer(d) && parentFilterer(d));
+    } else {
+      this.filterer = subFilterer;
+    }
   }
 
   // Applies styles from the stylemap to the selection
@@ -119,8 +149,8 @@ class Group {
 
 export class NodeGroup extends Group {
   // Creates a node group based on attributes or a passed in selection
-  constructor(network, label, filterer, val) {
-    super(network, label, filterer, val, NODE_SELECTOR);
+  constructor(network, label, filterer, val, parent = undefined) {
+    super(network, label, filterer, val, NODE_SELECTOR, parent);
   }
 
   unstyle() {
@@ -130,8 +160,8 @@ export class NodeGroup extends Group {
 
 export class LinkGroup extends Group {
   // Creates a link group based on attributes or a passed in selection
-  constructor(network, label, filterer, val) {
-    super(network, label, filterer, val, LINK_SELECTOR);
+  constructor(network, label, filterer, val, parent = undefined) {
+    super(network, label, filterer, val, LINK_SELECTOR, parent);
   }
 
   unstyle() {
