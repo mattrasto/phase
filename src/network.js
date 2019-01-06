@@ -541,13 +541,13 @@ class Network {
     newNodes
       .attr('class', 'node')
       .attr('x', (d) => {
-        d.x = this.containerWidth / 2 + Math.random() * 300;
-        d.vx = 0;
+        d.x = this.containerWidth / 2 + (Math.random() - 0.5) * 300; // eslint-disable-line
+        d.vx = 0; // eslint-disable-line
         return d.x;
       })
       .attr('y', (d) => {
-        d.y = this.containerHeight / 2 + Math.random() * 300;
-        d.vy = 0;
+        d.y = this.containerHeight / 2 + (Math.random() - 0.5) * 300; // eslint-disable-line
+        d.vy = 0; // eslint-disable-line
         return d.y;
       });
 
