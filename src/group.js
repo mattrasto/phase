@@ -43,13 +43,12 @@ class Group {
   // Creates the selection by filtering the parent group's selection (if it exists) or all elements
   filterSelection(parentSelection) {
     const isNodeGroup = this.selector === NODE_SELECTOR;
-    let containers;
     if (parentSelection !== undefined) {
-      containers = parentSelection;
+      this.selection = parentSelection.filter(d => this.filterer(d));
     } else {
-      containers = isNodeGroup ? this.network.nodeContainers : this.network.linkContainers;
+      const containers = isNodeGroup ? this.network.nodeContainers : this.network.linkContainers;
+      this.selection = containers.filter(d => this.filterer(d));
     }
-    this.selection = containers.filter(d => this.filterer(d));
   }
 
   // TODO: evaluateMember() function for individual data entries (related to #24)
