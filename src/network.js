@@ -534,9 +534,22 @@ class Network {
     const newNodes = this.nodeContainers
       .enter().append('g');
 
-    // Assign class to node containers
+    console.log(this.containerHeight);
+    console.log(this.containerWidth);
+
+    // Assign class to node containers and randomize initial position near center
     newNodes
-      .attr('class', 'node');
+      .attr('class', 'node')
+      .attr('x', (d) => {
+        d.x = this.containerWidth / 2 + Math.random() * 300;
+        d.vx = 0;
+        return d.x;
+      })
+      .attr('y', (d) => {
+        d.y = this.containerHeight / 2 + Math.random() * 300;
+        d.vy = 0;
+        return d.y;
+      });
 
     // Add new circles
     newNodes
