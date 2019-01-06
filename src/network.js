@@ -534,6 +534,10 @@ class Network {
     const newNodes = this.nodeContainers
       .enter().append('g');
 
+    // Assign class to node containers
+    newNodes
+      .attr('class', 'node');
+
     // Add new circles
     newNodes
       .append('circle');
@@ -548,7 +552,6 @@ class Network {
   bindNodesUpdate() {
     // Update containers
     this.nodeContainers
-      .attr('class', 'node')
       .on('mouseover', this.defaultNodeEventHandlers.nodeMouseover)
       .on('mouseout', this.defaultNodeEventHandlers.nodeMouseout)
       .on('mousedown', this.defaultNodeEventHandlers.nodeMousedown)
@@ -615,7 +618,7 @@ class Network {
     const newLinks = this.linkContainers
       .enter().append('g');
 
-    // Add new link containers
+    // Add class to link containers
     newLinks
       .attr('class', 'link');
 
