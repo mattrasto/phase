@@ -171,8 +171,8 @@ class Network {
         // Unpin node if middle click
         if (d3.event.which === 2) {
           d3.select(this).classed('fixed', d.fixed = false); // eslint-disable-line
-          d.fx = null; // eslint-disable-line
-          d.fy = null; // eslint-disable-line
+          d.fx = null; // eslint-disable-line no-param-reassign
+          d.fy = null; // eslint-disable-line no-param-reassign
         }
       },
       // Node left click handler
@@ -195,25 +195,25 @@ class Network {
         this.log('Drag start');
         if (!this.networkSettings.static) {
           if (!d3.event.active) this.simulation.alphaTarget(0.3).restart();
-          d.fx = d.x; // eslint-disable-line
-          d.fy = d.y; // eslint-disable-line
+          d.fx = d.x; // eslint-disable-line no-param-reassign
+          d.fy = d.y; // eslint-disable-line no-param-reassign
         }
       },
       // Container drag handler
       nodeDrag(d) {
         this.log('Drag step');
         if (!this.networkSettings.static) {
-          d.fx = d3.event.x; // eslint-disable-line
-          d.fy = d3.event.y; // eslint-disable-line
+          d.fx = d3.event.x; // eslint-disable-line no-param-reassign
+          d.fy = d3.event.y; // eslint-disable-line no-param-reassign
         } else {
-          d.x = d3.event.x; // eslint-disable-line
-          d.y = d3.event.y; // eslint-disable-line
-          d.fx = d3.event.x; // eslint-disable-line
-          d.fy = d3.event.y; // eslint-disable-line
+          d.x = d3.event.x; // eslint-disable-line no-param-reassign
+          d.y = d3.event.y; // eslint-disable-line no-param-reassign
+          d.fx = d3.event.x; // eslint-disable-line no-param-reassign
+          d.fy = d3.event.y; // eslint-disable-line no-param-reassign
 
           // Move node
           const node = d3.select(`#phase-node-${d.id}`);
-          if (node._groups[0][0] === null) { // eslint-disable-line
+          if (node._groups[0][0] === null) { // eslint-disable-line no-underscore-dangle
             this.warn(`Node not found: #phase-node-${d.id}`);
           }
           node
@@ -226,7 +226,7 @@ class Network {
           neighbors.forEach((neighbor) => {
             // If this node is the source, move x1 and y1
             let link = d3.select(`[id="phase-link-${d.id}->${neighbor}"]`);
-            if (link._groups[0][0] !== null) { // eslint-disable-line
+            if (link._groups[0][0] !== null) { // eslint-disable-line no-underscore-dangle
               link.select('line')
                 .attr('x1', d3.event.x)
                 .attr('y1', d3.event.y);
@@ -234,7 +234,7 @@ class Network {
               link = d3.select(`[id="phase-link-${neighbor}->${d.id}"]`);
               if (!this.debug) {
                 // If link is not found, fail gracefully
-                if (link._groups[0][0] === null) { // eslint-disable-line
+                if (link._groups[0][0] === null) { // eslint-disable-line no-underscore-dangle
                   this.warn(`Link not found: #phase-link-${neighbor}->${d.id}`);
                   return;
                 }
@@ -357,7 +357,7 @@ class Network {
   }
 
   // Recalculates node and link positions every simulation tick
-  ticked(nodeContainer, linkContainer) { // eslint-disable-line
+  ticked(nodeContainer, linkContainer) { // eslint-disable-line class-methods-use-this
     nodeContainer
       .attr('transform', d => `translate(${d.x},${d.y})`)
       .attr('x', d => d.x)
@@ -522,14 +522,14 @@ class Network {
     this.nodeContainers = this.nodeContainers.data(this.networkData.nodes, d => d.id);
 
     // Remove old nodes
-    // eslint-disable-next-line
+    // eslint-disable-next-line no-underscore-dangle
     if (this.nodeContainers.exit()._groups[0].length > 0) {
       this.bindNodesRemove();
     }
 
     // Add new nodes
     let newNodes = this.nodeContainers;
-    // eslint-disable-next-line
+    // eslint-disable-next-line no-underscore-dangle
     if (this.nodeContainers.enter()._groups[0].length > 0) {
       newNodes = this.bindNodesAdd();
     }
@@ -556,13 +556,15 @@ class Network {
       .attr('class', 'node')
       .attr('id', d => (`phase-node-${d.id}`))
       .attr('x', (d) => {
-        d.x = this.containerWidth / 2 + (Math.random() - 0.5) * 300; // eslint-disable-line
-        d.vx = 0; // eslint-disable-line
+        // eslint-disable-next-line no-param-reassign
+        d.x = this.containerWidth / 2 + (Math.random() - 0.5) * 300;
+        d.vx = 0; // eslint-disable-line no-param-reassign
         return d.x;
       })
       .attr('y', (d) => {
-        d.y = this.containerHeight / 2 + (Math.random() - 0.5) * 300; // eslint-disable-line
-        d.vy = 0; // eslint-disable-line
+        // eslint-disable-next-line no-param-reassign
+        d.y = this.containerHeight / 2 + (Math.random() - 0.5) * 300;
+        d.vy = 0; // eslint-disable-line no-param-reassign
         return d.y;
       });
 
@@ -581,12 +583,14 @@ class Network {
     // Update containers
     this.nodeContainers
       .attr('x', (d) => {
-        d.x = this.containerWidth / 2 + (Math.random() - 0.5) * 300; // eslint-disable-line
+        // eslint-disable-next-line no-param-reassign
+        d.x = this.containerWidth / 2 + (Math.random() - 0.5) * 300;
         d.vx = 0; // eslint-disable-line
         return d.x;
       })
       .attr('y', (d) => {
-        d.y = this.containerHeight / 2 + (Math.random() - 0.5) * 300; // eslint-disable-line
+        // eslint-disable-next-line no-param-reassign
+        d.y = this.containerHeight / 2 + (Math.random() - 0.5) * 300;
         d.vy = 0; // eslint-disable-line
         return d.y;
       })
@@ -627,14 +631,14 @@ class Network {
     );
 
     // Remove old links
-    // eslint-disable-next-line
+    // eslint-disable-next-line no-underscore-dangle
     if (this.linkContainers.exit()._groups[0].length > 0) {
       this.bindLinksRemove();
     }
 
     // Add new links
     let newLinks = this.linkContainers;
-    // eslint-disable-next-line
+    // eslint-disable-next-line no-underscore-dangle
     if (this.linkContainers.enter()._groups[0].length > 0) {
       newLinks = this.bindLinksAdd();
     }
@@ -697,10 +701,10 @@ class Network {
 
 
   // Generate link ids where not specified in the data as 'source->target'
-  generateLinkIds(rawData) { //eslint-disable-line
+  generateLinkIds(rawData) { // eslint-disable-line class-methods-use-this
     rawData.links.forEach((link) => {
       if (link.id === undefined) {
-        link.id = `${link.source  }->${  link.target}`; //eslint-disable-line
+        link.id = `${link.source}->${link.target}`; // eslint-disable-line no-param-reassign
       }
     });
     return rawData;
