@@ -211,26 +211,37 @@ class Network {
           d.fx = d3.event.x; // eslint-disable-line
           d.fy = d3.event.y; // eslint-disable-line
 
+          // Move node
           const node = d3.select(`#phase-node-${d.id}`);
+          if (node._groups[0][0] === null) { // eslint-disable-line
+            this.warn(`Node not found: #phase-node-${d.id}`);
+          }
           node
             .attr('x', d.fx)
             .attr('y', d.fy)
             .attr('transform', `translate(${d.fx},${d.fy})`);
 
+          // Move link endpoints
           const neighbors = this.adjList[d.id];
           neighbors.forEach((neighbor) => {
-            const link = d3.select(`[id="phase-link-${d.id}->${neighbor}"]`);
             // If this node is the source, move x1 and y1
-            if (link.data()[0].source.id === d.id) {
+            let link = d3.select(`[id="phase-link-${d.id}->${neighbor}"]`);
+            if (link._groups[0][0] !== null) { // eslint-disable-line
               link.select('line')
-                .attr('x1', d3.event.x) // eslint-disable-line
-                .attr('y1', d3.event.y); // eslint-disable-line
-            }
-            // If this node is the target, move x2 and x2
-            if (link.data()[0].target.id === d.id) {
+                .attr('x1', d3.event.x)
+                .attr('y1', d3.event.y);
+            } else { // If this node is the target, move x2 and x2
+              link = d3.select(`[id="phase-link-${neighbor}->${d.id}"]`);
+              if (!this.debug) {
+                // If link is not found, fail gracefully
+                if (link._groups[0][0] === null) { // eslint-disable-line
+                  this.warn(`Link not found: #phase-link-${neighbor}->${d.id}`);
+                  return;
+                }
+              }
               link.select('line')
-                .attr('x2', d3.event.x) // eslint-disable-line
-                .attr('y2', d3.event.y); // eslint-disable-line
+                .attr('x2', d3.event.x)
+                .attr('y2', d3.event.y);
             }
           });
         }
