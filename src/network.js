@@ -550,6 +550,7 @@ class Network {
     // Assign class to node containers and randomize initial position near center
     newNodes
       .attr('class', 'node')
+      .attr('id', d => (`phase-node-${d.id}`))
       .attr('x', (d) => {
         d.x = this.containerWidth / 2 + (Math.random() - 0.5) * 300; // eslint-disable-line
         d.vx = 0; // eslint-disable-line
@@ -653,7 +654,8 @@ class Network {
 
     // Add class to link containers
     newLinks
-      .attr('class', 'link');
+      .attr('class', 'link')
+      .attr('id', d => (`phase-node-${d.id}`));
 
     // Add new lines
     newLinks
