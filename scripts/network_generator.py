@@ -58,8 +58,6 @@ def parse_input():
     args = parser.parse_args()
 
 # Generator that returns a node with a random id and name
-# NOTE: Hardcoded to support up to i*j*k (10*10*10 = 1000 for now) names
-# TODO: Create a cartesian product of all sets and randomly sample when args.nodes !<< i*j*k for better performance
 def generate_random_node():
     used_names = set()
     # Sets guarantee random ordering
@@ -70,12 +68,12 @@ def generate_random_node():
     last_names = {'Smith', 'Johnson', 'Patel', 'Li', 'Cook', 'Tano', 'Yang', 'Hernandez', 'Bera', 'Sun', 'Jackson', 'Black', 'White', 'Goldberg', 'Tana', 'Akbarzadeh', 'Sneh', 'Caesar', 'Kaleoharis', 'Putin', 'Cohen', 'Terra', 'Stein'}
     suffixes = {'', 'I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X', 'Jr.', 'Sr.', 'CPA', 'DDS', 'Esq', 'JD', 'LLD', 'MD', 'PhD', 'RN'}
     while True:
-        a = random.sample(prefixes, 1)[0]
-        b = random.sample(first_names, 1)[0]
-        c = random.sample(middle_initials, 1)[0]
-        d = random.sample(last_names, 1)[0]
-        e = random.sample(suffixes, 1)[0]
-        name = a + ' ' + b + ' ' + c + '. ' + d + ' ' + e
+        pre = random.sample(prefixes, 1)[0]
+        first = random.sample(first_names, 1)[0]
+        middle = random.sample(middle_initials, 1)[0]
+        last = random.sample(last_names, 1)[0]
+        suff = random.sample(suffixes, 1)[0]
+        name = f"{pre} {first} {middle}. {last} {suff}"
         if name in used_names:
             continue
         id = name.lower().replace(' ', '_').replace('.', '')
