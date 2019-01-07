@@ -496,7 +496,7 @@ class Network {
     this.simulation
       .nodes(this.networkData.nodes)
       .force('link').links(this.networkData.links);
-    this.simulation.alpha(1).restart();
+    this.simulation.alpha(0.5).restart();
   }
 
   // Binds new data to the nodes
@@ -534,9 +534,6 @@ class Network {
     const newNodes = this.nodeContainers
       .enter().append('g');
 
-    console.log(this.containerHeight);
-    console.log(this.containerWidth);
-
     // Assign class to node containers and randomize initial position near center
     newNodes
       .attr('class', 'node')
@@ -565,6 +562,16 @@ class Network {
   bindNodesUpdate() {
     // Update containers
     this.nodeContainers
+      .attr('x', (d) => {
+        d.x = this.containerWidth / 2 + (Math.random() - 0.5) * 300; // eslint-disable-line
+        d.vx = 0; // eslint-disable-line
+        return d.x;
+      })
+      .attr('y', (d) => {
+        d.y = this.containerHeight / 2 + (Math.random() - 0.5) * 300; // eslint-disable-line
+        d.vy = 0; // eslint-disable-line
+        return d.y;
+      })
       .on('mouseover', this.defaultNodeEventHandlers.nodeMouseover)
       .on('mouseout', this.defaultNodeEventHandlers.nodeMouseout)
       .on('mousedown', this.defaultNodeEventHandlers.nodeMousedown)
