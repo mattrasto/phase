@@ -193,9 +193,11 @@ class Network {
       // Container drag start handler
       nodeDragStart(d) {
         this.log('Drag start');
-        if (!d3.event.active) this.simulation.alphaTarget(0.3).restart();
-        d.fx = d.x; // eslint-disable-line
-        d.fy = d.y; // eslint-disable-line
+        if (!this.networkSettings.static) {
+          if (!d3.event.active) this.simulation.alphaTarget(0.3).restart();
+          d.fx = d.x; // eslint-disable-line
+          d.fy = d.y; // eslint-disable-line
+        }
       },
       // Container drag handler
       nodeDrag(d) {
@@ -204,13 +206,33 @@ class Network {
           d.fx = d3.event.x; // eslint-disable-line
           d.fy = d3.event.y; // eslint-disable-line
         } else {
+          d.x = d3.event.x; // eslint-disable-line
+          d.y = d3.event.y; // eslint-disable-line
           d.fx = d3.event.x; // eslint-disable-line
           d.fy = d3.event.y; // eslint-disable-line
+
           const node = d3.select(`#phase-node-${d.id}`);
           node
             .attr('x', d.fx)
             .attr('y', d.fy)
             .attr('transform', `translate(${d.fx},${d.fy})`);
+
+          const neighbors = this.adjList[d.id];
+          neighbors.forEach((neighbor) => {
+            const link = d3.select(`[id="phase-link-${d.id}->${neighbor}"]`);
+            // If this node is the source, move x1 and y1
+            if (link.data()[0].source.id === d.id) {
+              link.select('line')
+                .attr('x1', d3.event.x) // eslint-disable-line
+                .attr('y1', d3.event.y); // eslint-disable-line
+            }
+            // If this node is the target, move x2 and x2
+            if (link.data()[0].target.id === d.id) {
+              link.select('line')
+                .attr('x2', d3.event.x) // eslint-disable-line
+                .attr('y2', d3.event.y); // eslint-disable-line
+            }
+          });
         }
       },
       // Container drag end handler
