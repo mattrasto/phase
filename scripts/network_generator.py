@@ -63,14 +63,19 @@ def parse_input():
 def generate_random_node():
     used_names = set()
     # Sets guarantee random ordering
-    first_names = {'Jack', 'John', 'Matt', 'Yath', 'Lee', 'David', 'Akshay', 'Amed', 'Sergei', 'Viktor'}
-    middle_initials = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'}
-    last_names = {'Smith', 'Johnson', 'Patel', 'Li', 'Cook', 'Tano', 'Yang', 'Hernandez', 'Bera', 'Sun'}
+    # Sizes: 16, 22, 26, 23, 21 (total possible names: 4,420,416)
+    prefixes = {'', 'Dr.', 'Prof.', 'Atty.', 'Hon.', 'Col.', 'Capt.', 'Adm.', 'Gen.', 'Gov.', 'Mr.', 'Mrs.', 'Ms.', 'Rev.', 'Cmdr.', 'Chief'}
+    first_names = {'Jack', 'John', 'Matt', 'Yath', 'Lee', 'David', 'Akshay', 'Amed', 'Sergei', 'Viktor', 'Jacob', 'Allison', 'Shirley', 'Megan', 'Caesar', 'Bonnie', 'Charlotte', 'Gabriel', 'Gabriela', 'Elena', 'Bryan', 'Aaron'}
+    middle_initials = {'', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'}
+    last_names = {'Smith', 'Johnson', 'Patel', 'Li', 'Cook', 'Tano', 'Yang', 'Hernandez', 'Bera', 'Sun', 'Jackson', 'Black', 'White', 'Goldberg', 'Tana', 'Akbarzadeh', 'Sneh', 'Caesar', 'Kaleoharis', 'Putin', 'Cohen', 'Terra', 'Stein'}
+    suffixes = {'', 'I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X', 'Jr.', 'Sr.', 'CPA', 'DDS', 'Esq', 'JD', 'LLD', 'MD', 'PhD', 'RN'}
     while True:
-        i = random.sample(first_names, 1)[0]
-        j = random.sample(middle_initials, 1)[0]
-        k = random.sample(last_names, 1)[0]
-        name = i + ' ' + j + '. ' + k
+        a = random.sample(prefixes, 1)[0]
+        b = random.sample(first_names, 1)[0]
+        c = random.sample(middle_initials, 1)[0]
+        d = random.sample(last_names, 1)[0]
+        e = random.sample(suffixes, 1)[0]
+        name = a + ' ' + b + ' ' + c + '. ' + d + ' ' + e
         if name in used_names:
             continue
         id = name.lower().replace(' ', '_').replace('.', '')
