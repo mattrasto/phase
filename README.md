@@ -256,6 +256,30 @@ In order for the demos to render you must compile the library source code by run
 npm run build
 ```
 
+If you wish to make changes to the source code and run webpack in watch mode to recompile every time you save you can use
+```bash
+npm run dev
+```
+
+## Testing
+
+For our tests we use [cafetest](https://devexpress.github.io/testcafe/).
+
+To run the tests, you must run a webserver at the top level directory so that testcafe can make requests to the demo HTML pages. You can use any server as long as it uses port 8000. We recommend Python3's `http.server` which you can start up using the command:
+```bash
+npm run serve
+```
+
+From there you can run the tests found in the `test` directory:
+```bash
+npm run test
+```
+
+Alternatively, if you want to just open up all the html files at once to play around with them instead of running the automated tests you can use:
+```bash
+npm run open
+```
+
 ## Contributing
 
 If you think a feature is missing, have a suggestion, or find a bug, *please* make an issue!
