@@ -626,7 +626,7 @@ class Network {
     // Add class to link containers
     newLinks
       .attr('class', 'link')
-      .attr('id', d => (`phase-node-${d.id}`));
+      .attr('id', d => (`phase-link-${d.id}`));
 
     // Add new lines
     newLinks
