@@ -204,42 +204,13 @@ class Network {
           d.fx = d3.event.x; // eslint-disable-line
           d.fy = d3.event.y; // eslint-disable-line
         } else {
-          // TODO: This is abominable (yet performant enough)
-          // The root of the problem is that d3.select(d).node() returns a
-          // selection of the data, not the elements
-          // This means the only way to obtain the element associated with the
-          // data is to manually search for it
-          // Is this due to how data is bound to elements in this.nodeContainers?
-          // NOTE: Another stopgap solution is assigning ids to each element
-          // corresponding with data ids
-          // let newX;
-          // let newY;
-          // for (const nodeContainer of this.nodeContainers.groups[0]) {
-          //     if (d3.select(nodeContainer).data()[0].id == d.id) {
-          //         newX = d3.event.x - d.x;
-          //         newY = d3.event.y - d.y;
-          //         d3.select(nodeContainer)
-          //             .attr("transform", function(d) { return "translate(" +
-          // newX + "," + newY + ")"; });
-          //         nodeContainer.x = newX;
-          //         nodeContainer.y = newY;
-          //         return;
-          //     }
-          // }
-          // for (const linkContainer of this.linkContainers.groups[0]) {
-          //     if (d3.select(linkContainer).data()[0].source.id == d.id ||
-          //         d3.select(linkContainer).data()[0].target.id == d.id) {
-          //         d3.select(linkContainer.childNodes[0])
-          //             .attr("x1", function(d) { return 0; })
-          //             .attr("y1", function(d) { return 0; })
-          //             .attr("x2", function(d) { return 100; })
-          //             .attr("y2", function(d) { return 100; });
-          //         d3.select(linkContainer.childNodes[1]).attr('transform', function(d, i) {
-          //             return "translate(" + ((d.source.x + d.target.x) / 2) +
-          // "," + ((d.source.y + d.target.y) / 2) + ")"
-          //         });
-          //     }
-          // }
+          d.fx = d3.event.x; // eslint-disable-line
+          d.fy = d3.event.y; // eslint-disable-line
+          const node = d3.select(`#phase-node-${d.id}`);
+          node
+            .attr('x', d.fx)
+            .attr('y', d.fy)
+            .attr('transform', `translate(${d.fx},${d.fy})`);
         }
       },
       // Container drag end handler
