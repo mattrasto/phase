@@ -469,8 +469,21 @@ class Network {
     if (this.networkSettings.static) {
       for (let i = 0, n = Math.ceil(Math.log(this.simulation.alphaMin())
         / Math.log(1 - this.simulation.alphaDecay())); i < n; i += 1) {
-        this.ticked(this.nodeContainers, this.linkContainers);
+        // Update element positions internally (modifies element data)
+        this.simulation.tick();
       }
+      // Update elements' html positions based on data positions
+      this.ticked(this.nodeContainers, this.linkContainers);
+
+      // View network rendered step-by-step
+      // const intervalID = window.setInterval(() => {
+      //   this.simulation.tick();
+      //   console.log(this.simulation.alpha());
+      //   this.ticked(this.nodeContainers, this.linkContainers);
+      //   if (this.simulation.alpha() < 0.01) {
+      //     clearInterval(intervalID);
+      //   }
+      // }, 100);
     }
 
     // Update "all" groups
