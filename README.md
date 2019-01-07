@@ -1,6 +1,6 @@
 # Phase
 
-Current Version: 0.8.0 (Stable Beta)
+Current Version: 0.9.0 (Stable Beta)
 
 Phase is a graph visualization network built on top of D3 to allow quicker and more interactive network prototyping.
 
@@ -163,7 +163,7 @@ Once the groups are created, they can be modified together via morphs. Also, usi
 To create a morph:
 
 ```Javascript
-viz.morph(morphName, morphType, change);
+viz.morph(morphLabel, morphType, change);
 ```
 
 Example (`morphs` demo):
@@ -177,13 +177,14 @@ viz.morph("style_nodes", "style", {"fill": "#7DABFF"});
 To apply a morph:
 
 ```Javascript
-group.morph(morphLabel);
+group.morph(morphReference);
 ```
 
 Example (`morphs` demo):
 
 ```Javascript
-viz.getNodeGroup("node_group").morph("style_nodes");
+const styleNodes = viz.morph("style_nodes", "style", {"fill": "#7DABFF"});
+viz.getNodeGroup("node_group").morph(styleNodes);
 ```
 
 In this example, we're retrieving a node group object by passing in its label to the `getNodeGroup()` function provided by the `Network` object and applying the morph we just made. All of the nodes contained within that node group should have the morph applied to them, coloring them light blue!
@@ -212,7 +213,7 @@ basicPhase.initial(function(vizState) {
 });
 ```
 
-Here we set the initial state of the phase by specifying `phaseObject.state(newState)` - this state will be used throughout the phase to perform our BFS, so it would be handy to keep it within the phase's state.
+Here we set the initial state of the phase by specifying `phaseObject.state(newState)` - this variable will be used throughout the phase to perform our BFS, so it would be handy to keep it within the phase's state.
 
 Whenever the phase calculates its next state (called a phase transition), it will execute the `next()` function:
 
@@ -224,7 +225,7 @@ Example (`phase_basic` demo):
 
 ```Javascript
 basicPhase.next(function(phaseState, vizState) {
-    viz.nodeGroup("group_" + phaseState.val, "group", phaseState.val).morph(morph.label);
+    viz.nodeGroup("group_" + phaseState.val, "group", phaseState.val).morph(morph);
     phaseState.val++;
 });
 ```
@@ -256,7 +257,7 @@ In order for the demos to render you must compile the library source code by run
 npm run build
 ```
 
-If you wish to make changes to the source code and run webpack in watch mode to recompile every time you save you can use
+If you wish to make changes to the source code and recompile every time you save, you can use
 ```bash
 npm run dev
 ```
@@ -282,8 +283,8 @@ npm run open
 
 ## Contributing
 
-If you think a feature is missing, have a suggestion, or find a bug, *please* make an issue!
+If you think a feature is missing, have a suggestion, or find a bug, we'd love to know! Please make an issue so we can start working on it ASAP.
 
-I'm glad to accept any improvements, especially if they reference a specific issue.
+We're glad to accept any improvements, especially if they reference a specific issue.
 
-If you'd like to get involved on a more active level, I'd love to chat at matthewrastovac@gmail.com
+If you'd like to get involved on a more active level, I'd love to chat at mattrasto@gmail.com
