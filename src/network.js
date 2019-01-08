@@ -48,7 +48,7 @@ class Network {
     this.forceRerender = new Set(['zoom', 'gravity', 'charge', 'linkStrength', 'linkDistance', 'static']);
 
     // Debug flag
-    this.debug = true;
+    this.debug = false;
 
     // Viz state
     this.networkState = {};
