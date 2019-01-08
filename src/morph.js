@@ -16,5 +16,10 @@ export default class Morph {
     if (this.label in this.network.morphs) {
       delete this.network.morphs[this.label];
     }
+    if (this.phase
+        && this.phase.mor
+        && this.label in this.phase.morphs) {
+      delete this.phase.morphs[this.label];
+    }
   }
 } // End Morph Class
