@@ -48,7 +48,7 @@ class Network {
     this.forceRerender = new Set(['zoom', 'gravity', 'charge', 'linkStrength', 'linkDistance', 'static']);
 
     // Debug flag
-    this.debug = false;
+    this.debug = true;
 
     // Viz state
     this.networkState = {};
@@ -523,15 +523,19 @@ class Network {
 
     // Remove old nodes
     // eslint-disable-next-line no-underscore-dangle
-    if (this.nodeContainers.exit()._groups[0].length > 0) {
+    if (this.nodeContainers._exit[0].length > 0) {
       this.bindNodesRemove();
+      // eslint-disable-next-line no-underscore-dangle
+      this.log(`Removed ${this.nodeContainers._exit[0].length} nodes`);
     }
 
     // Add new nodes
     let newNodes = this.nodeContainers;
     // eslint-disable-next-line no-underscore-dangle
-    if (this.nodeContainers.enter()._groups[0].length > 0) {
+    if (this.nodeContainers._enter[0].length > 0) {
       newNodes = this.bindNodesAdd();
+      // eslint-disable-next-line no-underscore-dangle
+      this.log(`Added ${this.nodeContainers._enter[0].length} nodes`);
     }
 
     // Merge enter and update selections
@@ -632,15 +636,19 @@ class Network {
 
     // Remove old links
     // eslint-disable-next-line no-underscore-dangle
-    if (this.linkContainers.exit()._groups[0].length > 0) {
+    if (this.linkContainers._exit[0].length > 0) {
       this.bindLinksRemove();
+      // eslint-disable-next-line no-underscore-dangle
+      this.log(`Removed ${this.linkContainers._exit[0].length} links`);
     }
 
     // Add new links
     let newLinks = this.linkContainers;
     // eslint-disable-next-line no-underscore-dangle
-    if (this.linkContainers.enter()._groups[0].length > 0) {
+    if (this.linkContainers._enter[0].length > 0) {
       newLinks = this.bindLinksAdd();
+      // eslint-disable-next-line no-underscore-dangle
+      this.log(`Added ${this.linkContainers._enter[0].length} links`);
     }
 
     // Merge enter and update selections
