@@ -146,6 +146,16 @@ class Group {
     } else if (this.label in this.network.linkGroups) {
       delete this.network.linkGroups[this.label];
     }
+    if (this.phase) {
+      if (this.phase.nodeGroups
+          && this.label in this.phase.nodeGroups) {
+        delete this.phase.nodeGroups[this.label];
+      }
+      if (this.phase.linkGroups
+          && this.label in this.phase.linkGroups) {
+        delete this.phase.linkGroups[this.label];
+      }
+    }
   }
 } // End Group Class
 
