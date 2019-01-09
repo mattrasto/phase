@@ -44,11 +44,11 @@ test('Correct number of nodes and links', async (t) => {
   await t.expect(numNodes).eql(77).expect(numLinks).eql(254);
 });
 
+/* eslint-disable no-undef */
 fixture('Morphs')
   .page(pathToFile('morphs'));
 
 test('Apply morph and reset button modify style as expected', async (t) => {
-  await t.setPageLoadTimeout(2000);
   const buttons = await Selector('#sidebar input');
   const applyMorphs = buttons.nth(0);
   const reset = buttons.nth(1);
@@ -58,19 +58,46 @@ test('Apply morph and reset button modify style as expected', async (t) => {
   const morphedLinks = await Selector('line')
     .withAttribute('style', 'stroke: rgb(212, 99, 99); stroke-width: 3px;');
 
+  // Correct amount of nodes and links are modified
   await t.click(applyMorphs, { timeout: 1000 })
     .expect(morphedNodes.count)
     .eql(await t.eval(
-      () => viz.getNodeGroup('rand_node_group').selection._groups[0].length, // eslint-disable-line no-undef, no-underscore-dangle
+      () => viz.getNodeGroup('rand_node_group').selection.data().length,
     ))
     .expect(morphedLinks.count)
     .eql(await t.eval(
-      () => viz.getLinkGroup('rand_link_group').selection._groups[0].length, // eslint-disable-line no-undef, no-underscore-dangle
+      () => viz.getLinkGroup('rand_link_group').selection.data().length,
     ));
 
+  // None remain modified after reset
   await t.click(reset, { timeout: 1000 })
     .expect(morphedNodes.count)
     .eql(0)
     .expect(morphedLinks.count)
     .eql(0);
+});
+
+test('Data morphs modify group values for links and nodes', async (t) => {
+  const applyMorphs = await Selector('#sidebar input').nth(0);
+
+  const nodes = await t.eval(() => viz.getNodeGroup('rand_node_group').selection.data());
+  const links = await t.eval(() => viz.getLinkGroup('rand_link_group').selection.data());
+
+  // Groups do not equal 200 before click
+  nodes.forEach(async (node) => {
+    await t.expect(node.group).notEql(200);
+  });
+  links.forEach(async (link) => {
+    await t.expect(link.group).notEql(200);
+  });
+
+  await t.click(applyMorphs);
+
+  // Groups equal 200 after click
+  nodes.forEach(async (node) => {
+    await t.expect(node.group).eql(200);
+  });
+  links.forEach(async (link) => {
+    await t.expect(link.group).eql(200);
+  });
 });
