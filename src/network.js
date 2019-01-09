@@ -1,3 +1,4 @@
+import * as d3 from 'd3';
 import Phase from './phase';
 import Morph from './morph';
 import { NodeGroup, LinkGroup } from './group';

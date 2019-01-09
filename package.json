@@ -30,5 +30,8 @@
   "bugs": {
     "url": "https://github.com/mattrasto/phase/issues"
   },
-  "homepage": "https://github.com/mattrasto/phase#readme"
+  "homepage": "https://github.com/mattrasto/phase#readme",
+  "dependencies": {
+    "d3": "^5.7.0"
+  }
 }
