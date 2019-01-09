@@ -453,14 +453,39 @@ class Network {
 
   // DATA BINDING
 
+  static validateData(data) {
+    const validFormat = Array.isArray(data.nodes) && Array.isArray(data.links);
+
+    const seen = new Set();
+
+    if (validFormat) {
+      data.nodes.forEach((node) => {
+        if (!node.id || seen.has(node.id)) {
+          throw Error('Node has a duplicate or undefined id');
+        }
+        seen.add(node.id);
+      });
+      data.links.forEach((link) => {
+        const validLink = link.source && link.target;
+        if (!validLink || seen.has(`${link.source}-${link.target}`)) {
+          throw Error('Link has an undefined or duplicate source/target combo');
+        }
+        seen.add(`${link.source}-${link.target}`);
+        seen.add(`${link.target}-${link.source}`);
+      });
+      console.log(seen);
+    } else {
+      throw Error("Data must be an object with arrays 'nodes' and 'links'");
+    }
+  }
 
   // Binds data to the viz
-  // TODO: Fix this? (see issue #19)
   data(rawData) {
+    // Check for data integrity
+    Network.validateData(rawData);
+
     // Auto-generate link ids
     const data = this.generateLinkIds(rawData);
-
-    // TODO: Data integrity checks
 
     this.bindData(data);
     if (this.networkData != null && !this.dataBound) {
@@ -720,8 +745,7 @@ class Network {
 
   // Creates a dict containing children of each node
   generateAdjacencyList(data) {
-    const { links } = data;
-    const { nodes } = data;
+    const { nodes, links } = data;
 
     this.adjList = {};
     nodes.forEach((node) => {
