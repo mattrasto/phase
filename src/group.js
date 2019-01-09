@@ -1,3 +1,5 @@
+import { InvalidFiltererError } from './error';
+
 const NODE_SELECTOR = 'circle';
 const LINK_SELECTOR = 'line';
 
@@ -66,7 +68,7 @@ class Group {
       const set = new Set(filterer);
       subFilterer = d => (set.has(d.id));
     } else {
-      throw Error('Invalid filterer type');
+      throw new InvalidFiltererError('Invalid filterer type');
     }
 
     if (parentFilterer !== undefined) {

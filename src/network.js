@@ -1,6 +1,7 @@
 import * as d3 from 'd3';
 import Phase from './phase';
 import Morph from './morph';
+import { InvalidFormatError } from './error';
 import { NodeGroup, LinkGroup } from './group';
 
 class Network {
@@ -462,21 +463,20 @@ class Network {
     if (validFormat) {
       data.nodes.forEach((node) => {
         if (!node.id || seen.has(node.id)) {
-          throw Error('Node has a duplicate or undefined id');
+          throw new InvalidFormatError('Node has a duplicate or undefined id');
         }
         seen.add(node.id);
       });
       data.links.forEach((link) => {
         const validLink = link.source && link.target;
         if (!validLink || seen.has(`${link.source}-${link.target}`)) {
-          throw Error('Link has an undefined or duplicate source/target combo');
+          throw new InvalidFormatError('Link has an undefined or duplicate source/target combo');
         }
         seen.add(`${link.source}-${link.target}`);
         seen.add(`${link.target}-${link.source}`);
       });
-      console.log(seen);
     } else {
-      throw Error("Data must be an object with arrays 'nodes' and 'links'");
+      throw new InvalidFormatError("Data must be an object with arrays 'nodes' and 'links'");
     }
   }
 
