@@ -43,3 +43,34 @@ test('Correct number of nodes and links', async (t) => {
 
   await t.expect(numNodes).eql(77).expect(numLinks).eql(254);
 });
+
+fixture('Morphs')
+  .page(pathToFile('morphs'));
+
+test('Apply morph and reset button modify style as expected', async (t) => {
+  await t.setPageLoadTimeout(2000);
+  const buttons = await Selector('#sidebar input');
+  const applyMorphs = buttons.nth(0);
+  const reset = buttons.nth(1);
+
+  const morphedNodes = await Selector('circle')
+    .withAttribute('style', 'fill: rgb(125, 171, 255); stroke: rgb(174, 99, 212); stroke-width: 3px;');
+  const morphedLinks = await Selector('line')
+    .withAttribute('style', 'stroke: rgb(212, 99, 99); stroke-width: 3px;');
+
+  await t.click(applyMorphs, { timeout: 1000 })
+    .expect(morphedNodes.count)
+    .eql(await t.eval(
+      () => viz.getNodeGroup('rand_node_group').selection._groups[0].length, // eslint-disable-line no-undef, no-underscore-dangle
+    ))
+    .expect(morphedLinks.count)
+    .eql(await t.eval(
+      () => viz.getLinkGroup('rand_link_group').selection._groups[0].length, // eslint-disable-line no-undef, no-underscore-dangle
+    ));
+
+  await t.click(reset, { timeout: 1000 })
+    .expect(morphedNodes.count)
+    .eql(0)
+    .expect(morphedLinks.count)
+    .eql(0);
+});
