@@ -479,12 +479,15 @@ class Network {
         seen.add(node.id);
       });
       data.links.forEach((link) => {
-        const validLink = link.source && link.target;
-        if (!validLink || seen.has(`${link.source}-${link.target}`)) {
+        if (link.id !== undefined) return; // Seen this link already
+        const source = this.dataBound ? link.source.id : link.source;
+        const target = this.dataBound ? link.target.id : link.target;
+        const validLink = source && target;
+        if (!validLink || seen.has(`${source}-${target}`)) {
           throw new InvalidFormatError('Link has an undefined or duplicate source/target combo');
         }
-        seen.add(`${link.source}-${link.target}`);
-        seen.add(`${link.target}-${link.source}`);
+        seen.add(`${source}-${target}`);
+        seen.add(`${target}-${source}`);
       });
     } else {
       throw new InvalidFormatError("Data must be an object with arrays 'nodes' and 'links'");
