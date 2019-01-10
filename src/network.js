@@ -785,6 +785,15 @@ class Network {
     });
     return result;
   }
+
+  getLinkData(id) {
+    if (!this.dataBound) this.warn('Network has no attached data');
+    let result = null;
+    this.networkData.links.forEach((link) => {
+      if (link.id === id) result = link;
+    });
+    return result;
+  }
 } // End Network Class
 
 /* global window */
