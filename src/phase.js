@@ -4,17 +4,9 @@ export default class Phase {
     this.network = network;
     this.label = label;
 
-    this.root = null;
-
     // Settings
-    // TODO: Consider moving into state or exposing
     this.timeStep = 500; // Time between execution tree layer applications
-
-    // Internal state
-    // TODO: Consider moving into state or exposing
-    this.curLayer = 0; // Current layer of the phase's execution
-    this.interval = null; // Interval ID for the phase
-    this.layerNodes = []; // Array of MorphNodes present in each layer of the execution tree
+    this.interval = null; // Interval function for the phase
 
     // External state
     this.phaseState = {}; // State variables belonging to state
