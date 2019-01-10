@@ -222,9 +222,10 @@ class Network {
           d.fy = event.y; // eslint-disable-line no-param-reassign
 
           // Move node
-          const node = select(`#phase-node-${d.id}`);
+          const nodeIdSelector = `#phase-node-${d.id}`.replace(/(:|\.|\[|\]|,|=|@)/g, '\\$1');
+          const node = select(nodeIdSelector);
           if (node._groups[0][0] === null) { // eslint-disable-line no-underscore-dangle
-            this.warn(`Node not found: #phase-node-${d.id}`);
+            this.warn(`Node not found: ${nodeIdSelector}`);
           }
           node
             .attr('x', d.fx)
@@ -234,18 +235,20 @@ class Network {
           // Move link endpoints
           const neighbors = this.adjList[d.id];
           neighbors.forEach((neighbor) => {
+            const sourceLinkIdSelector = `phase-link-${d.id}->${neighbor}`.replace(/(:|\.|\[|\]|,|=|@)/g, '\\$1');
             // If this node is the source, move x1 and y1
-            let link = select(`[id="phase-link-${d.id}->${neighbor}"]`);
+            let link = select(`[id="${sourceLinkIdSelector}"]`);
             if (link._groups[0][0] !== null) { // eslint-disable-line no-underscore-dangle
               link.select('line')
                 .attr('x1', event.x)
                 .attr('y1', event.y);
             } else { // If this node is the target, move x2 and x2
-              link = select(`[id="phase-link-${neighbor}->${d.id}"]`);
+              const targetLinkIdSelector = `phase-link-${neighbor}->${d.id}`.replace(/(:|\.|\[|\]|,|=|@)/g, '\\$1');
+              link = select(`[id="${targetLinkIdSelector}"]`);
               if (!this.debug) {
                 // If link is not found, fail gracefully
                 if (link._groups[0][0] === null) { // eslint-disable-line no-underscore-dangle
-                  this.warn(`Link not found: #phase-link-${neighbor}->${d.id}`);
+                  this.warn(`Link not found: #${sourceLinkIdSelector} or #${targetLinkIdSelector}`);
                   return;
                 }
               }
