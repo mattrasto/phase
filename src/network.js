@@ -22,7 +22,6 @@ class Network {
     this.container = (typeof query === 'string') ? document.querySelectorAll(query)[0] : query;
 
     this.networkData = { nodes: [], links: [] };
-    this.dataLoaded = false; // Whether the data has been loaded into this.networkData
     this.dataBound = false; // Whether the data has been bound to objects (this
     // changes the structure of link references)
 
@@ -502,9 +501,6 @@ class Network {
     const data = this.generateLinkIds(rawData);
 
     this.bindData(data);
-    if (this.networkData != null && !this.dataBound) {
-      this.dataLoaded = true;
-    }
     this.dataBound = true;
 
     this.generateAdjacencyList(data);
