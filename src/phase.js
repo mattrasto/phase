@@ -100,19 +100,17 @@ export default class Phase {
     delete this.network.phases[this.label];
   }
 
+  step() {
+    this.transitionFunction(this.state(), this.network.state());
+    if (this.terminalFunction(this.state(), this.network.state())) this.stop();
+  }
+
   // Begins the simulation
   start() {
     // TODO: Only initialize if the simulation has not been started yet or has been reset
     this.initialFunction(this.state(), this.network.state());
-
-    function step() {
-      this.transitionFunction(this.state(), this.network.state());
-      if (this.terminalFunction(this.state(), this.network.state())) this.stop();
-    }
-
-    if (this.transitionFunction) {
-      this.interval = setInterval(step.bind(this), this.timeStep);
-    }
+    this.step();
+    this.interval = setInterval(this.step.bind(this), this.timeStep);
   }
 
   // Morphs and Groups instantiated and stored within a phase
