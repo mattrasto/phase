@@ -776,6 +776,15 @@ class Network {
   getAdjacencyList() {
     return this.adjList;
   }
+
+  getNodeData(id) {
+    if (!this.dataBound) this.warn('Network has no attached data');
+    let result = null;
+    this.networkData.nodes.forEach((node) => {
+      if (node.id === id) result = node;
+    });
+    return result;
+  }
 } // End Network Class
 
 /* global window */
