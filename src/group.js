@@ -1,3 +1,4 @@
+import { select } from 'd3';
 import { InvalidFiltererError } from './error';
 
 const NODE_SELECTOR = 'circle';
@@ -125,14 +126,13 @@ class Group {
   }
 
   event(eventName, func) {
-    /* global d3 */
     let func1 = func;
     if (func == null) {
       func1 = () => {};
     }
     const wrapperFunc = function wrapper(d) {
       // TODO: Modify stylemap
-      func1.call(this, d, d3.select(this.childNodes[0]), d3.select(this.childNodes[1]));
+      func1.call(this, d, select(this.childNodes[0]), select(this.childNodes[1]));
     };
 
     this.selection.on(eventName, wrapperFunc);
