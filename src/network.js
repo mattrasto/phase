@@ -224,7 +224,7 @@ class Network {
           d.fy = event.y; // eslint-disable-line no-param-reassign
 
           // Move node
-          const nodeIdSelector = `#phase-node-${d.id}`.replace(/(:|\.|\[|\]|,|=|@)/g, '\\$1');
+          const nodeIdSelector = `#phase-${this.label}-node-${d.id}`.replace(/(:|\.|\[|\]|,|=|@)/g, '\\$1');
           const node = select(nodeIdSelector);
           if (node._groups[0][0] === null) { // eslint-disable-line no-underscore-dangle
             this.warn(`Node not found: ${nodeIdSelector}`);
@@ -237,7 +237,7 @@ class Network {
           // Move link endpoints
           const neighbors = this.adjList[d.id];
           neighbors.forEach((neighbor) => {
-            const sourceLinkIdSelector = `phase-link-${d.id}->${neighbor}`.replace(/(:|\.|\[|\]|,|=|@)/g, '\\$1');
+            const sourceLinkIdSelector = `phase-${this.label}-link-${d.id}->${neighbor}`.replace(/(:|\.|\[|\]|,|=|@)/g, '\\$1');
             // If this node is the source, move x1 and y1
             let link = select(`[id="${sourceLinkIdSelector}"]`);
             if (link._groups[0][0] !== null) { // eslint-disable-line no-underscore-dangle
@@ -245,7 +245,7 @@ class Network {
                 .attr('x1', event.x)
                 .attr('y1', event.y);
             } else { // If this node is the target, move x2 and x2
-              const targetLinkIdSelector = `phase-link-${neighbor}->${d.id}`.replace(/(:|\.|\[|\]|,|=|@)/g, '\\$1');
+              const targetLinkIdSelector = `phase-${this.label}-link-${neighbor}->${d.id}`.replace(/(:|\.|\[|\]|,|=|@)/g, '\\$1');
               link = select(`[id="${targetLinkIdSelector}"]`);
               if (!this.debug) {
                 // If link is not found, fail gracefully
@@ -302,7 +302,7 @@ class Network {
 
     // Adds svg box and allows it to resize / zoom as needed
     this.svg = select(this.container).append('svg')
-      .attr('id', 'phase-network')
+      .attr('id', `phase-${this.label}`)
       .attr('width', '100%')
       .attr('height', '100%')
       .attr('viewBox', `0 0 ${Math.min(this.containerWidth, this.containerHeight)} ${Math.min(this.containerWidth, this.containerHeight)}`)
@@ -597,7 +597,7 @@ class Network {
     // Assign class to node containers and randomize initial position near center
     newNodes
       .attr('class', 'node')
-      .attr('id', d => (`phase-node-${d.id}`))
+      .attr('id', d => (`phase-${this.label}-node-${d.id}`))
       .attr('x', (d) => {
         // eslint-disable-next-line no-param-reassign
         d.x = this.containerWidth / 2 + (Math.random() - 0.5) * 300;
@@ -710,7 +710,7 @@ class Network {
     // Add class to link containers
     newLinks
       .attr('class', 'link')
-      .attr('id', d => (`phase-link-${d.id}`));
+      .attr('id', d => (`phase-${this.label}-link-${d.id}`));
 
     // Add new lines
     newLinks
