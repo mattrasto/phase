@@ -2,7 +2,7 @@
 /* global viz:true phase lesMiserablesData */
 document.addEventListener('DOMContentLoaded', () => {
   // Initialize network object with static layout
-  viz = phase.Network('#viz-container', { static: true });
+  viz = phase.Network('static_layout', '#viz-container', { static: true });
   // Attach some initial data
   viz.data(lesMiserablesData);
 

@@ -3,7 +3,7 @@
 /* eslint no-param-reassign: ["error", { "props": false }] */
 document.addEventListener('DOMContentLoaded', () => {
   // Initialize network object
-  viz = phase.Network('#viz-container');
+  viz = phase.Network('update_settings', '#viz-container');
   // Attach some initial data
   viz.data(lesMiserablesData);
 

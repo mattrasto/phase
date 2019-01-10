@@ -46,7 +46,7 @@ function resetStyles() {
 
 document.addEventListener('DOMContentLoaded', () => {
   // Initialize network object
-  viz = phase.Network('#viz-container');
+  viz = phase.Network('morphs', '#viz-container');
   // Attach some initial data
   viz.data(lesMiserablesData);
 

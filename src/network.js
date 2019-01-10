@@ -15,7 +15,9 @@ import { InvalidFormatError } from './error';
 import { NodeGroup, LinkGroup } from './group';
 
 class Network {
-  constructor(query, settings) {
+  constructor(label, query, settings) {
+    this.label = label;
+
     /* global document */
     this.container = (typeof query === 'string') ? document.querySelectorAll(query)[0] : query;
 
@@ -778,7 +780,7 @@ class Network {
 
 /* global window */
 window.phase = {
-  Network(query, settings) {
-    return new Network(query, settings);
+  Network(label, query, settings) {
+    return new Network(label, query, settings);
   },
 };
