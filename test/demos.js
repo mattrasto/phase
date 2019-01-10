@@ -7,7 +7,7 @@ fixture('Basic')
   .before(async (ctx) => {
     ctx.startTime = (new Date()).getTime();
     // Wait for network to render
-    ctx.vizContainer = await Selector('#phase-network', { visibilityCheck: true });
+    ctx.vizContainer = await Selector('#phase-basic', { visibilityCheck: true });
   });
 
 test('Network renders within 2 seconds', async (t) => {
