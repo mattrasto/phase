@@ -9,7 +9,7 @@ function createColorMorph(searchPhase, depth) {
 
 document.addEventListener('DOMContentLoaded', () => {
   // Initialize network object
-  viz = phase.Network('#viz-container');
+  viz = phase.Network('phase_bfs', '#viz-container');
   // Attach some initial data
   viz.data(lesMiserablesData);
 

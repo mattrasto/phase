@@ -2,7 +2,7 @@
 /* global viz:true phase lesMiserablesData */
 document.addEventListener('DOMContentLoaded', () => {
   // Initialize network object
-  viz = phase.Network('#viz-container');
+  viz = phase.Network('event_handlers', '#viz-container');
   // Attach some initial data
   viz.data(lesMiserablesData);
 
