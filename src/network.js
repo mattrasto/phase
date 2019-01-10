@@ -1,4 +1,14 @@
-import * as d3 from 'd3';
+import {
+  event,
+  select,
+  zoom,
+  forceSimulation,
+  forceLink,
+  forceManyBody,
+  forceX,
+  forceY,
+  drag,
+} from 'd3';
 import Phase from './phase';
 import Morph from './morph';
 import { InvalidFormatError } from './error';
@@ -143,16 +153,14 @@ class Network {
   }
 
   initEventHandlers() {
-    /* global d3 */
     this.defaultVizEventHandlers = {
       // Container right click handler (outside nodes)
-      // TODO: Remove d?
       containerContextmenu() {
-        d3.event.preventDefault(); // Prevent context menu from appearing
+        event.preventDefault(); // Prevent context menu from appearing
       },
       // Container zoom handler
       containerZoom() {
-        this.g.node().setAttribute('transform', d3.event.transform);
+        this.g.node().setAttribute('transform', event.transform);
       },
     };
 
@@ -161,28 +169,28 @@ class Network {
       // Node mouseover handler
       nodeMouseover() {
         // Default: add blue border
-        d3.select(this.childNodes[0]).style('stroke', '#7DABFF').style('stroke-width', '3px');
+        select(this.childNodes[0]).style('stroke', '#7DABFF').style('stroke-width', '3px');
       },
       // Node mouseout handler
       nodeMouseout() {
         // Default: remove blue border
-        d3.select(this.childNodes[0]).style('stroke', '#F7F6F2').style('stroke-width', '.8');
+        select(this.childNodes[0]).style('stroke', '#F7F6F2').style('stroke-width', '.8');
       },
       // Node mousedown handler
       nodeMousedown(d) {
         // Unpin node if middle click
-        if (d3.event.which === 2) {
-          d3.select(this).classed('fixed', d.fixed = false); // eslint-disable-line
+        if (event.which === 2) {
+          select(this).classed('fixed', d.fixed = false); // eslint-disable-line
           d.fx = null; // eslint-disable-line no-param-reassign
           d.fy = null; // eslint-disable-line no-param-reassign
         }
       },
       // Node left click handler
       nodeClick() {
-        const currentColor = d3.select(this.childNodes[0]).style('fill');
+        const currentColor = select(this.childNodes[0]).style('fill');
         const defaultColor = 'rgb(51, 51, 51)';
         const newColor = currentColor === defaultColor ? '#63B2D4' : defaultColor;
-        d3.select(this.childNodes[0]).style('fill', newColor);
+        select(this.childNodes[0]).style('fill', newColor);
       },
       // Node double left click handler
       nodeDblclick() {
@@ -196,7 +204,7 @@ class Network {
       nodeDragStart(d) {
         this.log('Drag start');
         if (!this.networkSettings.static) {
-          if (!d3.event.active) this.simulation.alphaTarget(0.3).restart();
+          if (!event.active) this.simulation.alphaTarget(0.3).restart();
           d.fx = d.x; // eslint-disable-line no-param-reassign
           d.fy = d.y; // eslint-disable-line no-param-reassign
         }
@@ -205,16 +213,16 @@ class Network {
       nodeDrag(d) {
         this.log('Drag step');
         if (!this.networkSettings.static) {
-          d.fx = d3.event.x; // eslint-disable-line no-param-reassign
-          d.fy = d3.event.y; // eslint-disable-line no-param-reassign
+          d.fx = event.x; // eslint-disable-line no-param-reassign
+          d.fy = event.y; // eslint-disable-line no-param-reassign
         } else {
-          d.x = d3.event.x; // eslint-disable-line no-param-reassign
-          d.y = d3.event.y; // eslint-disable-line no-param-reassign
-          d.fx = d3.event.x; // eslint-disable-line no-param-reassign
-          d.fy = d3.event.y; // eslint-disable-line no-param-reassign
+          d.x = event.x; // eslint-disable-line no-param-reassign
+          d.y = event.y; // eslint-disable-line no-param-reassign
+          d.fx = event.x; // eslint-disable-line no-param-reassign
+          d.fy = event.y; // eslint-disable-line no-param-reassign
 
           // Move node
-          const node = d3.select(`#phase-node-${d.id}`);
+          const node = select(`#phase-node-${d.id}`);
           if (node._groups[0][0] === null) { // eslint-disable-line no-underscore-dangle
             this.warn(`Node not found: #phase-node-${d.id}`);
           }
@@ -227,13 +235,13 @@ class Network {
           const neighbors = this.adjList[d.id];
           neighbors.forEach((neighbor) => {
             // If this node is the source, move x1 and y1
-            let link = d3.select(`[id="phase-link-${d.id}->${neighbor}"]`);
+            let link = select(`[id="phase-link-${d.id}->${neighbor}"]`);
             if (link._groups[0][0] !== null) { // eslint-disable-line no-underscore-dangle
               link.select('line')
-                .attr('x1', d3.event.x)
-                .attr('y1', d3.event.y);
+                .attr('x1', event.x)
+                .attr('y1', event.y);
             } else { // If this node is the target, move x2 and x2
-              link = d3.select(`[id="phase-link-${neighbor}->${d.id}"]`);
+              link = select(`[id="phase-link-${neighbor}->${d.id}"]`);
               if (!this.debug) {
                 // If link is not found, fail gracefully
                 if (link._groups[0][0] === null) { // eslint-disable-line no-underscore-dangle
@@ -242,15 +250,15 @@ class Network {
                 }
               }
               link.select('line')
-                .attr('x2', d3.event.x)
-                .attr('y2', d3.event.y);
+                .attr('x2', event.x)
+                .attr('y2', event.y);
             }
           });
         }
       },
       // Container drag end handler
       nodeDragEnd() {
-        if (!d3.event.active) this.simulation.alphaTarget(0);
+        if (!event.active) this.simulation.alphaTarget(0);
       },
     };
 
@@ -288,14 +296,14 @@ class Network {
     this.containerHeight = this.container.getBoundingClientRect().height;
 
     // Adds svg box and allows it to resize / zoom as needed
-    this.svg = d3.select(this.container).append('svg')
+    this.svg = select(this.container).append('svg')
       .attr('id', 'phase-network')
       .attr('width', '100%')
       .attr('height', '100%')
       .attr('viewBox', `0 0 ${Math.min(this.containerWidth, this.containerHeight)} ${Math.min(this.containerWidth, this.containerHeight)}`)
       .attr('preserveAspectRatio', 'xMinYMin')
       .on('contextmenu', this.defaultVizEventHandlers.containerContextmenu)
-      .call(d3.zoom()
+      .call(zoom()
         .scaleExtent(this.networkSettings.zoom ? [0.1, 10] : [1, 1])
         .on('zoom', this.defaultVizEventHandlers.containerZoom.bind(this)))
       .on('dblclick.zoom', null); // Don't zoom on double left click
@@ -306,11 +314,11 @@ class Network {
     // Creates actual force graph container (this is what actually gets resized as needed)
     this.g = this.svg.append('g');
 
-    this.simulation = d3.forceSimulation()
-      .force('link', d3.forceLink().id(d => d.id).distance(this.networkSettings.linkDistance).strength(this.networkSettings.linkStrength))
-      .force('charge', d3.forceManyBody().strength(this.networkSettings.charge))
-      .force('centerX', d3.forceX(this.containerWidth / 2).strength(this.networkSettings.gravity))
-      .force('centerY', d3.forceY(this.containerHeight / 2).strength(this.networkSettings.gravity));
+    this.simulation = forceSimulation()
+      .force('link', forceLink().id(d => d.id).distance(this.networkSettings.linkDistance).strength(this.networkSettings.linkStrength))
+      .force('charge', forceManyBody().strength(this.networkSettings.charge))
+      .force('centerX', forceX(this.containerWidth / 2).strength(this.networkSettings.gravity))
+      .force('centerY', forceY(this.containerHeight / 2).strength(this.networkSettings.gravity));
 
     // Creates g container for link containers
     this.linkContainerG = this.g.append('g')
@@ -630,7 +638,7 @@ class Network {
       .on('click', this.defaultNodeEventHandlers.nodeClick)
       .on('dblclick', this.defaultNodeEventHandlers.nodeDblclick.bind(this))
       .on('contextmenu', this.defaultNodeEventHandlers.nodeContextmenu.bind(this))
-      .call(d3.drag()
+      .call(drag()
         .on('start', this.defaultNodeEventHandlers.nodeDragStart.bind(this))
         .on('drag', this.defaultNodeEventHandlers.nodeDrag.bind(this))
         .on('end', this.defaultNodeEventHandlers.nodeDragEnd.bind(this)));
