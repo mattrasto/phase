@@ -513,16 +513,6 @@ class Network {
       }
       // Update elements' html positions based on data positions
       this.ticked(this.nodeContainers, this.linkContainers);
-
-      // View network rendered step-by-step
-      // const intervalID = window.setInterval(() => {
-      //   this.simulation.tick();
-      //   console.log(this.simulation.alpha());
-      //   this.ticked(this.nodeContainers, this.linkContainers);
-      //   if (this.simulation.alpha() < 0.01) {
-      //     clearInterval(intervalID);
-      //   }
-      // }, 100);
     }
 
     // Update "all" groups
