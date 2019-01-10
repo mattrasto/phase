@@ -474,8 +474,11 @@ class Network {
 
     if (validFormat) {
       data.nodes.forEach((node) => {
+        if (node.id.includes(' ')) {
+          throw new InvalidFormatError(`Node id contains a space: ${node.id}`);
+        }
         if (!node.id || seen.has(node.id)) {
-          throw new InvalidFormatError('Node has a duplicate or undefined id');
+          throw new InvalidFormatError(`Node has a duplicate or undefined id: ${node.id}`);
         }
         seen.add(node.id);
       });
@@ -484,8 +487,11 @@ class Network {
         const source = this.dataBound ? link.source.id : link.source;
         const target = this.dataBound ? link.target.id : link.target;
         const validLink = source && target;
+        if (source.includes(' ') || target.includes(' ')) {
+          throw new InvalidFormatError(`Source or target contains a space: ${source}, ${target}`);
+        }
         if (!validLink || seen.has(`${source}-${target}`)) {
-          throw new InvalidFormatError('Link has an undefined or duplicate source/target combo');
+          throw new InvalidFormatError(`Link has an undefined or duplicate source/target combo: ${source}-${target}`);
         }
         seen.add(`${source}-${target}`);
         seen.add(`${target}-${source}`);
