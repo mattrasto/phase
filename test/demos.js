@@ -162,7 +162,7 @@ test('Les Miserables Most dataset is loaded after one button click', async (t) =
   await t.expect(linkIntersection.length).eql(trueLinkIds.size);
 });
 
-test('Les Miserables Most dataset is loaded after two button clicks', async (t) => {
+test('Les Miserables Small dataset is loaded after two button clicks', async (t) => {
   const updateData = await Selector('#sidebar input').nth(0);
   await t.click(updateData).click(updateData);
 
@@ -178,4 +178,16 @@ test('Les Miserables Most dataset is loaded after two button clicks', async (t) 
   const trueLinkIds = generateLinkSet(lesMiserablesSmallData);
   const linkIntersection = [...links].filter(i => trueLinkIds.has(i.id));
   await t.expect(linkIntersection.length).eql(trueLinkIds.size);
+});
+
+test('Empty dataset is loaded after three button clicks', async (t) => {
+  const updateData = await Selector('#sidebar input').nth(0);
+  await t.click(updateData).click(updateData).click(updateData);
+
+  const nodes = await t.eval(() => viz.getNodeGroup('all').selection.data());
+  const links = await t.eval(() => viz.getLinkGroup('all').selection.data());
+
+  // Nodes and links are empty
+  await t.expect(nodes.length).eql(0);
+  await t.expect(links.length).eql(0);
 });
