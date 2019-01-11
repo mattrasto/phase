@@ -41,8 +41,9 @@ function createBarrierPhase(startNodes) {
   barrierPhase.next((phaseState) => {
     // Remove old barriers
     if (phaseState.prevBarriers != null) {
-      phaseState.prevBarriers.morph(phaseState.disableStyleMorph);
-      phaseState.prevBarriers.morph(phaseState.disableDataMorph);
+      phaseState.prevBarriers
+        .morph(phaseState.disableStyleMorph)
+        .morph(phaseState.disableDataMorph);
       phaseState.prevBarriers.destroy();
     }
 
@@ -50,8 +51,9 @@ function createBarrierPhase(startNodes) {
     // NOTE: The node group is attached to the phase and is destructed with it
     const randomNodes = barrierPhase.nodeGroup('random_nodes', d => Math.random() < 0.2 && !d.visited && !startNodes.includes(d.id));
     // Style new barriers
-    randomNodes.morph(phaseState.enableStyleMorph);
-    randomNodes.morph(phaseState.enableDataMorph);
+    randomNodes
+      .morph(phaseState.enableStyleMorph)
+      .morph(phaseState.enableDataMorph);
     barrierPhase.state({
       prevBarriers: randomNodes,
     });
@@ -94,8 +96,9 @@ function createSearchPhase(startNodes) {
       return phaseState.validNeighbors.has(d.id);
     });
     const colorNodes = createColorMorph(searchPhase, phaseState.depth += 1);
-    neighbors.morph(colorNodes);
-    neighbors.morph(phaseState.visitedMorph); // Mark as visited
+    neighbors
+      .morph(colorNodes)
+      .morph(phaseState.visitedMorph); // Mark as visited
 
     // Classic BFS
     phaseState.validNeighbors.forEach((node) => {
