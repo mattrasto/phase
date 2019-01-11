@@ -274,12 +274,14 @@ class Network {
   reset() {
     this.svg.node().outerHTML = '';
     this.render();
+    return this;
   }
 
   // Reset graph to default styles
   unstyleGraph() {
     this.getNodeGroup('all').unstyle();
     this.getLinkGroup('all').unstyle();
+    return this;
   }
 
   log(message) {
@@ -533,6 +535,8 @@ class Network {
     this.initStyles();
 
     this.log('Bound data to viz');
+
+    return this;
   }
 
   // Binds new data to the network
