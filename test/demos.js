@@ -206,7 +206,7 @@ test('Settings are initialized to default values', async (t) => {
   await t.expect(vizSettings.zoom).eql(true);
 });
 
-test('Force settings are properly updated', async (t) => {
+test('Force settings are properly updated via code changes', async (t) => {
   await t.eval(() => viz.settings({ linkStrength: 0.5, linkDistance: 40 }));
   await t.eval(() => viz.settings({ charge: -400 }));
   await t.eval(() => viz.settings({ friction: 0.6 }));
@@ -218,4 +218,23 @@ test('Force settings are properly updated', async (t) => {
   await t.expect(vizSettings.charge).eql(-400);
   await t.expect(vizSettings.friction).eql(0.6);
   await t.expect(vizSettings.gravity).eql(0.5);
+});
+
+test('Force settings are properly updated via slider changes', async (t) => {
+  const gravityRange = await Selector('#sidebar .slider-container input[type="range"]').nth(0);
+  const chargeRange = await Selector('#sidebar .slider-container input[type="range"]').nth(1);
+  const linkStrengthRange = await Selector('#sidebar .slider-container input[type="range"]').nth(2);
+  const linkDistanceRange = await Selector('#sidebar .slider-container input[type="range"]').nth(3);
+
+  await t.typeText(gravityRange, '.1');
+  await t.typeText(chargeRange, '-1000');
+  await t.typeText(linkStrengthRange, '.2');
+  await t.typeText(linkDistanceRange, '100');
+
+  const vizSettings = await t.eval(() => viz.settings());
+  await t.expect(vizSettings.linkStrength).eql('0.2');
+  await t.expect(vizSettings.linkDistance).eql('100');
+  await t.expect(vizSettings.charge).eql('-1000');
+  await t.expect(vizSettings.friction).eql(0.8); // Stays the same
+  await t.expect(vizSettings.gravity).eql('0.1');
 });
