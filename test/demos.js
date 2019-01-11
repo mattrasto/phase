@@ -125,6 +125,18 @@ test('Data morphs modify group values for links and nodes', async (t) => {
 });
 
 
+const testSetIntersections = async (t, nodes, links, data) => {
+  // Intersection between actual and expected node data yields set of same size
+  const trueNodeIds = generateNodeSet(data);
+  const nodeIntersection = [...nodes].filter(i => trueNodeIds.has(i.id));
+  await t.expect(nodeIntersection.length).eql(trueNodeIds.size);
+
+  // Intersection between actual and expected link data yields set of same size
+  const trueLinkIds = generateLinkSet(data);
+  const linkIntersection = [...links].filter(i => trueLinkIds.has(i.id));
+  await t.expect(linkIntersection.length).eql(trueLinkIds.size);
+};
+
 /* eslint-disable no-undef */
 fixture('Data Update').only
   .page(pathToFile('update_data'));
@@ -133,15 +145,7 @@ test('Les Miserables dataset is loaded first', async (t) => {
   const nodes = await t.eval(() => viz.getNodeGroup('all').selection.data());
   const links = await t.eval(() => viz.getLinkGroup('all').selection.data());
 
-  // Intersection between actual and expected node data yields set of same size
-  const trueNodeIds = generateNodeSet(lesMiserablesData);
-  const nodeIntersection = [...nodes].filter(i => trueNodeIds.has(i.id));
-  await t.expect(nodeIntersection.length).eql(trueNodeIds.size);
-
-  // Intersection between actual and expected link data yields set of same size
-  const trueLinkIds = generateLinkSet(lesMiserablesData);
-  const linkIntersection = [...links].filter(i => trueLinkIds.has(i.id));
-  await t.expect(linkIntersection.length).eql(trueLinkIds.size);
+  testSetIntersections(t, nodes, links, lesMiserablesData);
 });
 
 test('Les Miserables Most dataset is loaded after one button click', async (t) => {
@@ -151,15 +155,7 @@ test('Les Miserables Most dataset is loaded after one button click', async (t) =
   const nodes = await t.eval(() => viz.getNodeGroup('all').selection.data());
   const links = await t.eval(() => viz.getLinkGroup('all').selection.data());
 
-  // Intersection between actual and expected node data yields set of same size
-  const trueNodeIds = generateNodeSet(lesMiserablesMostData);
-  const nodeIntersection = [...nodes].filter(i => trueNodeIds.has(i.id));
-  await t.expect(nodeIntersection.length).eql(trueNodeIds.size);
-
-  // Intersection between actual and expected link data yields set of same size
-  const trueLinkIds = generateLinkSet(lesMiserablesMostData);
-  const linkIntersection = [...links].filter(i => trueLinkIds.has(i.id));
-  await t.expect(linkIntersection.length).eql(trueLinkIds.size);
+  testSetIntersections(t, nodes, links, lesMiserablesMostData);
 });
 
 test('Les Miserables Small dataset is loaded after two button clicks', async (t) => {
@@ -169,15 +165,7 @@ test('Les Miserables Small dataset is loaded after two button clicks', async (t)
   const nodes = await t.eval(() => viz.getNodeGroup('all').selection.data());
   const links = await t.eval(() => viz.getLinkGroup('all').selection.data());
 
-  // Intersection between actual and expected node data yields set of same size
-  const trueNodeIds = generateNodeSet(lesMiserablesSmallData);
-  const nodeIntersection = [...nodes].filter(i => trueNodeIds.has(i.id));
-  await t.expect(nodeIntersection.length).eql(trueNodeIds.size);
-
-  // Intersection between actual and expected link data yields set of same size
-  const trueLinkIds = generateLinkSet(lesMiserablesSmallData);
-  const linkIntersection = [...links].filter(i => trueLinkIds.has(i.id));
-  await t.expect(linkIntersection.length).eql(trueLinkIds.size);
+  testSetIntersections(t, nodes, links, lesMiserablesSmallData);
 });
 
 test('Empty dataset is loaded after three button clicks', async (t) => {
@@ -199,13 +187,5 @@ test('Les Miserables dataset is loaded after four button clicks', async (t) => {
   const nodes = await t.eval(() => viz.getNodeGroup('all').selection.data());
   const links = await t.eval(() => viz.getLinkGroup('all').selection.data());
 
-  // Intersection between actual and expected node data yields set of same size
-  const trueNodeIds = generateNodeSet(lesMiserablesData);
-  const nodeIntersection = [...nodes].filter(i => trueNodeIds.has(i.id));
-  await t.expect(nodeIntersection.length).eql(trueNodeIds.size);
-
-  // Intersection between actual and expected link data yields set of same size
-  const trueLinkIds = generateLinkSet(lesMiserablesData);
-  const linkIntersection = [...links].filter(i => trueLinkIds.has(i.id));
-  await t.expect(linkIntersection.length).eql(trueLinkIds.size);
+  testSetIntersections(t, nodes, links, lesMiserablesData);
 });
