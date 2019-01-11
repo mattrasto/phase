@@ -22,10 +22,12 @@ function createMorphs() {
 /* eslint-disable */
 function applyMorphs() {
   // Apply morphs
-  viz.getNodeGroup('rand_node_group').morph(viz.getMorph('style_nodes'));
-  viz.getNodeGroup('rand_node_group').morph(viz.getMorph('update_nodes'));
-  viz.getLinkGroup('rand_link_group').morph(viz.getMorph('style_links'));
-  viz.getLinkGroup('rand_link_group').morph(viz.getMorph('update_links'));
+  viz.getNodeGroup('rand_node_group')
+    .morph(viz.getMorph('style_nodes'))
+    .morph(viz.getMorph('update_nodes'));
+  viz.getLinkGroup('rand_link_group')
+    .morph(viz.getMorph('style_links'))
+    .morph(viz.getMorph('update_links'));
 
   // Prevent hover from removing node styles
   viz.getNodeGroup('rand_node_group').event('mouseover', null);

@@ -123,6 +123,7 @@ class Group {
       });
       this.selection.data(newData);
     }
+    return this;
   }
 
   event(eventName, func) {
