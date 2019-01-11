@@ -1,6 +1,26 @@
 import { Selector } from 'testcafe';
 
+const lesMiserablesData = require('./data/lesMiserables.json');
+
 const pathToFile = file => `localhost:8000/demos/${file}.html`;
+
+// Generates a set of all node ids in a dataset
+function generateNodeSet(data) {
+  const nodeSet = new Set();
+  data.nodes.forEach((node) => {
+    nodeSet.add(node.id);
+  });
+  return nodeSet;
+}
+
+// Generates a set of all link ids in a dataset
+function generateLinkSet(data) {
+  const linkSet = new Set();
+  data.links.forEach((link) => {
+    linkSet.add(`${link.source}->${link.target}`);
+  });
+  return linkSet;
+}
 
 fixture('Basic')
   .page(pathToFile('basic'))
@@ -100,4 +120,24 @@ test('Data morphs modify group values for links and nodes', async (t) => {
   links.forEach(async (link) => {
     await t.expect(link.group).eql(200);
   });
+});
+
+
+/* eslint-disable no-undef */
+fixture('Data Update').only
+  .page(pathToFile('update_data'));
+
+test('Les Miserables dataset is loaded first', async (t) => {
+  const nodes = await t.eval(() => viz.getNodeGroup('all').selection.data());
+  const links = await t.eval(() => viz.getLinkGroup('all').selection.data());
+
+  // Intersection between actual and expected node data yields set of same size
+  const trueNodeIds = generateNodeSet(lesMiserablesData);
+  const nodeIntersection = [...nodes].filter(i => trueNodeIds.has(i.id));
+  await t.expect(nodeIntersection.length).eql(trueNodeIds.size);
+
+  // Intersection between actual and expected node data yields set of same size
+  const trueLinkIds = generateLinkSet(lesMiserablesData);
+  const linkIntersection = [...links].filter(i => trueLinkIds.has(i.id));
+  await t.expect(linkIntersection.length).eql(trueLinkIds.size);
 });
