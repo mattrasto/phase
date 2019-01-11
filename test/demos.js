@@ -138,7 +138,7 @@ test('Les Miserables dataset is loaded first', async (t) => {
   const nodeIntersection = [...nodes].filter(i => trueNodeIds.has(i.id));
   await t.expect(nodeIntersection.length).eql(trueNodeIds.size);
 
-  // Intersection between actual and expected node data yields set of same size
+  // Intersection between actual and expected link data yields set of same size
   const trueLinkIds = generateLinkSet(lesMiserablesData);
   const linkIntersection = [...links].filter(i => trueLinkIds.has(i.id));
   await t.expect(linkIntersection.length).eql(trueLinkIds.size);
@@ -156,7 +156,7 @@ test('Les Miserables Most dataset is loaded after one button click', async (t) =
   const nodeIntersection = [...nodes].filter(i => trueNodeIds.has(i.id));
   await t.expect(nodeIntersection.length).eql(trueNodeIds.size);
 
-  // Intersection between actual and expected node data yields set of same size
+  // Intersection between actual and expected link data yields set of same size
   const trueLinkIds = generateLinkSet(lesMiserablesMostData);
   const linkIntersection = [...links].filter(i => trueLinkIds.has(i.id));
   await t.expect(linkIntersection.length).eql(trueLinkIds.size);
@@ -174,7 +174,7 @@ test('Les Miserables Small dataset is loaded after two button clicks', async (t)
   const nodeIntersection = [...nodes].filter(i => trueNodeIds.has(i.id));
   await t.expect(nodeIntersection.length).eql(trueNodeIds.size);
 
-  // Intersection between actual and expected node data yields set of same size
+  // Intersection between actual and expected link data yields set of same size
   const trueLinkIds = generateLinkSet(lesMiserablesSmallData);
   const linkIntersection = [...links].filter(i => trueLinkIds.has(i.id));
   await t.expect(linkIntersection.length).eql(trueLinkIds.size);
@@ -190,4 +190,22 @@ test('Empty dataset is loaded after three button clicks', async (t) => {
   // Nodes and links are empty
   await t.expect(nodes.length).eql(0);
   await t.expect(links.length).eql(0);
+});
+
+test('Les Miserables dataset is loaded after four button clicks', async (t) => {
+  const updateData = await Selector('#sidebar input').nth(0);
+  await t.click(updateData).click(updateData).click(updateData).click(updateData);
+
+  const nodes = await t.eval(() => viz.getNodeGroup('all').selection.data());
+  const links = await t.eval(() => viz.getLinkGroup('all').selection.data());
+
+  // Intersection between actual and expected node data yields set of same size
+  const trueNodeIds = generateNodeSet(lesMiserablesData);
+  const nodeIntersection = [...nodes].filter(i => trueNodeIds.has(i.id));
+  await t.expect(nodeIntersection.length).eql(trueNodeIds.size);
+
+  // Intersection between actual and expected link data yields set of same size
+  const trueLinkIds = generateLinkSet(lesMiserablesData);
+  const linkIntersection = [...links].filter(i => trueLinkIds.has(i.id));
+  await t.expect(linkIntersection.length).eql(trueLinkIds.size);
 });
