@@ -251,14 +251,18 @@ test('Element styles are properly updated via slider changes', async (t) => {
   const nodes = await Selector('circle')
     .withAttribute('r', '20')
     .withAttribute('style', 'fill: rgb(51, 51, 51); stroke: rgb(247, 246, 242); stroke-width: 2;');
-  await t.expect(nodes.count).eql(77);
+  await t.expect(nodes.count).eql(await t.eval(
+    () => viz.getNodeGroup('all').selection.data().length,
+  ));
 
   await t.typeText(linkWidthRange, '3');
 
   // All links should have new styles
   const links = await Selector('line')
     .withAttribute('style', 'stroke: rgb(102, 102, 102); stroke-width: 3;');
-  await t.expect(links.count).eql(254);
+  await t.expect(links.count).eql(await t.eval(
+    () => viz.getLinkGroup('all').selection.data().length,
+  ));
 });
 
 test('Element styles are properly updated via color button clicks', async (t) => {
@@ -271,12 +275,16 @@ test('Element styles are properly updated via color button clicks', async (t) =>
   // All nodes should have new styles
   const nodes = await Selector('circle')
     .withAttribute('style', 'fill: rgb(174, 99, 212); stroke: rgb(212, 99, 99); stroke-width: 0.8;');
-  await t.expect(nodes.count).eql(77);
+  await t.expect(nodes.count).eql(await t.eval(
+    () => viz.getNodeGroup('all').selection.data().length,
+  ));
 
   await t.click(linkColorYellowButton);
 
   // All links should have new styles
   const links = await Selector('line')
     .withAttribute('style', 'stroke: rgb(229, 235, 122); stroke-width: 1.5;');
-  await t.expect(links.count).eql(254);
+  await t.expect(links.count).eql(await t.eval(
+    () => viz.getLinkGroup('all').selection.data().length,
+  ));
 });
