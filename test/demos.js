@@ -24,6 +24,7 @@ function generateLinkSet(data) {
   return linkSet;
 }
 
+
 fixture('Basic')
   .page(pathToFile('basic'))
   .before(async (ctx) => {
@@ -65,6 +66,7 @@ test('Correct number of nodes and links', async (t) => {
 
   await t.expect(numNodes).eql(77).expect(numLinks).eql(254);
 });
+
 
 /* eslint-disable no-undef */
 fixture('Morphs')
@@ -125,7 +127,6 @@ test('Data morphs modify group values for links and nodes', async (t) => {
 });
 
 
-/* eslint-disable no-undef */
 fixture('Data Update')
   .page(pathToFile('update_data'));
 
@@ -188,4 +189,19 @@ test('Les Miserables dataset is loaded after four button clicks', async (t) => {
   const links = await t.eval(() => viz.getLinkGroup('all').selection.data());
 
   testSetIntersections(t, nodes, links, lesMiserablesData);
+});
+
+
+fixture('Settings Update').only
+  .page(pathToFile('update_settings'));
+
+test('Settings are initialized to default values', async (t) => {
+  const vizSettings = await t.eval(() => viz.settings());
+
+  await t.expect(vizSettings.linkStrength).eql(1);
+  await t.expect(vizSettings.linkDistance).eql(60);
+  await t.expect(vizSettings.charge).eql(-800);
+  await t.expect(vizSettings.friction).eql(0.8);
+  await t.expect(vizSettings.gravity).eql(0.25);
+  await t.expect(vizSettings.zoom).eql(true);
 });
