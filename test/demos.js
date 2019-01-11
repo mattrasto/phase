@@ -125,6 +125,10 @@ test('Data morphs modify group values for links and nodes', async (t) => {
 });
 
 
+/* eslint-disable no-undef */
+fixture('Data Update')
+  .page(pathToFile('update_data'));
+
 const testSetIntersections = async (t, nodes, links, data) => {
   // Intersection between actual and expected node data yields set of same size
   const trueNodeIds = generateNodeSet(data);
@@ -136,10 +140,6 @@ const testSetIntersections = async (t, nodes, links, data) => {
   const linkIntersection = [...links].filter(i => trueLinkIds.has(i.id));
   await t.expect(linkIntersection.length).eql(trueLinkIds.size);
 };
-
-/* eslint-disable no-undef */
-fixture('Data Update').only
-  .page(pathToFile('update_data'));
 
 test('Les Miserables dataset is loaded first', async (t) => {
   const nodes = await t.eval(() => viz.getNodeGroup('all').selection.data());
