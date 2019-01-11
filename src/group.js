@@ -140,6 +140,7 @@ class Group {
     // TODO: If an element is reevaluated into multiple groups after being
     // added, which handler is it assigned?
     this.eventHandlers[eventName] = wrapperFunc;
+    return this;
   }
 
   // TODO: If group belongs to a phase, this will not properly remove the reference
