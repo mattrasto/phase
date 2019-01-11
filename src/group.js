@@ -91,6 +91,7 @@ class Group {
         this.selection.select(this.selector).style(attr, styleMap[attr]);
       }
     });
+    return this;
   }
 
   // Sets style history to an existing map when rebinding to new svg
@@ -108,6 +109,7 @@ class Group {
 
   labels(labeler) {
     this.selection.select('text').text(labeler);
+    return this;
   }
 
   morph(morph) {
@@ -170,7 +172,7 @@ export class NodeGroup extends Group {
   }
 
   unstyle() {
-    super.style(this.network.defaultNodeStyles);
+    return super.style(this.network.defaultNodeStyles);
   }
 } // End NodeGroup Class
 
@@ -181,6 +183,6 @@ export class LinkGroup extends Group {
   }
 
   unstyle() {
-    super.style(this.network.defaultLinkStyles);
+    return super.style(this.network.defaultLinkStyles);
   }
 } // End LinkGroup Class
