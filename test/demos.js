@@ -192,7 +192,7 @@ test('Les Miserables dataset is loaded after four button clicks', async (t) => {
 });
 
 
-fixture('Settings Update').only
+fixture('Settings Update')
   .page(pathToFile('update_settings'));
 
 test('Settings are initialized to default values', async (t) => {
@@ -258,5 +258,25 @@ test('Element styles are properly updated via slider changes', async (t) => {
   // All links should have new styles
   const links = await Selector('line')
     .withAttribute('style', 'stroke: rgb(102, 102, 102); stroke-width: 3;');
+  await t.expect(links.count).eql(254);
+});
+
+test('Element styles are properly updated via color button clicks', async (t) => {
+  const nodeColorPurpleButton = await Selector('#sidebar .color-container').nth(0).find('.purple');
+  const nodeBorderColorRedButton = await Selector('#sidebar .color-container').nth(1).find('.red');
+  const linkColorYellowButton = await Selector('#sidebar .color-container').nth(2).find('.yellow');
+
+  await t.click(nodeColorPurpleButton).click(nodeBorderColorRedButton);
+
+  // All nodes should have new styles
+  const nodes = await Selector('circle')
+    .withAttribute('style', 'fill: rgb(174, 99, 212); stroke: rgb(212, 99, 99); stroke-width: 0.8;');
+  await t.expect(nodes.count).eql(77);
+
+  await t.click(linkColorYellowButton);
+
+  // All links should have new styles
+  const links = await Selector('line')
+    .withAttribute('style', 'stroke: rgb(229, 235, 122); stroke-width: 1.5;');
   await t.expect(links.count).eql(254);
 });
