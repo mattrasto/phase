@@ -205,3 +205,17 @@ test('Settings are initialized to default values', async (t) => {
   await t.expect(vizSettings.gravity).eql(0.25);
   await t.expect(vizSettings.zoom).eql(true);
 });
+
+test('Force settings are properly updated', async (t) => {
+  await t.eval(() => viz.settings({ linkStrength: 0.5, linkDistance: 40 }));
+  await t.eval(() => viz.settings({ charge: -400 }));
+  await t.eval(() => viz.settings({ friction: 0.6 }));
+  await t.eval(() => viz.settings({ gravity: 0.5 }));
+
+  const vizSettings = await t.eval(() => viz.settings());
+  await t.expect(vizSettings.linkStrength).eql(0.5);
+  await t.expect(vizSettings.linkDistance).eql(40);
+  await t.expect(vizSettings.charge).eql(-400);
+  await t.expect(vizSettings.friction).eql(0.6);
+  await t.expect(vizSettings.gravity).eql(0.5);
+});
