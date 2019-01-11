@@ -1,6 +1,7 @@
 import { Selector } from 'testcafe';
 
 const lesMiserablesData = require('./data/lesMiserables.json');
+const lesMiserablesMostData = require('./data/lesMiserablesMost.json');
 
 const pathToFile = file => `localhost:8000/demos/${file}.html`;
 
@@ -138,6 +139,24 @@ test('Les Miserables dataset is loaded first', async (t) => {
 
   // Intersection between actual and expected node data yields set of same size
   const trueLinkIds = generateLinkSet(lesMiserablesData);
+  const linkIntersection = [...links].filter(i => trueLinkIds.has(i.id));
+  await t.expect(linkIntersection.length).eql(trueLinkIds.size);
+});
+
+test('Les Miserables Most dataset is loaded after one button click', async (t) => {
+  const updateData = await Selector('#sidebar input').nth(0);
+  await t.click(updateData);
+
+  const nodes = await t.eval(() => viz.getNodeGroup('all').selection.data());
+  const links = await t.eval(() => viz.getLinkGroup('all').selection.data());
+
+  // Intersection between actual and expected node data yields set of same size
+  const trueNodeIds = generateNodeSet(lesMiserablesMostData);
+  const nodeIntersection = [...nodes].filter(i => trueNodeIds.has(i.id));
+  await t.expect(nodeIntersection.length).eql(trueNodeIds.size);
+
+  // Intersection between actual and expected node data yields set of same size
+  const trueLinkIds = generateLinkSet(lesMiserablesMostData);
   const linkIntersection = [...links].filter(i => trueLinkIds.has(i.id));
   await t.expect(linkIntersection.length).eql(trueLinkIds.size);
 });
