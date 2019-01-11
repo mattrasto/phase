@@ -24,7 +24,21 @@ function generateLinkSet(data) {
   return linkSet;
 }
 
+// Tests that 'nodes' and 'links' parameters (from viz) are in same set as dataset 'data'
+const testSetIntersections = async (t, nodes, links, data) => {
+  // Intersection between actual and expected node data yields set of same size
+  const trueNodeIds = generateNodeSet(data);
+  const nodeIntersection = [...nodes].filter(i => trueNodeIds.has(i.id));
+  await t.expect(nodeIntersection.length).eql(trueNodeIds.size);
 
+  // Intersection between actual and expected link data yields set of same size
+  const trueLinkIds = generateLinkSet(data);
+  const linkIntersection = [...links].filter(i => trueLinkIds.has(i.id));
+  await t.expect(linkIntersection.length).eql(trueLinkIds.size);
+};
+
+
+/* eslint-disable no-undef */
 fixture('Basic')
   .page(pathToFile('basic'))
   .before(async (ctx) => {
@@ -64,11 +78,19 @@ test('Correct number of nodes and links', async (t) => {
   const numNodes = await Selector('.node').count;
   const numLinks = await Selector('.link').count;
 
-  await t.expect(numNodes).eql(77).expect(numLinks).eql(254);
+  await t
+    .expect(numNodes).eql(lesMiserablesData.nodes.length)
+    .expect(numLinks).eql(lesMiserablesData.links.length);
+});
+
+test('Correct data attached to elements', async (t) => {
+  const nodes = await t.eval(() => viz.getNodeGroup('all').selection.data());
+  const links = await t.eval(() => viz.getLinkGroup('all').selection.data());
+
+  await testSetIntersections(t, nodes, links, lesMiserablesData);
 });
 
 
-/* eslint-disable no-undef */
 fixture('Morphs')
   .page(pathToFile('morphs'));
 
@@ -130,23 +152,11 @@ test('Data morphs modify group values for links and nodes', async (t) => {
 fixture('Data Update')
   .page(pathToFile('update_data'));
 
-const testSetIntersections = async (t, nodes, links, data) => {
-  // Intersection between actual and expected node data yields set of same size
-  const trueNodeIds = generateNodeSet(data);
-  const nodeIntersection = [...nodes].filter(i => trueNodeIds.has(i.id));
-  await t.expect(nodeIntersection.length).eql(trueNodeIds.size);
-
-  // Intersection between actual and expected link data yields set of same size
-  const trueLinkIds = generateLinkSet(data);
-  const linkIntersection = [...links].filter(i => trueLinkIds.has(i.id));
-  await t.expect(linkIntersection.length).eql(trueLinkIds.size);
-};
-
 test('Les Miserables dataset is loaded first', async (t) => {
   const nodes = await t.eval(() => viz.getNodeGroup('all').selection.data());
   const links = await t.eval(() => viz.getLinkGroup('all').selection.data());
 
-  testSetIntersections(t, nodes, links, lesMiserablesData);
+  await testSetIntersections(t, nodes, links, lesMiserablesData);
 });
 
 test('Les Miserables Most dataset is loaded after one button click', async (t) => {
@@ -156,7 +166,7 @@ test('Les Miserables Most dataset is loaded after one button click', async (t) =
   const nodes = await t.eval(() => viz.getNodeGroup('all').selection.data());
   const links = await t.eval(() => viz.getLinkGroup('all').selection.data());
 
-  testSetIntersections(t, nodes, links, lesMiserablesMostData);
+  await testSetIntersections(t, nodes, links, lesMiserablesMostData);
 });
 
 test('Les Miserables Small dataset is loaded after two button clicks', async (t) => {
@@ -166,7 +176,7 @@ test('Les Miserables Small dataset is loaded after two button clicks', async (t)
   const nodes = await t.eval(() => viz.getNodeGroup('all').selection.data());
   const links = await t.eval(() => viz.getLinkGroup('all').selection.data());
 
-  testSetIntersections(t, nodes, links, lesMiserablesSmallData);
+  await testSetIntersections(t, nodes, links, lesMiserablesSmallData);
 });
 
 test('Empty dataset is loaded after three button clicks', async (t) => {
@@ -188,7 +198,7 @@ test('Les Miserables dataset is loaded after four button clicks', async (t) => {
   const nodes = await t.eval(() => viz.getNodeGroup('all').selection.data());
   const links = await t.eval(() => viz.getLinkGroup('all').selection.data());
 
-  testSetIntersections(t, nodes, links, lesMiserablesData);
+  await testSetIntersections(t, nodes, links, lesMiserablesData);
 });
 
 
