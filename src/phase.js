@@ -37,23 +37,28 @@ export default class Phase {
 
   initial(initial) {
     this.initialFunction = initial;
+    return this;
   }
 
   next(transition) {
     this.transitionFunction = transition;
+    return this;
   }
 
   end(terminal) {
     this.terminalFunction = terminal;
+    return this;
   }
 
   updateTimestep(newValue) {
     this.timeStep = newValue;
+    return this;
   }
 
   // Stop the phase's application but don't clear settings/state
   stop() {
     clearInterval(this.interval);
+    return this;
   }
 
   // Reset the phase to its initial settings/state
@@ -72,6 +77,7 @@ export default class Phase {
       this.linkGroups[linkGroup].destroy();
     });
     this.linkGroups = {};
+    return this;
   }
 
   // Teardown the phase along with its associated groups/morphs and remove from viz
@@ -103,6 +109,7 @@ export default class Phase {
     this.initialFunction(this.state(), this.network.state());
     this.step();
     this.interval = setInterval(this.step.bind(this), this.timeStep);
+    return this;
   }
 
   // Morphs and Groups instantiated and stored within a phase
