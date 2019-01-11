@@ -238,3 +238,25 @@ test('Force settings are properly updated via slider changes', async (t) => {
   await t.expect(vizSettings.friction).eql(0.8); // Stays the same
   await t.expect(vizSettings.gravity).eql('0.1');
 });
+
+test('Element styles are properly updated via slider changes', async (t) => {
+  const nodeSizeRange = await Selector('#sidebar .slider-container input[type="range"]').nth(4);
+  const nodeBorderWidthRange = await Selector('#sidebar .slider-container input[type="range"]').nth(5);
+  const linkWidthRange = await Selector('#sidebar .slider-container input[type="range"]').nth(6);
+
+  await t.typeText(nodeSizeRange, '20');
+  await t.typeText(nodeBorderWidthRange, '2');
+
+  // All nodes should have new styles
+  const nodes = await Selector('circle')
+    .withAttribute('r', '20')
+    .withAttribute('style', 'fill: rgb(51, 51, 51); stroke: rgb(247, 246, 242); stroke-width: 2;');
+  await t.expect(nodes.count).eql(77);
+
+  await t.typeText(linkWidthRange, '3');
+
+  // All links should have new styles
+  const links = await Selector('line')
+    .withAttribute('style', 'stroke: rgb(102, 102, 102); stroke-width: 3;');
+  await t.expect(links.count).eql(254);
+});
