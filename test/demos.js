@@ -6,37 +6,18 @@ const lesMiserablesSmallData = require('./data/lesMiserablesSmall.json');
 
 const pathToFile = file => `localhost:8000/demos/${file}.html`;
 
-// Generates a set of all node ids in a dataset
-function generateNodeSet(data) {
-  const nodeSet = new Set();
-  data.nodes.forEach((node) => {
-    nodeSet.add(node.id);
-  });
-  return nodeSet;
-}
-
-// Generates a set of all link ids in a dataset
-function generateLinkSet(data) {
-  const linkSet = new Set();
-  data.links.forEach((link) => {
-    linkSet.add(`${link.source}->${link.target}`);
-  });
-  return linkSet;
-}
-
 // Tests that 'nodes' and 'links' parameters (from viz) are in same set as dataset 'data'
 const testSetIntersections = async (t, nodes, links, data) => {
   // Intersection between actual and expected node data yields set of same size
-  const trueNodeIds = generateNodeSet(data);
+  const trueNodeIds = new Set(data.nodes.map(node => node.id));
   const nodeIntersection = [...nodes].filter(i => trueNodeIds.has(i.id));
   await t.expect(nodeIntersection.length).eql(trueNodeIds.size);
 
   // Intersection between actual and expected link data yields set of same size
-  const trueLinkIds = generateLinkSet(data);
+  const trueLinkIds = new Set(data.links.map(link => `${link.source}->${link.target}`));
   const linkIntersection = [...links].filter(i => trueLinkIds.has(i.id));
   await t.expect(linkIntersection.length).eql(trueLinkIds.size);
 };
-
 
 /* eslint-disable no-undef */
 fixture('Basic')
