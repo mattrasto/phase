@@ -393,11 +393,11 @@ class Network {
 
 
   // Creates a new node group
-  nodeGroup(label, filterer, val) {
+  nodeGroup(label, filterer, val, parent) {
     if (label in this.nodeGroups) {
       this.warn(`Node group ${label} is being overwritten`, this.nodeGroups[label]);
     }
-    const group = new NodeGroup(this, label, filterer, val);
+    const group = new NodeGroup(this, label, filterer, val, parent);
     this.nodeGroups[label] = group;
     return group;
   }
@@ -411,11 +411,11 @@ class Network {
   }
 
   // Creates a new link group
-  linkGroup(label, filterer, val) {
+  linkGroup(label, filterer, val, parent) {
     if (label in this.linkGroups) {
       this.warn(`Link group ${label} is being overwritten`, this.linkGroups[label]);
     }
-    const group = new LinkGroup(this, label, filterer, val);
+    const group = new LinkGroup(this, label, filterer, val, parent);
     this.linkGroups[label] = group;
     return group;
   }
