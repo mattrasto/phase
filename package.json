@@ -17,7 +17,7 @@
     "dev": "npx webpack --watch",
     "lint": "./node_modules/.bin/eslint ",
     "serve": "python3 -m http.server",
-    "test": "./node_modules/.bin/testcafe chrome test/*",
+    "test": "./node_modules/.bin/testcafe chrome test/*.js",
     "open": "google-chrome demos/*.html"
   },
   "repository": {
