@@ -39,10 +39,10 @@ class Group {
     const subfilterer = filterer === undefined ? '' : filterer;
     if (this.selector === NODE_SELECTOR) {
       // eslint-disable-next-line no-use-before-define
-      return new NodeGroup(this.network, label, subfilterer, val, this);
+      return this.network.nodeGroup(label, subfilterer, val, this);
     }
     // eslint-disable-next-line no-use-before-define
-    return new LinkGroup(this.network, label, subfilterer, val, this.selector, this);
+    return this.network.linkGroup(label, subfilterer, val, this);
   }
 
   // Creates the selection by filtering the parent group's selection (if it exists) or all elements
