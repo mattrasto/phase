@@ -45,6 +45,15 @@ class Group {
     return this.network.linkGroup(label, subfilterer, val, this);
   }
 
+  // Adds an element to the group if it meets the group criteria
+  addElement(d) {
+    if (this.filterer(d)) {
+      // eslint-disable-next-line no-undef
+      const sel = document.querySelector(`g#phase-${this.network.label}-node-${d.id}`);
+      this.selection._groups[0].push(sel); // eslint-disable-line no-underscore-dangle
+    }
+  }
+
   // Creates the selection by filtering the parent group's selection (if it exists) or all elements
   filterSelection(parentSelection) {
     const isNodeGroup = this.selector === NODE_SELECTOR;
