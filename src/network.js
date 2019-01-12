@@ -69,6 +69,10 @@ class Network {
     this.log('Network Constructed');
 
     this.render();
+
+    // Create 'all' groups
+    this.nodeGroup('all', '');
+    this.linkGroup('all', '');
   }
 
   // Updates or returns the current viz state
@@ -526,10 +530,15 @@ class Network {
       this.ticked(this.nodeContainers, this.linkContainers);
     }
 
-    // Update "all" groups
-    // QUESTION: Should duplicate constructor calls cause group reevaluation?
-    this.nodeGroup('all', '');
-    this.linkGroup('all', '');
+    // Reevaluate and bind groups on new data
+    Object.values(this.nodeGroups).forEach((nodeGroup) => {
+      nodeGroup.filterSelection();
+      nodeGroup.restyle();
+    });
+    Object.values(this.linkGroups).forEach((linkGroup) => {
+      linkGroup.filterSelection();
+      linkGroup.restyle();
+    });
 
     // Update default styles for all elements
     this.initStyles();
