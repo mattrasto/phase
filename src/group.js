@@ -138,6 +138,8 @@ class Group {
         });
       });
       this.selection.data(newData);
+      // Reevaluate group on data update
+      this.reevaluate();
     }
     return this;
   }

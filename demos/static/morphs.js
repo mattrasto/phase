@@ -4,13 +4,9 @@
 // Create random groups of nodes and links
 function createRandGroups() {
   const randNum = Math.floor(Math.random() * 6);
-  const parent = viz.nodeGroup('rand_node_group_1', d => d.group === randNum);
-  const child = parent.subgroup('rand_node_group');
+  const parent = viz.nodeGroup('rand_node_group_parent', d => d.group === randNum);
+  parent.subgroup('rand_node_group');
   parent.destroy();
-  console.log(viz.getAllNodeGroups());
-  console.log(child);
-  child.addElement(viz.networkData.nodes[0]);
-  console.log(child);
   viz.linkGroup('rand_link_group', d => d.value === randNum);
 }
 
@@ -21,8 +17,6 @@ function createMorphs() {
   viz.morph('update_nodes', 'data', { group: '200' });
   // Link styling morph
   viz.morph('style_links', 'style', { stroke: '#D46363', 'stroke-width': '3px' });
-  // Link data morph
-  viz.morph('update_links', 'data', { value: '200' });
 }
 
 /* eslint-disable */
@@ -33,7 +27,6 @@ function applyMorphs() {
     .morph(viz.getMorph('update_nodes'));
   viz.getLinkGroup('rand_link_group')
     .morph(viz.getMorph('style_links'))
-    .morph(viz.getMorph('update_links'));
 
   // Prevent hover from removing node styles
   viz.getNodeGroup('rand_node_group')
