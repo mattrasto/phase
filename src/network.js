@@ -676,7 +676,7 @@ class Network {
   bindLinks() {
     // Rejoin link data
     this.linkContainers = (
-      this.linkContainers.data(this.networkData.links, d => d.source.id + d.target.id)
+      this.linkContainers.data(this.networkData.links, d => d.id)
     );
 
     // Remove old links
