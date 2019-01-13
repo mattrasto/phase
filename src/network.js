@@ -532,12 +532,10 @@ class Network {
 
     // Reevaluate and bind groups on new data
     Object.values(this.nodeGroups).forEach((nodeGroup) => {
-      nodeGroup.filterSelection();
-      nodeGroup.restyle();
+      nodeGroup.reevaluate();
     });
     Object.values(this.linkGroups).forEach((linkGroup) => {
-      linkGroup.filterSelection();
-      linkGroup.restyle();
+      linkGroup.reevaluate();
     });
 
     // Update default styles for all elements

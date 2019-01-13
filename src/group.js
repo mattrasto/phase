@@ -33,6 +33,11 @@ class Group {
     return this;
   }
 
+  reevaluate() {
+    this.filterSelection();
+    this.restyle();
+  }
+
   // Creates a subgroup of the current group
   // If no filterer is passed, creates a copy of the current group
   subgroup(label, filterer, val) {
