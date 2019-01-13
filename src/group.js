@@ -53,8 +53,14 @@ class Group {
   // Adds an element to the group if it meets the group criteria
   addElement(d) {
     if (this.filterer(d)) {
-      // eslint-disable-next-line no-undef
-      const sel = document.querySelector(`g#phase-${this.network.label}-node-${d.id}`);
+      let sel;
+      if (this.selector === NODE_SELECTOR) {
+        // eslint-disable-next-line no-undef
+        sel = document.querySelector(`g#phase-${this.network.label}-node-${d.id}`);
+      } else {
+        // eslint-disable-next-line no-undef
+        sel = document.querySelector(`g#phase-${this.network.label}-link-${d.id}`);
+      }
       this.selection._groups[0].push(sel); // eslint-disable-line no-underscore-dangle
     }
   }
