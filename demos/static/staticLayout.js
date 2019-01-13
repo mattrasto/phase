@@ -3,8 +3,6 @@
 document.addEventListener('DOMContentLoaded', () => {
   // Initialize network object with static layout
   viz = phase.Network('static_layout', '#viz-container', { static: true });
-  // Attach some initial data
-  viz.data(lesMiserablesData);
 
   console.log(viz.settings());
 
@@ -12,6 +10,10 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 /* eslint-disable */
+function loadData() {
+  viz.data(lesMiserablesData);
+}
+
 function changeNodeColor() {
   // Create a group for the node with "id" of "Gribier"
   const idGribier = viz.nodeGroup('id_Gribier', 'id', 'Gribier');
