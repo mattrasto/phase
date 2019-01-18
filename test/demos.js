@@ -279,3 +279,16 @@ test('Element styles are properly updated via color button clicks', async (t) =>
     () => viz.getLinkGroup('all').selection.data().length,
   ));
 });
+
+fixture('Event Handlers')
+  .page(pathToFile('event_handlers'));
+
+test('Initial hover works as expected', async (t) => {
+  const node = await Selector('circle').nth(0);
+  const link = await Selector('line').nth(0);
+  await t.hover(node).expect(node.getAttribute('style'))
+    .eql('fill: rgb(51, 51, 51); stroke: rgb(125, 171, 255); stroke-width: 3px;');
+
+  await t.hover(link).expect(link.getAttribute('style'))
+    .eql('stroke: rgb(102, 102, 102); stroke-width: 5px;');
+});
