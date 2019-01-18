@@ -292,3 +292,17 @@ test('Initial hover works as expected', async (t) => {
   await t.hover(link).expect(link.getAttribute('style'))
     .eql('stroke: rgb(102, 102, 102); stroke-width: 5px;');
 });
+
+test('Hover effect updates after button click', async (t) => {
+  const node = await Selector('circle').nth(0);
+  const link = await Selector('line').nth(0);
+  const changeHover = await Selector('#sidebar input').nth(0);
+
+  await t.click(changeHover);
+
+  await t.hover(node).expect(node.getAttribute('style'))
+    .eql('fill: rgb(51, 51, 51); stroke: green; stroke-width: 3px;');
+
+  await t.hover(link).expect(link.getAttribute('style'))
+    .eql('stroke: red; stroke-width: 10px;');
+});
