@@ -5,8 +5,16 @@
 function createRandGroups() {
   const randNum = Math.floor(Math.random() * 6);
   const parent = viz.nodeGroup('rand_node_group_parent', d => d.group === randNum);
-  parent.subgroup('rand_node_group');
-  parent.destroy();
+  const child = parent.subgroup('rand_node_group');
+  // parent.destroy();
+  console.log(parent);
+  console.log(child);
+  // console.log(child.parent);
+  // parent.destroy();
+  // console.log(child.parent);
+  console.log(parent.children);
+  child.destroy();
+  console.log(parent.children);
   viz.linkGroup('rand_link_group', d => d.value === randNum);
 }
 

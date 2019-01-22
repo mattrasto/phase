@@ -12,6 +12,7 @@ class Group {
     this.val = val;
     this.selector = selector; // "circle" or "line"
     this.parent = parent;
+    this.children = [];
 
     // Phase the group is associated with
     this.phase = null;
@@ -42,12 +43,16 @@ class Group {
   // If no filterer is passed, creates a copy of the current group
   subgroup(label, filterer, val) {
     const subfilterer = filterer === undefined ? '' : filterer;
+    let child;
     if (this.selector === NODE_SELECTOR) {
       // eslint-disable-next-line no-use-before-define
-      return this.network.nodeGroup(label, subfilterer, val, this);
+      child = this.network.nodeGroup(label, subfilterer, val, this);
+    } else {
+      // eslint-disable-next-line no-use-before-define
+      child = this.network.linkGroup(label, subfilterer, val, this);
     }
-    // eslint-disable-next-line no-use-before-define
-    return this.network.linkGroup(label, subfilterer, val, this);
+    this.children.push(child);
+    return child;
   }
 
   // Adds an element to the group if it meets the group criteria
@@ -183,6 +188,17 @@ class Group {
           && this.label in this.phase.linkGroups) {
         delete this.phase.linkGroups[this.label];
       }
+    }
+    if (this.children.length > 0) {
+      this.children.forEach((child) => {
+        child.parent = null; // eslint-disable-line no-param-reassign
+      });
+    }
+    if (this.parent) {
+      // eslint-disable-next-line arrow-body-style
+      this.parent.children = this.parent.children.filter((child) => {
+        return child.parent.label === this.label;
+      });
     }
   }
 } // End Group Class
