@@ -17,7 +17,7 @@ class Group {
     // Phase the group is associated with
     this.phase = null;
 
-    if (this.parent !== undefined) {
+    if (this.parent) {
       this.createFilterer(filterer, val, this.parent.filterer);
       this.filterSelection(this.parent.selection);
     } else {
@@ -35,7 +35,13 @@ class Group {
   }
 
   reevaluate() {
-    this.filterSelection();
+    if (this.parent) {
+      this.filterSelection(this.parent.selection);
+    } else {
+      this.filterSelection();
+    }
+    // Recursively reevaluate subgroups
+    this.children.forEach(child => child.reevaluate());
     this.restyle();
   }
 

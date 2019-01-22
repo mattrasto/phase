@@ -414,6 +414,14 @@ class Network {
     return this.nodeGroups;
   }
 
+  // Recursively reevaluate top-level node groups (no parents)
+  reevaluateNodeGroups() {
+    // Recursively reevaluate top-level groups (no parents)
+    Object.values(this.nodeGroups).forEach((nodeGroup) => {
+      if (!nodeGroup.parent) nodeGroup.reevaluate();
+    });
+  }
+
   // Creates a new link group
   linkGroup(label, filterer, val, parent) {
     if (label in this.linkGroups) {
@@ -430,6 +438,13 @@ class Network {
 
   getAllLinkGroups() {
     return this.linkGroups;
+  }
+
+  // Recursively reevaluate top-level link groups (no parents)
+  reevaluateLinkGroups() {
+    Object.values(this.linkGroups).forEach((linkGroup) => {
+      if (!linkGroup.parent) linkGroup.reevaluate();
+    });
   }
 
 
@@ -531,12 +546,8 @@ class Network {
     }
 
     // Reevaluate and bind groups on new data
-    Object.values(this.nodeGroups).forEach((nodeGroup) => {
-      nodeGroup.reevaluate();
-    });
-    Object.values(this.linkGroups).forEach((linkGroup) => {
-      linkGroup.reevaluate();
-    });
+    this.reevaluateNodeGroups();
+    this.reevaluateLinkGroups();
 
     // Update default styles for all elements
     this.initStyles();
