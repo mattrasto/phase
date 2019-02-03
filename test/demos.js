@@ -19,6 +19,20 @@ const testSetIntersections = async (t, nodes, links, data) => {
   await t.expect(linkIntersection.length).eql(trueLinkIds.size);
 };
 
+// Tests that console logs contain the labels of expected group reevaluations in the proper order
+const testGroupsReevaluated = async (t, actualLogs, expectedGroups) => {
+  // Get last set of expected group reevaluation logs
+  const reevaluateLogs = actualLogs
+    .filter(log => log.includes('Reevaluating'))
+    .slice(-expectedGroups.length);
+  // Check that group reevaluations occur in order
+  let ordered = true;
+  for (let i = 0; i < reevaluateLogs.length; i += 1) {
+    if (!reevaluateLogs[i].includes(expectedGroups[i])) ordered = false;
+  }
+  await t.expect(ordered).eql(true);
+};
+
 /* eslint-disable no-undef */
 fixture('Basic')
   .page(pathToFile('basic'))
@@ -179,7 +193,33 @@ test('Les Miserables dataset is loaded after four button clicks', async (t) => {
   const nodes = await t.eval(() => viz.getNodeGroup('all').selection.data());
   const links = await t.eval(() => viz.getLinkGroup('all').selection.data());
 
+  const consoleMessages = await t.getBrowserConsoleMessages();
+  testGroupsReevaluated(t, consoleMessages.log, ['all', 'mjg', 'mj', 'm', 'all']);
+
   await testSetIntersections(t, nodes, links, lesMiserablesData);
+});
+
+test('Groups are always reevaluated in parent-before-child order', async (t) => {
+  const updateData = await Selector('#sidebar input').nth(0);
+
+  let consoleMessages = await t.getBrowserConsoleMessages();
+  testGroupsReevaluated(t, consoleMessages.log, ['all', 'mjg', 'mj', 'm', 'all']);
+
+  await t.click(updateData);
+  consoleMessages = await t.getBrowserConsoleMessages();
+  testGroupsReevaluated(t, consoleMessages.log, ['all', 'mjg', 'mj', 'm', 'all']);
+
+  await t.click(updateData);
+  consoleMessages = await t.getBrowserConsoleMessages();
+  testGroupsReevaluated(t, consoleMessages.log, ['all', 'mjg', 'mj', 'm', 'all']);
+
+  await t.click(updateData);
+  consoleMessages = await t.getBrowserConsoleMessages();
+  testGroupsReevaluated(t, consoleMessages.log, ['all', 'mjg', 'mj', 'm', 'all']);
+
+  await t.click(updateData);
+  consoleMessages = await t.getBrowserConsoleMessages();
+  testGroupsReevaluated(t, consoleMessages.log, ['all', 'mjg', 'mj', 'm', 'all']);
 });
 
 
@@ -307,7 +347,7 @@ test('Hover effect updates after button click', async (t) => {
     .eql('stroke: red; stroke-width: 10px;');
 });
 
-fixture('Subgroups').only
+fixture('Subgroups')
   .page(pathToFile('subgroups'));
 
 test('Parent and child relations are properly constructed', async (t) => {
