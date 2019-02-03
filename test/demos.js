@@ -336,3 +336,19 @@ test('Parent and child relations are properly constructed', async (t) => {
   await t.expect(friendlyMammalsHasParent).eql(true);
   await t.expect(friendlyMammalsChildrenLength).eql(0);
 });
+
+test('Parent destruction properly removes reference in child', async (t) => {
+  const showMammalsButton = await Selector('#show-mammals');
+  const showFriendlyMammalsButton = await Selector('#show-friendly-mammals');
+  const hideMammalsButton = await Selector('#hide-mammals');
+
+  await t.click(showMammalsButton);
+  await t.click(showFriendlyMammalsButton);
+  await t.click(hideMammalsButton);
+
+  // Child group should have no parent and no children
+  const friendlyMammalsHasParent = await t.eval(() => Boolean(viz.getNodeGroup('friendly_mammals').parent));
+  const friendlyMammalsChildrenLength = await t.eval(() => viz.getNodeGroup('friendly_mammals').children.length);
+  await t.expect(friendlyMammalsHasParent).eql(false);
+  await t.expect(friendlyMammalsChildrenLength).eql(0);
+});
