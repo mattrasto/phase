@@ -1,14 +1,13 @@
 import { select } from 'd3';
-import { InvalidFiltererError } from './error';
-import Logger from './logging';
+import { InvalidFiltererError } from './util';
 
 const NODE_SELECTOR = 'circle';
 const LINK_SELECTOR = 'line';
 
-class Group extends Logger {
+class Group {
   constructor(network, label, filterer, val, selector, parent) {
-    super(network.debug);
     this.network = network;
+    this.logger = this.network.logger;
     this.label = label;
     this.filterer = filterer;
     this.val = val;
@@ -37,7 +36,7 @@ class Group extends Logger {
   }
 
   reevaluate() {
-    this.log(`Reevaluating group ${this.label}`);
+    this.logger.log(`Reevaluating group ${this.label}`);
     if (this.parent) {
       this.filterSelection(this.parent.selection);
     } else {
