@@ -306,3 +306,33 @@ test('Hover effect updates after button click', async (t) => {
   await t.hover(link).expect(link.getAttribute('style'))
     .eql('stroke: red; stroke-width: 10px;');
 });
+
+fixture('Subgroups').only
+  .page(pathToFile('subgroups'));
+
+test('Parent and child relations are properly constructed', async (t) => {
+  const showMammalsButton = await Selector('#show-mammals');
+  const showFriendlyMammalsButton = await Selector('#show-friendly-mammals');
+
+  await t.click(showMammalsButton);
+
+  // Parent group should have no parent and no children
+  let mammalsHasParent = await t.eval(() => Boolean(viz.getNodeGroup('mammals').parent));
+  let mammalsChildrenLength = await t.eval(() => viz.getNodeGroup('mammals').children.length);
+  await t.expect(mammalsHasParent).eql(false);
+  await t.expect(mammalsChildrenLength).eql(0);
+
+  await t.click(showFriendlyMammalsButton);
+
+  // Parent group should have no parent and 1 child
+  mammalsHasParent = await t.eval(() => Boolean(viz.getNodeGroup('mammals').parent));
+  mammalsChildrenLength = await t.eval(() => viz.getNodeGroup('mammals').children.length);
+  await t.expect(mammalsHasParent).eql(false);
+  await t.expect(mammalsChildrenLength).eql(1);
+
+  // Child group should have a parent and no children
+  const friendlyMammalsHasParent = await t.eval(() => Boolean(viz.getNodeGroup('friendly_mammals').parent));
+  const friendlyMammalsChildrenLength = await t.eval(() => viz.getNodeGroup('friendly_mammals').children.length);
+  await t.expect(friendlyMammalsHasParent).eql(true);
+  await t.expect(friendlyMammalsChildrenLength).eql(0);
+});
