@@ -13,9 +13,13 @@ import Phase from './phase';
 import Morph from './morph';
 import { InvalidFormatError } from './error';
 import { NodeGroup, LinkGroup } from './group';
+import Logger from './logging';
 
-class Network {
+class Network extends Logger {
   constructor(label, query, settings) {
+    const debug = true;
+    super(debug);
+
     this.label = label;
 
     /* global document */
@@ -61,7 +65,7 @@ class Network {
     this.forceRerender = new Set(['zoom', 'gravity', 'charge', 'linkStrength', 'linkDistance', 'static']);
 
     // Debug flag
-    this.debug = true;
+    this.debug = debug;
 
     // Viz state
     this.networkState = {};
@@ -286,18 +290,6 @@ class Network {
     this.getNodeGroup('all').unstyle();
     this.getLinkGroup('all').unstyle();
     return this;
-  }
-
-  log(message) {
-    if (this.debug) {
-      console.log(message); // eslint-disable-line no-console
-    }
-  }
-
-  warn(message) {
-    if (this.debug) {
-      console.warn(message); // eslint-disable-line no-console
-    }
   }
 
   // Renders viz element in container
