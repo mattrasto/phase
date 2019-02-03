@@ -19,6 +19,20 @@ const testSetIntersections = async (t, nodes, links, data) => {
   await t.expect(linkIntersection.length).eql(trueLinkIds.size);
 };
 
+// Tests that console logs contain the labels of expected group reevaluations in the proper order
+const testGroupsReevaluated = async (t, actualLogs, expectedGroups) => {
+  // Get last set of expected group reevaluation logs
+  const reevaluateLogs = actualLogs
+    .filter(log => log.includes('Reevaluating'))
+    .slice(-expectedGroups.length);
+  // Check that group reevaluations occur in order
+  let ordered = true;
+  for (let i = 0; i < reevaluateLogs.length; i += 1) {
+    if (!reevaluateLogs[i].includes(expectedGroups[i])) ordered = false;
+  }
+  await t.expect(ordered).eql(true);
+};
+
 /* eslint-disable no-undef */
 fixture('Basic')
   .page(pathToFile('basic'))
@@ -179,7 +193,33 @@ test('Les Miserables dataset is loaded after four button clicks', async (t) => {
   const nodes = await t.eval(() => viz.getNodeGroup('all').selection.data());
   const links = await t.eval(() => viz.getLinkGroup('all').selection.data());
 
+  const consoleMessages = await t.getBrowserConsoleMessages();
+  testGroupsReevaluated(t, consoleMessages.log, ['all', 'mjg', 'mj', 'm', 'all']);
+
   await testSetIntersections(t, nodes, links, lesMiserablesData);
+});
+
+test('Groups are always reevaluated in parent-before-child order', async (t) => {
+  const updateData = await Selector('#sidebar input').nth(0);
+
+  let consoleMessages = await t.getBrowserConsoleMessages();
+  testGroupsReevaluated(t, consoleMessages.log, ['all', 'mjg', 'mj', 'm', 'all']);
+
+  await t.click(updateData);
+  consoleMessages = await t.getBrowserConsoleMessages();
+  testGroupsReevaluated(t, consoleMessages.log, ['all', 'mjg', 'mj', 'm', 'all']);
+
+  await t.click(updateData);
+  consoleMessages = await t.getBrowserConsoleMessages();
+  testGroupsReevaluated(t, consoleMessages.log, ['all', 'mjg', 'mj', 'm', 'all']);
+
+  await t.click(updateData);
+  consoleMessages = await t.getBrowserConsoleMessages();
+  testGroupsReevaluated(t, consoleMessages.log, ['all', 'mjg', 'mj', 'm', 'all']);
+
+  await t.click(updateData);
+  consoleMessages = await t.getBrowserConsoleMessages();
+  testGroupsReevaluated(t, consoleMessages.log, ['all', 'mjg', 'mj', 'm', 'all']);
 });
 
 
@@ -305,4 +345,66 @@ test('Hover effect updates after button click', async (t) => {
 
   await t.hover(link).expect(link.getAttribute('style'))
     .eql('stroke: red; stroke-width: 10px;');
+});
+
+fixture('Subgroups')
+  .page(pathToFile('subgroups'));
+
+test('Parent and child relations are properly constructed', async (t) => {
+  const showMammalsButton = await Selector('#show-mammals');
+  const showFriendlyMammalsButton = await Selector('#show-friendly-mammals');
+
+  await t.click(showMammalsButton);
+
+  // Parent group should have no parent and no children
+  let mammalsHasParent = await t.eval(() => Boolean(viz.getNodeGroup('mammals').parent));
+  let mammalsChildrenLength = await t.eval(() => viz.getNodeGroup('mammals').children.length);
+  await t.expect(mammalsHasParent).eql(false);
+  await t.expect(mammalsChildrenLength).eql(0);
+
+  await t.click(showFriendlyMammalsButton);
+
+  // Parent group should have no parent and 1 child
+  mammalsHasParent = await t.eval(() => Boolean(viz.getNodeGroup('mammals').parent));
+  mammalsChildrenLength = await t.eval(() => viz.getNodeGroup('mammals').children.length);
+  await t.expect(mammalsHasParent).eql(false);
+  await t.expect(mammalsChildrenLength).eql(1);
+
+  // Child group should have a parent and no children
+  const friendlyMammalsHasParent = await t.eval(() => Boolean(viz.getNodeGroup('friendly_mammals').parent));
+  const friendlyMammalsChildrenLength = await t.eval(() => viz.getNodeGroup('friendly_mammals').children.length);
+  await t.expect(friendlyMammalsHasParent).eql(true);
+  await t.expect(friendlyMammalsChildrenLength).eql(0);
+});
+
+test('Parent group destruction properly removes reference in child', async (t) => {
+  const showMammalsButton = await Selector('#show-mammals');
+  const showFriendlyMammalsButton = await Selector('#show-friendly-mammals');
+  const hideMammalsButton = await Selector('#hide-mammals');
+
+  await t.click(showMammalsButton);
+  await t.click(showFriendlyMammalsButton);
+  await t.click(hideMammalsButton);
+
+  // Child group should have no parent and no children
+  const friendlyMammalsHasParent = await t.eval(() => Boolean(viz.getNodeGroup('friendly_mammals').parent));
+  const friendlyMammalsChildrenLength = await t.eval(() => viz.getNodeGroup('friendly_mammals').children.length);
+  await t.expect(friendlyMammalsHasParent).eql(false);
+  await t.expect(friendlyMammalsChildrenLength).eql(0);
+});
+
+test('Child group destruction properly removes reference in parent', async (t) => {
+  const showMammalsButton = await Selector('#show-mammals');
+  const showFriendlyMammalsButton = await Selector('#show-friendly-mammals');
+  const hideFriendlyMammalsButton = await Selector('#hide-friendly-mammals');
+
+  await t.click(showMammalsButton);
+  await t.click(showFriendlyMammalsButton);
+  await t.click(hideFriendlyMammalsButton);
+
+  // Parent group should have no parent and no children
+  const mammalsHasParent = await t.eval(() => Boolean(viz.getNodeGroup('mammals').parent));
+  const mammalsChildrenLength = await t.eval(() => viz.getNodeGroup('mammals').children.length);
+  await t.expect(mammalsHasParent).eql(false);
+  await t.expect(mammalsChildrenLength).eql(0);
 });

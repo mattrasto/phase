@@ -11,7 +11,7 @@ import {
 } from 'd3';
 import Phase from './phase';
 import Morph from './morph';
-import { InvalidFormatError } from './error';
+import { InvalidFormatError, Logger } from './util';
 import { NodeGroup, LinkGroup } from './group';
 
 class Network {
@@ -62,11 +62,12 @@ class Network {
 
     // Debug flag
     this.debug = true;
+    this.logger = new Logger(this.debug);
 
     // Viz state
     this.networkState = {};
 
-    this.log('Network Constructed');
+    this.logger.log('Network Constructed');
 
     this.render();
 
@@ -199,15 +200,15 @@ class Network {
       },
       // Node double left click handler
       nodeDblclick() {
-        this.log('Double click');
+        this.logger.log('Double click');
       },
       // Node right click handler
       nodeContextmenu() {
-        this.log('Right click');
+        this.logger.log('Right click');
       },
       // Container drag start handler
       nodeDragStart(d) {
-        this.log('Drag start');
+        this.logger.log('Drag start');
         if (!this.networkSettings.static) {
           if (!event.active) this.simulation.alphaTarget(0.3).restart();
           d.fx = d.x; // eslint-disable-line no-param-reassign
@@ -216,7 +217,7 @@ class Network {
       },
       // Container drag handler
       nodeDrag(d) {
-        this.log('Drag step');
+        this.logger.log('Drag step');
         if (!this.networkSettings.static) {
           d.fx = event.x; // eslint-disable-line no-param-reassign
           d.fy = event.y; // eslint-disable-line no-param-reassign
@@ -230,7 +231,7 @@ class Network {
           const nodeIdSelector = `#phase-${this.label}-node-${d.id}`.replace(/(:|\.|\[|\]|,|=|@)/g, '\\$1');
           const node = select(nodeIdSelector);
           if (node._groups[0][0] === null) { // eslint-disable-line no-underscore-dangle
-            this.warn(`Node not found: ${nodeIdSelector}`);
+            this.logger.warn(`Node not found: ${nodeIdSelector}`);
           }
           node
             .attr('x', d.fx)
@@ -253,7 +254,7 @@ class Network {
               if (!this.debug) {
                 // If link is not found, fail gracefully
                 if (link._groups[0][0] === null) { // eslint-disable-line no-underscore-dangle
-                  this.warn(`Link not found: #${sourceLinkIdSelector} or #${targetLinkIdSelector}`);
+                  this.logger.warn(`Link not found: #${sourceLinkIdSelector} or #${targetLinkIdSelector}`);
                   return;
                 }
               }
@@ -286,18 +287,6 @@ class Network {
     this.getNodeGroup('all').unstyle();
     this.getLinkGroup('all').unstyle();
     return this;
-  }
-
-  log(message) {
-    if (this.debug) {
-      console.log(message); // eslint-disable-line no-console
-    }
-  }
-
-  warn(message) {
-    if (this.debug) {
-      console.warn(message); // eslint-disable-line no-console
-    }
   }
 
   // Renders viz element in container
@@ -373,7 +362,7 @@ class Network {
       newGroup.setStyle(lg.getStyle());
     });
 
-    this.log(`Rendered on ${this.container.id}`);
+    this.logger.log(`Rendered on ${this.container.id}`);
   }
 
   // Recalculates node and link positions every simulation tick
@@ -399,7 +388,7 @@ class Network {
   // Creates a new node group
   nodeGroup(label, filterer, val, parent) {
     if (label in this.nodeGroups) {
-      this.warn(`Node group ${label} is being overwritten`, this.nodeGroups[label]);
+      this.logger.warn(`Node group ${label} is being overwritten`, this.nodeGroups[label]);
     }
     const group = new NodeGroup(this, label, filterer, val, parent);
     this.nodeGroups[label] = group;
@@ -414,10 +403,18 @@ class Network {
     return this.nodeGroups;
   }
 
+  // Recursively reevaluate top-level node groups (no parents)
+  reevaluateNodeGroups() {
+    // Recursively reevaluate top-level groups (no parents)
+    Object.values(this.nodeGroups).forEach((nodeGroup) => {
+      if (!nodeGroup.parent) nodeGroup.reevaluate();
+    });
+  }
+
   // Creates a new link group
   linkGroup(label, filterer, val, parent) {
     if (label in this.linkGroups) {
-      this.warn(`Link group ${label} is being overwritten`, this.linkGroups[label]);
+      this.logger.warn(`Link group ${label} is being overwritten`, this.linkGroups[label]);
     }
     const group = new LinkGroup(this, label, filterer, val, parent);
     this.linkGroups[label] = group;
@@ -432,13 +429,20 @@ class Network {
     return this.linkGroups;
   }
 
+  // Recursively reevaluate top-level link groups (no parents)
+  reevaluateLinkGroups() {
+    Object.values(this.linkGroups).forEach((linkGroup) => {
+      if (!linkGroup.parent) linkGroup.reevaluate();
+    });
+  }
+
 
   // PHASES AND MORPHS
 
 
   morph(label, type, change) {
     if (label in this.morphs) {
-      this.warn(`Morph ${label} is being overwritten`, this.morphs[label]);
+      this.logger.warn(`Morph ${label} is being overwritten`, this.morphs[label]);
     }
     const morph = new Morph(this, label, type, change);
     this.morphs[label] = morph;
@@ -455,7 +459,7 @@ class Network {
 
   phase(label) {
     if (label in this.phases) {
-      this.warn(`Phase ${label} is being overwritten`, this.phases[label]);
+      this.logger.warn(`Phase ${label} is being overwritten`, this.phases[label]);
     }
     const phase = new Phase(this, label);
     this.phases[label] = phase;
@@ -531,17 +535,13 @@ class Network {
     }
 
     // Reevaluate and bind groups on new data
-    Object.values(this.nodeGroups).forEach((nodeGroup) => {
-      nodeGroup.reevaluate();
-    });
-    Object.values(this.linkGroups).forEach((linkGroup) => {
-      linkGroup.reevaluate();
-    });
+    this.reevaluateNodeGroups();
+    this.reevaluateLinkGroups();
 
     // Update default styles for all elements
     this.initStyles();
 
-    this.log('Bound data to viz');
+    this.logger.log('Bound data to viz');
 
     return this;
   }
@@ -571,7 +571,7 @@ class Network {
     if (this.nodeContainers._exit[0].length > 0) {
       this.bindNodesRemove();
       // eslint-disable-next-line no-underscore-dangle
-      this.log(`Removed ${this.nodeContainers._exit[0].length} nodes`);
+      this.logger.log(`Removed ${this.nodeContainers._exit[0].length} nodes`);
     }
 
     // Add new nodes
@@ -580,7 +580,7 @@ class Network {
     if (this.nodeContainers._enter[0].length > 0) {
       newNodes = this.bindNodesAdd();
       // eslint-disable-next-line no-underscore-dangle
-      this.log(`Added ${this.nodeContainers._enter[0].length} nodes`);
+      this.logger.log(`Added ${this.nodeContainers._enter[0].length} nodes`);
     }
 
     // Merge enter and update selections
@@ -684,7 +684,7 @@ class Network {
     if (this.linkContainers._exit[0].length > 0) {
       this.bindLinksRemove();
       // eslint-disable-next-line no-underscore-dangle
-      this.log(`Removed ${this.linkContainers._exit[0].length} links`);
+      this.logger.log(`Removed ${this.linkContainers._exit[0].length} links`);
     }
 
     // Add new links
@@ -693,7 +693,7 @@ class Network {
     if (this.linkContainers._enter[0].length > 0) {
       newLinks = this.bindLinksAdd();
       // eslint-disable-next-line no-underscore-dangle
-      this.log(`Added ${this.linkContainers._enter[0].length} links`);
+      this.logger.log(`Added ${this.linkContainers._enter[0].length} links`);
     }
 
     // Merge enter and update selections
@@ -784,7 +784,7 @@ class Network {
   }
 
   getNodeData(id) {
-    if (!this.dataBound) this.warn('Network has no attached data');
+    if (!this.dataBound) this.logger.warn('Network has no attached data');
     let result = null;
     this.networkData.nodes.forEach((node) => {
       if (node.id === id) result = node;
@@ -793,7 +793,7 @@ class Network {
   }
 
   getLinkData(id) {
-    if (!this.dataBound) this.warn('Network has no attached data');
+    if (!this.dataBound) this.logger.warn('Network has no attached data');
     let result = null;
     this.networkData.links.forEach((link) => {
       if (link.id === id) result = link;

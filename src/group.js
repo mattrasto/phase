@@ -1,5 +1,5 @@
 import { select } from 'd3';
-import { InvalidFiltererError } from './error';
+import { InvalidFiltererError } from './util';
 
 const NODE_SELECTOR = 'circle';
 const LINK_SELECTOR = 'line';
@@ -7,16 +7,18 @@ const LINK_SELECTOR = 'line';
 class Group {
   constructor(network, label, filterer, val, selector, parent) {
     this.network = network;
+    this.logger = this.network.logger;
     this.label = label;
     this.filterer = filterer;
     this.val = val;
     this.selector = selector; // "circle" or "line"
     this.parent = parent;
+    this.children = [];
 
     // Phase the group is associated with
     this.phase = null;
 
-    if (this.parent !== undefined) {
+    if (this.parent) {
       this.createFilterer(filterer, val, this.parent.filterer);
       this.filterSelection(this.parent.selection);
     } else {
@@ -34,7 +36,14 @@ class Group {
   }
 
   reevaluate() {
-    this.filterSelection();
+    this.logger.log(`Reevaluating group ${this.label}`);
+    if (this.parent) {
+      this.filterSelection(this.parent.selection);
+    } else {
+      this.filterSelection();
+    }
+    // Recursively reevaluate subgroups
+    this.children.forEach(child => child.reevaluate());
     this.restyle();
   }
 
@@ -42,12 +51,16 @@ class Group {
   // If no filterer is passed, creates a copy of the current group
   subgroup(label, filterer, val) {
     const subfilterer = filterer === undefined ? '' : filterer;
+    let child;
     if (this.selector === NODE_SELECTOR) {
       // eslint-disable-next-line no-use-before-define
-      return this.network.nodeGroup(label, subfilterer, val, this);
+      child = this.network.nodeGroup(label, subfilterer, val, this);
+    } else {
+      // eslint-disable-next-line no-use-before-define
+      child = this.network.linkGroup(label, subfilterer, val, this);
     }
-    // eslint-disable-next-line no-use-before-define
-    return this.network.linkGroup(label, subfilterer, val, this);
+    this.children.push(child);
+    return child;
   }
 
   // Adds an element to the group if it meets the group criteria
@@ -183,6 +196,17 @@ class Group {
           && this.label in this.phase.linkGroups) {
         delete this.phase.linkGroups[this.label];
       }
+    }
+    if (this.children.length > 0) {
+      this.children.forEach((child) => {
+        child.parent = null; // eslint-disable-line no-param-reassign
+      });
+    }
+    if (this.parent) {
+      // eslint-disable-next-line arrow-body-style
+      this.parent.children = this.parent.children.filter((child) => {
+        return child.parent.label === this.label;
+      });
     }
   }
 } // End Group Class
