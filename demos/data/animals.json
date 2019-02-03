@@ -17,7 +17,7 @@ const animalsData = {
        "numLimbs": 4,
        "hasFur": true,
        "cuteness": 10,
-       "likesHumans": "false",
+       "likesHumans": "true",
        "eatsTrash": false,
     },
     {
