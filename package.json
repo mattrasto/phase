@@ -1,5 +1,5 @@
 {
-  "name": "phase",
+  "name": "@mattrasto/phase",
   "version": "0.9.0",
   "description": "Network visualization framework for complex systems and simulations",
   "main": "src/network.js",
