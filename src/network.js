@@ -14,7 +14,7 @@ import Morph from './morph';
 import { InvalidFormatError, Logger } from './util';
 import { NodeGroup, LinkGroup } from './group';
 
-class Network {
+export default class Network {
   constructor(label, query, settings) {
     this.label = label;
 
@@ -801,10 +801,3 @@ class Network {
     return result;
   }
 } // End Network Class
-
-/* global window */
-window.phase = {
-  Network(label, query, settings) {
-    return new Network(label, query, settings);
-  },
-};
