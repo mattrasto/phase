@@ -1,7 +1,7 @@
 const path = require('path');
 
 module.exports = {
-  entry: './src/network.js',
+  entry: './src/index.js',
   mode: 'development',
   devtool: 'inline-source-map',
   output: {
