@@ -669,7 +669,7 @@ export default class Network {
       .attr('dy', '.35em')
       .style('fill', '#333')
       .style('stroke', '#333')
-      .text(d => d.id);
+      .text(d => d.label || d.id);
   }
 
   // Binds new data to the links
@@ -746,7 +746,7 @@ export default class Network {
       .style('stroke', '#333')
       .style('stroke-width', 0)
       .style('font-size', '12px')
-      .text(d => d.value);
+      .text(d => d.label || d.value);
   }
 
 
