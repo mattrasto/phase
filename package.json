@@ -1,6 +1,6 @@
 {
   "name": "@mattrasto/phase",
-  "version": "0.9.2",
+  "version": "0.9.2-rc1",
   "description": "Network visualization framework for complex systems and simulations",
   "main": "src/index.js",
   "devDependencies": {
@@ -25,7 +25,7 @@
     "url": "git+https://github.com/mattrasto/phase.git"
   },
   "publishConfig": {
-    "registry":"https://registry.npmjs.org"
+    "registry": "https://registry.npmjs.org"
   },
   "keywords": [],
   "author": "Matthew Rastovac",
