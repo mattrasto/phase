@@ -61,8 +61,8 @@ export default class Network {
     this.forceRerender = new Set(['zoom', 'gravity', 'charge', 'linkStrength', 'linkDistance', 'static']);
 
     // Debug flag
-    this.debug = true;
-    this.logger = new Logger(this.debug);
+    // TODO: This should update when "debug" setting is updated
+    this.logger = new Logger(this.networkSettings.debug);
 
     // Viz state
     this.networkState = {};
@@ -126,6 +126,8 @@ export default class Network {
       // Whether the network repositions elements every viz tick
       // This mode provides a significant performance boost for large networks
       static: false,
+      // Whether to log debug details
+      debug: false,
     };
 
     if (settings) {
@@ -669,7 +671,7 @@ export default class Network {
       .attr('dy', '.35em')
       .style('fill', '#333')
       .style('stroke', '#333')
-      .text(d => d.id);
+      .text(d => d.label || d.id);
   }
 
   // Binds new data to the links
@@ -746,7 +748,7 @@ export default class Network {
       .style('stroke', '#333')
       .style('stroke-width', 0)
       .style('font-size', '12px')
-      .text(d => d.value);
+      .text(d => d.label || d.value);
   }
 
 
