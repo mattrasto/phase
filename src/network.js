@@ -383,6 +383,23 @@ export default class Network {
     linkContainer.select('text').attr('transform', d => `translate(${(d.source.x + d.target.x) / 2},${(d.source.y + d.target.y) / 2})`);
   }
 
+  // Shows the visualization if visualization was previously hidden
+  // BUG: This overwrites existing groups, morphs, and phases; why?
+  show() {
+    this.render();
+  }
+
+  // Hides the visualization, retaining state but destroying rendered elements
+  hide() {
+    this.container.removeChild(this.svg.node());
+  }
+
+  // Destroys the visualization, removing all data
+  // TODO
+  destroy() {
+
+  }
+
 
   // GROUPING
 
